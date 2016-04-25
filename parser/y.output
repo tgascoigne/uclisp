@@ -1,0 +1,141 @@
+
+state 0
+	$accept: .prog $end 
+
+	'('  shift 6
+	tSymbol  shift 4
+	tIntAtom  shift 5
+	.  error
+
+	list  goto 3
+	expr  goto 2
+	prog  goto 1
+
+state 1
+	$accept:  prog.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	prog:  expr.    (1)
+
+	.  reduce 1 (src line 29)
+
+
+state 3
+	expr:  list.    (2)
+
+	.  reduce 2 (src line 34)
+
+
+state 4
+	expr:  tSymbol.    (3)
+
+	.  reduce 3 (src line 39)
+
+
+state 5
+	expr:  tIntAtom.    (4)
+
+	.  reduce 4 (src line 41)
+
+
+6: shift/reduce conflict (shift 6(0), red'n 12(0)) on '('
+6: shift/reduce conflict (shift 4(0), red'n 12(0)) on tSymbol
+6: shift/reduce conflict (shift 5(0), red'n 12(0)) on tIntAtom
+state 6
+	list:  '('.members ')' 
+	ws✳: .    (12)
+
+	'('  shift 6
+	tSymbol  shift 4
+	tIntAtom  shift 5
+	tWhitespace  shift 12
+	.  reduce 12 (src line 70)
+
+	list  goto 3
+	members  goto 7
+	expr  goto 9
+	ws✳  goto 8
+	ws  goto 11
+	ws＋  goto 10
+
+state 7
+	list:  '(' members.')' 
+	members:  members.expr 
+
+	'('  shift 6
+	')'  shift 13
+	tSymbol  shift 4
+	tIntAtom  shift 5
+	.  error
+
+	list  goto 3
+	expr  goto 14
+
+state 8
+	members:  ws✳.    (6)
+
+	.  reduce 6 (src line 50)
+
+
+state 9
+	members:  expr.    (8)
+
+	.  reduce 8 (src line 55)
+
+
+state 10
+	ws✳:  ws＋.    (13)
+
+	.  reduce 13 (src line 72)
+
+
+state 11
+	ws＋:  ws.    (10)
+	ws＋:  ws.ws＋ 
+
+	tWhitespace  shift 12
+	.  reduce 10 (src line 66)
+
+	ws  goto 11
+	ws＋  goto 15
+
+state 12
+	ws:  tWhitespace.    (9)
+
+	.  reduce 9 (src line 62)
+
+
+state 13
+	list:  '(' members ')'.    (5)
+
+	.  reduce 5 (src line 45)
+
+
+state 14
+	members:  members expr.    (7)
+
+	.  reduce 7 (src line 53)
+
+
+state 15
+	ws＋:  ws ws＋.    (11)
+
+	.  reduce 11 (src line 68)
+
+
+9 terminals, 8 nonterminals
+14 grammar rules, 16/2000 states
+3 shift/reduce, 0 reduce/reduce conflicts reported
+57 working sets used
+memory: parser 15/30000
+6 extra closures
+12 shift entries, 1 exceptions
+10 goto entries
+3 entries saved by goto default
+Optimizer space used: output 22/30000
+22 table entries, 0 zero
+maximum spread: 8, maximum offset: 11

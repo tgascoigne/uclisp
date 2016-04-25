@@ -1,0 +1,25 @@
+/[0-9]+/ {
+	var err error
+	lval.ival, err = strconv.Atoi(yylex.Text())
+	if err != nil {
+		yylex.Error(err.Error())
+	}
+	return tIntAtom
+}
+
+/[0-9a-zA-Z_\\-\\+]+/ {
+	lval.sym = ast.Symbol(yylex.Text())
+	return tSymbol
+}
+
+/[()]/ {
+    return int(yylex.Text()[0])
+}
+
+/[ \t\n]+/            { /* eat up whitespace */ }
+/\/\/[^\n]*/          { /* eat up one-line comments */ }
+/\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*\//
+                      { /* eat up multi-line comments. ugly but functional regex */ }
+/./                   { yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text())) }
+//
+package parser
