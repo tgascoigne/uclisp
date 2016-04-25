@@ -10,7 +10,7 @@ import "lisp/ast"
 type yySymType struct {
 	yys  int
 	prog ast.List
-	expr ast.Expression
+	form ast.Form
 	sym  ast.Symbol
 	ival int
 }
@@ -449,25 +449,25 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:31
 		{
-			yylex.(*Lexer).Ast([]ast.Expression{yyDollar[1].expr})
+			yylex.(*Lexer).Ast([]ast.Form{yyDollar[1].form})
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:36
 		{
-			yyVAL.expr = ast.Form{yyDollar[1].prog[0], yyDollar[1].prog[1:]}
+			yyVAL.form = ast.FuncForm{yyDollar[1].prog[0], yyDollar[1].prog[1:]}
 		}
 	case 3:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:40
 		{
-			yyVAL.expr = ast.Expression(yyDollar[1].sym)
+			yyVAL.form = ast.Form(yyDollar[1].sym)
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:42
 		{
-			yyVAL.expr = ast.Integer(yyDollar[1].ival)
+			yyVAL.form = ast.Integer(yyDollar[1].ival)
 		}
 	case 5:
 		yyDollar = yyS[yypt-3 : yypt+1]
@@ -485,14 +485,14 @@ yydefault:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		//line lisp.y:54
 		{
-			yyVAL.prog = append(yyVAL.prog, yyDollar[2].expr)
+			yyVAL.prog = append(yyVAL.prog, yyDollar[2].form)
 		}
 	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:56
 		{
 			yyVAL.prog = make(ast.List, 0)
-			yyVAL.prog = append(yyVAL.prog, yyDollar[1].expr)
+			yyVAL.prog = append(yyVAL.prog, yyDollar[1].form)
 		}
 	}
 	goto yystack /* stack new state and value */

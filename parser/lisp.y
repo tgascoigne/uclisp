@@ -6,7 +6,7 @@ import "lisp/ast"
 
 %union {
     prog ast.List
-    expr ast.Expression
+    form ast.Form
     sym ast.Symbol
     ival int
 }
@@ -20,24 +20,24 @@ import "lisp/ast"
 %token tEOL
 
 %type <prog> list members
-%type <expr> expr
+%type <form> form
 
 %start prog
 
 %%
 
 prog
-    : expr
-      { yylex.(*Lexer).Ast([]ast.Expression{$1}) }
+    : form
+      { yylex.(*Lexer).Ast([]ast.Form{$1}) }
     ;
 
-expr
+form
     : list
       {
-        $$ = ast.Form{$1[0], $1[1:]}
+        $$ = ast.FuncForm{$1[0], $1[1:]}
       }
     | tSymbol
-      { $$ = ast.Expression($1) }
+      { $$ = ast.Form($1) }
     | tIntAtom
       { $$ = ast.Integer($1) }
     ;
@@ -50,9 +50,9 @@ list
 members
     : ws✳
       { $$ = make(ast.List, 0) }
-    | members expr
+    | members form
       { $$ = append($$, $2) }
-    | expr
+    | form
       {
         $$ = make(ast.List, 0)
         $$ = append($$, $1)

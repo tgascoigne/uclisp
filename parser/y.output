@@ -8,7 +8,7 @@ state 0
 	.  error
 
 	list  goto 3
-	expr  goto 2
+	form  goto 2
 	prog  goto 1
 
 state 1
@@ -19,25 +19,25 @@ state 1
 
 
 state 2
-	prog:  expr.    (1)
+	prog:  form.    (1)
 
 	.  reduce 1 (src line 29)
 
 
 state 3
-	expr:  list.    (2)
+	form:  list.    (2)
 
 	.  reduce 2 (src line 34)
 
 
 state 4
-	expr:  tSymbol.    (3)
+	form:  tSymbol.    (3)
 
 	.  reduce 3 (src line 39)
 
 
 state 5
-	expr:  tIntAtom.    (4)
+	form:  tIntAtom.    (4)
 
 	.  reduce 4 (src line 41)
 
@@ -57,14 +57,14 @@ state 6
 
 	list  goto 3
 	members  goto 7
-	expr  goto 9
+	form  goto 9
 	ws✳  goto 8
 	ws  goto 11
 	ws＋  goto 10
 
 state 7
 	list:  '(' members.')' 
-	members:  members.expr 
+	members:  members.form 
 
 	'('  shift 6
 	')'  shift 13
@@ -73,7 +73,7 @@ state 7
 	.  error
 
 	list  goto 3
-	expr  goto 14
+	form  goto 14
 
 state 8
 	members:  ws✳.    (6)
@@ -82,7 +82,7 @@ state 8
 
 
 state 9
-	members:  expr.    (8)
+	members:  form.    (8)
 
 	.  reduce 8 (src line 55)
 
@@ -116,7 +116,7 @@ state 13
 
 
 state 14
-	members:  members expr.    (7)
+	members:  members form.    (7)
 
 	.  reduce 7 (src line 53)
 

@@ -4,14 +4,19 @@ import "fmt"
 
 var specialForms = map[Symbol]Value{}
 
-// Form is an expression which invokes a Callable with some arguments
-type Form struct {
+// A Form is an object to be evaluated, a self evaluating object, or a symbol
+type Form interface {
+	Eval() Value
+}
+
+// FuncForm is a form whose car is a lambda to invoke, and whose cdr are passed as arguments.
+type FuncForm struct {
 	// Func is an expression which evaluates to a Callable
-	Func Expression
+	Func Form
 	Args List
 }
 
-func (f Form) Eval() Value {
+func (f FuncForm) Eval() Value {
 	fn := f.Func.Eval()
 	if fn.Type() != LambdaType {
 		exception(ErrNotCallable, fmt.Sprintf("%v", fn))
@@ -21,7 +26,7 @@ func (f Form) Eval() Value {
 	return lambda.Call(f.Args)
 }
 
-// A SpecialForm is a Callable which is built in to the interpreter
+// A SpecialForm is a FuncForm which is built in to the interpreter
 type SpecialForm struct {
 	Fn func(args List) Value
 }

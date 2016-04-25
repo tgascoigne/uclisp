@@ -5,20 +5,20 @@ import (
 	"lisp/ast"
 )
 
-//go : generate nex -e lisp.nex
+//go:generate nex -e lisp.nex
 //go:generate go tool yacc -o lisp.y.go lisp.y
 
 type result struct {
-	Ast []ast.Expression
+	Ast []ast.Form
 }
 
-func (l *Lexer) Ast(prog []ast.Expression) {
+func (l *Lexer) Ast(prog []ast.Form) {
 	l.parseResult.(*result).Ast = prog
 }
 
 func (l *Lexer) Error(err string) {}
 
-func Parse(filename, source string) []ast.Expression {
+func Parse(filename, source string) []ast.Form {
 	result := &result{}
 	lexer := NewLexerWithInit(bytes.NewBufferString(source), func(lex *Lexer) {
 		lex.parseResult = result

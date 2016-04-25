@@ -1,6 +1,6 @@
 package ast
 
-type List []Expression
+type List []Form
 
 type Prog List
 

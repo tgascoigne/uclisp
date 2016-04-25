@@ -12,15 +12,35 @@ func dump(prog ast.Prog) string {
 	return fmt.Sprintf("%v", string(astStr))
 }
 
-func TestAdd1(t *testing.T) {
-	prog := Parse("test", "(+ 2 (+ 3 4 5))")
-	expr := prog[0]
+type simpleTest struct {
+	Expression string
+	Result     ast.Value
+}
 
-	t.Logf(dump(prog))
+var simpleTestCases = []simpleTest{
+	{"(+ 2 (+ 3 4 5))", ast.Integer(14)},
+	{"(+ 2 (+ 3 4) 5 (+ 6 7 8 9))", ast.Integer(44)},
+	{`(+
+	2
+	(+ 3 4)
+	5
+	(+ 6 7 8 9
+	))`, ast.Integer(44)},
+	{"(= 1 1 1)", ast.True},
+	{"(= 1 2 1)", ast.Nil},
+	{"(= 1 2)", ast.Nil},
+}
 
-	result := expr.Eval()
-	intResult := result.(ast.Integer)
-	if int(intResult) != 14 {
-		t.Errorf("Value incorrect: got %v expected 14", intResult)
+func TestSimpleCases(t *testing.T) {
+	for _, tc := range simpleTestCases {
+		prog := Parse("test", tc.Expression)
+		expr := prog[0]
+
+		t.Logf(dump(prog))
+
+		result := expr.Eval()
+		if result != tc.Result {
+			t.Errorf("Value incorrect: got %v expected %v. Expression: %v", result, tc.Result, tc.Expression)
+		}
 	}
 }

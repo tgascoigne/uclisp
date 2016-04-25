@@ -8,9 +8,9 @@ import (
 func TestAddOp1(t *testing.T) {
 	/* (+ 2 4) */
 	expr := ast.AddForm{
-		Operands: []ast.Expression{
-			ast.SimpleExpression{ast.Integer(2)},
-			ast.SimpleExpression{ast.Integer(4)},
+		Operands: []ast.Form{
+			ast.Integer(2),
+			ast.Integer(4),
 		},
 	}
 
@@ -24,13 +24,13 @@ func TestAddOp1(t *testing.T) {
 func TestAddOp2(t *testing.T) {
 	/* (+ 2 (+ 3 4 5)) */
 	expr := ast.AddForm{
-		Operands: []ast.Expression{
-			ast.SimpleExpression{ast.Integer(2)},
+		Operands: []ast.Form{
+			ast.Integer(2),
 			ast.AddForm{
-				Operands: []ast.Expression{
-					ast.SimpleExpression{ast.Integer(3)},
-					ast.SimpleExpression{ast.Integer(4)},
-					ast.SimpleExpression{ast.Integer(5)},
+				Operands: []ast.Form{
+					ast.Integer(3),
+					ast.Integer(4),
+					ast.Integer(5),
 				},
 			},
 		},

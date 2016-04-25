@@ -9,6 +9,7 @@ var ErrInvalidType = errors.New("invalid type")
 
 func init() {
 	specialForms[Symbol("+")] = SpecialForm{addForm}
+	specialForms[Symbol("=")] = SpecialForm{mathEqualForm}
 }
 
 func addForm(args List) Value {
@@ -23,4 +24,18 @@ func addForm(args List) Value {
 	}
 
 	return accum
+}
+
+func mathEqualForm(args List) Value {
+	for i := range args {
+		if i == 0 {
+			continue
+		}
+
+		if args[i-1].Eval() != args[i].Eval() {
+			return Nil
+		}
+	}
+
+	return True
 }
