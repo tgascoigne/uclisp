@@ -34,6 +34,12 @@ var simpleTestCases = []simpleTest{
 	{"(if nil (+ 2 2))", ast.Nil},
 	{"(if nil (+ 2 2) (+ 4 4))", ast.Integer(8)},
 	{"(if (= 1 2) (+ 2 2) (+ 4 4))", ast.Integer(8)},
+	{"(let ((x 2) (y 4)) (+ x y))", ast.Integer(6)},
+	{"(let ((x 2) (y (+ 1 1))) (+ x y))", ast.Integer(4)},
+	{`(let ((x 2) (y (+ 1 1)))
+		(let ((z (+ x y)))
+		  (+ z y)))`, ast.Integer(6)},
+	{"(let ((x 2) (y 4)) (+ x y) (+ x x x y))", ast.Integer(10)},
 }
 
 func TestSimpleCases(t *testing.T) {
