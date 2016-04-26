@@ -2,31 +2,33 @@ package ast
 
 import "fmt"
 
-var specialForms = map[Symbol]Value{}
+var specialForms = map[Symbol]Callable{}
 
 // A Form is an object to be evaluated, a self evaluating object, or a symbol
 type Form interface {
 	Eval() Value
 }
 
-// FuncForm is a form whose car is a lambda to invoke, and whose cdr are passed as arguments.
-type FuncForm struct {
-	// Func is an expression which evaluates to a Callable
-	Func Form
-	Args List
-}
+// A List is a list of Forms. Can be interpreted as a FuncForm. A List is also a Form.
+type List []Form
 
-func (f FuncForm) Eval() Value {
-	fn := f.Func.Eval()
+func (l List) Eval() Value {
+	fn := l[0].Eval()
 	if fn.Type() != LambdaType {
 		exception(ErrNotCallable, fmt.Sprintf("%v", fn))
 	}
-
 	lambda := fn.(Callable)
-	return lambda.Call(f.Args)
+
+	var args []Form
+	if len(l) > 1 {
+		args = l[1:]
+	}
+
+	return lambda.Call(args)
 }
 
 // A SpecialForm is a FuncForm which is built in to the interpreter
+// Symbols matching built in forms will eval to this type (via specialForms map)
 type SpecialForm struct {
 	Fn func(args List) Value
 }

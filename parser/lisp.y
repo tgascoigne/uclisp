@@ -5,7 +5,7 @@ import "lisp/ast"
 %}
 
 %union {
-    prog ast.List
+    list ast.List
     form ast.Form
     sym ast.Symbol
     ival int
@@ -19,7 +19,7 @@ import "lisp/ast"
 %token tWhitespace
 %token tEOL
 
-%type <prog> list members
+%type <list> list_members
 %type <form> form
 
 %start prog
@@ -28,29 +28,22 @@ import "lisp/ast"
 
 prog
     : form
-      { yylex.(*Lexer).Ast([]ast.Form{$1}) }
+      { yylex.(*Lexer).Ast($1) }
     ;
 
 form
-    : list
-      {
-        $$ = ast.FuncForm{$1[0], $1[1:]}
-      }
+    : '(' list_members ')'
+      { $$ = $2 }
     | tSymbol
       { $$ = ast.Form($1) }
     | tIntAtom
       { $$ = ast.Integer($1) }
     ;
 
-list
-    : '(' members ')'
-      { $$ = $2 }
-    ;
-
-members
+list_members
     : ws✳
       { $$ = make(ast.List, 0) }
-    | members form
+    | list_members form
       { $$ = append($$, $2) }
     | form
       {

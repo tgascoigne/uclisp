@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func dump(prog ast.Prog) string {
+func dump(prog ast.Form) string {
 	astStr, _ := json.Marshal(prog)
 	return fmt.Sprintf("%v", string(astStr))
 }
@@ -29,12 +29,17 @@ var simpleTestCases = []simpleTest{
 	{"(= 1 1 1)", ast.True},
 	{"(= 1 2 1)", ast.Nil},
 	{"(= 1 2)", ast.Nil},
+	{"(if 1 (+ 2 2))", ast.Integer(4)},
+	{"(if (= 1 1) (+ 2 2))", ast.Integer(4)},
+	{"(if nil (+ 2 2))", ast.Nil},
+	{"(if nil (+ 2 2) (+ 4 4))", ast.Integer(8)},
+	{"(if (= 1 2) (+ 2 2) (+ 4 4))", ast.Integer(8)},
 }
 
 func TestSimpleCases(t *testing.T) {
 	for _, tc := range simpleTestCases {
 		prog := Parse("test", tc.Expression)
-		expr := prog[0]
+		expr := prog
 
 		t.Logf(dump(prog))
 

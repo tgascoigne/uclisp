@@ -9,7 +9,7 @@ import "lisp/ast"
 //line lisp.y:7
 type yySymType struct {
 	yys  int
-	prog ast.List
+	list ast.List
 	form ast.Form
 	sym  ast.Symbol
 	ival int
@@ -37,7 +37,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line lisp.y:74
+//line lisp.y:67
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -46,48 +46,48 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 14
+const yyNprod = 13
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 22
+const yyLast = 23
 
 var yyAct = [...]int{
 
-	10, 6, 12, 4, 5, 12, 6, 13, 4, 5,
-	2, 6, 15, 4, 5, 11, 8, 9, 14, 1,
-	7, 3,
+	3, 9, 4, 5, 11, 3, 12, 4, 5, 10,
+	11, 3, 14, 4, 5, 2, 7, 1, 6, 8,
+	0, 0, 13,
 }
 var yyPact = [...]int{
 
-	7, -1000, -1000, -1000, -1000, -1000, -3, 2, -1000, -1000,
-	-1000, -6, -1000, -1000, -1000, -1000,
+	7, -1000, -1000, -4, -1000, -1000, 1, -1000, -1000, -1000,
+	2, -1000, -1000, -1000, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 21, 20, 10, 19, 16, 15, 0,
+	0, 18, 15, 17, 16, 9, 1,
 }
 var yyR1 = [...]int{
 
-	0, 4, 3, 3, 3, 1, 2, 2, 2, 6,
-	7, 7, 5, 5,
+	0, 3, 2, 2, 2, 1, 1, 1, 5, 6,
+	6, 4, 4,
 }
 var yyR2 = [...]int{
 
-	0, 1, 1, 1, 1, 3, 1, 2, 1, 1,
-	1, 2, 0, 1,
+	0, 1, 3, 1, 1, 1, 2, 1, 1, 1,
+	2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -4, -3, -1, 6, 7, 4, -2, -5, -3,
-	-7, -6, 8, 5, -3, -7,
+	-1000, -3, -2, 4, 6, 7, -1, -4, -2, -6,
+	-5, 8, 5, -2, -6,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 2, 3, 4, 12, 0, 6, 8,
-	13, 10, 9, 5, 7, 11,
+	0, -2, 1, 11, 3, 4, 0, 5, 7, 12,
+	9, 8, 2, 6, 10,
 }
 var yyTok1 = [...]int{
 
@@ -449,50 +449,44 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:31
 		{
-			yylex.(*Lexer).Ast([]ast.Form{yyDollar[1].form})
+			yylex.(*Lexer).Ast(yyDollar[1].form)
 		}
 	case 2:
-		yyDollar = yyS[yypt-1 : yypt+1]
+		yyDollar = yyS[yypt-3 : yypt+1]
 		//line lisp.y:36
 		{
-			yyVAL.form = ast.FuncForm{yyDollar[1].prog[0], yyDollar[1].prog[1:]}
+			yyVAL.form = yyDollar[2].list
 		}
 	case 3:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:40
+		//line lisp.y:38
 		{
 			yyVAL.form = ast.Form(yyDollar[1].sym)
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:42
+		//line lisp.y:40
 		{
 			yyVAL.form = ast.Integer(yyDollar[1].ival)
 		}
 	case 5:
-		yyDollar = yyS[yypt-3 : yypt+1]
-		//line lisp.y:47
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:45
 		{
-			yyVAL.prog = yyDollar[2].prog
+			yyVAL.list = make(ast.List, 0)
 		}
 	case 6:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:52
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:47
 		{
-			yyVAL.prog = make(ast.List, 0)
+			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
 	case 7:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:54
-		{
-			yyVAL.prog = append(yyVAL.prog, yyDollar[2].form)
-		}
-	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:56
+		//line lisp.y:49
 		{
-			yyVAL.prog = make(ast.List, 0)
-			yyVAL.prog = append(yyVAL.prog, yyDollar[1].form)
+			yyVAL.list = make(ast.List, 0)
+			yyVAL.list = append(yyVAL.list, yyDollar[1].form)
 		}
 	}
 	goto yystack /* stack new state and value */

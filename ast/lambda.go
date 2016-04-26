@@ -3,7 +3,7 @@ package ast
 // Lambda is a Callable value whose body is a Prog
 type Lambda struct {
 	argBindings []Symbol
-	prog        Prog
+	prog        Form
 }
 
 func (l Lambda) Type() Type {
