@@ -8,8 +8,8 @@ import (
 var ErrInvalidType = errors.New("invalid type")
 
 func init() {
-	specialForms[Symbol("+")] = SpecialForm{addForm}
-	specialForms[Symbol("=")] = SpecialForm{mathEqualForm}
+	Global.Set(Symbol("+"), SpecialForm{addForm})
+	Global.Set(Symbol("="), SpecialForm{mathEqualForm})
 }
 
 func addForm(args List) Value {

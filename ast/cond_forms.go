@@ -1,7 +1,7 @@
 package ast
 
 func init() {
-	specialForms[Symbol("if")] = SpecialForm{ifForm}
+	Global.Set(Symbol("if"), SpecialForm{ifForm})
 }
 
 func ifForm(args List) Value {

@@ -5,6 +5,11 @@ var (
 	True Integer  = Integer(1)
 )
 
+func init() {
+	Global.Set(Symbol("nil"), &Nil)
+	Global.Set(Symbol("t"), &True)
+}
+
 type nilValue struct{}
 
 func (n nilValue) Type() Type {
