@@ -12,10 +12,10 @@ func init() {
 	Global.Set(Symbol("="), SpecialForm{mathEqualForm})
 }
 
-func addForm(args List) Value {
+func addForm(env *Env, args List) Value {
 	var accum Integer
 	for _, op := range args {
-		iop := op.Eval()
+		iop := op.Eval(env)
 		if iop.Type() != IntegerType {
 			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
 		}
@@ -26,13 +26,13 @@ func addForm(args List) Value {
 	return accum
 }
 
-func mathEqualForm(args List) Value {
+func mathEqualForm(env *Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue
 		}
 
-		if args[i-1].Eval() != args[i].Eval() {
+		if args[i-1].Eval(env) != args[i].Eval(env) {
 			return Nil
 		}
 	}

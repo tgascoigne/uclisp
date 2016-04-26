@@ -4,7 +4,7 @@ func init() {
 	Global.Set(Symbol("if"), SpecialForm{ifForm})
 }
 
-func ifForm(args List) Value {
+func ifForm(env *Env, args List) Value {
 	var test, then, els Form
 	if len(args) == 2 {
 		test, then = args[0], args[1]
@@ -14,12 +14,12 @@ func ifForm(args List) Value {
 		exceptionArgCount("if", len(args))
 	}
 
-	if !test.Eval().IsNil() {
-		return then.Eval()
+	if !test.Eval(env).IsNil() {
+		return then.Eval(env)
 	}
 
 	if els != nil {
-		return els.Eval()
+		return els.Eval(env)
 	}
 
 	return Nil

@@ -14,6 +14,6 @@ func (i Integer) IsNil() bool {
 	return false
 }
 
-func (i Integer) Eval() Value {
+func (i Integer) Eval(env *Env) Value {
 	return i
 }

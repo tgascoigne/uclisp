@@ -43,7 +43,7 @@ func TestSimpleCases(t *testing.T) {
 
 		t.Logf(dump(prog))
 
-		result := expr.Eval()
+		result := expr.Eval(ast.Global)
 		if result != tc.Result {
 			t.Errorf("Value incorrect: got %v expected %v. Expression: %v", result, tc.Result, tc.Expression)
 		}

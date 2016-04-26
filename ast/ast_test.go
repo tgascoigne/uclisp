@@ -14,7 +14,7 @@ func TestAddOp1(t *testing.T) {
 		},
 	}
 
-	result := expr.Eval()
+	result := expr.Eval(Global)
 	intResult := result.(ast.Integer)
 	if int(intResult) != 6 {
 		t.Errorf("Value incorrect: got %v expected 6", intResult)
@@ -36,7 +36,7 @@ func TestAddOp2(t *testing.T) {
 		},
 	}
 
-	result := expr.Eval()
+	result := expr.Eval(Global)
 	intResult := result.(ast.Integer)
 	if int(intResult) != 6 {
 		t.Errorf("Value incorrect: got %v expected 14", intResult)

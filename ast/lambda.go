@@ -18,8 +18,8 @@ func (l Lambda) IsNil() bool {
 	return false
 }
 
-func (l Lambda) Call(args List) Value {
+func (l Lambda) Call(env *Env, args List) Value {
 	// create env
 	// bind symbols
-	return l.prog.Eval()
+	return l.prog.Eval(env)
 }

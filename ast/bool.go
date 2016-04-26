@@ -24,6 +24,6 @@ func (n nilValue) IsNil() bool {
 	return true
 }
 
-func (n nilValue) Eval() Value {
+func (n nilValue) Eval(env *Env) Value {
 	return n
 }
