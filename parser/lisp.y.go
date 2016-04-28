@@ -4,7 +4,7 @@ package parser
 import __yyfmt__ "fmt"
 
 //line lisp.y:2
-import "lisp/ast"
+import "github.com/tgascoigne/uclisp/ast"
 
 //line lisp.y:7
 type yySymType struct {

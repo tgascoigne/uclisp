@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"lisp/ast"
 	"strconv"
 	"strings"
+
+	"github.com/tgascoigne/uclisp/ast"
 )
 
 type frame struct {

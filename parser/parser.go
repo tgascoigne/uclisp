@@ -2,7 +2,8 @@ package parser
 
 import (
 	"bytes"
-	"lisp/ast"
+
+	"github.com/tgascoigne/uclisp/ast"
 )
 
 //go:generate nex -e lisp.nex

@@ -3,8 +3,9 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"lisp/ast"
 	"testing"
+
+	"github.com/tgascoigne/uclisp/ast"
 )
 
 func dump(prog ast.Form) string {

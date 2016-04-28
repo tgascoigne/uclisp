@@ -1,8 +1,9 @@
 package ast_test
 
 import (
-	"lisp/ast"
 	"testing"
+
+	"github.com/tgascoigne/uclisp/ast"
 )
 
 func TestAddOp1(t *testing.T) {

@@ -1,7 +1,7 @@
 %{
 package parser
 
-import "lisp/ast"
+import "github.com/tgascoigne/uclisp/ast"
 %}
 
 %union {
