@@ -184,6 +184,75 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
 
+		// list
+		{[]bool{false, false, false, false, true}, []func(rune) int{ // Transitions
+			func(r rune) int {
+				switch r {
+				case 105:
+					return -1
+				case 108:
+					return 1
+				case 115:
+					return -1
+				case 116:
+					return -1
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 105:
+					return 2
+				case 108:
+					return -1
+				case 115:
+					return -1
+				case 116:
+					return -1
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 105:
+					return -1
+				case 108:
+					return -1
+				case 115:
+					return 3
+				case 116:
+					return -1
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 105:
+					return -1
+				case 108:
+					return -1
+				case 115:
+					return -1
+				case 116:
+					return 4
+				}
+				return -1
+			},
+			func(r rune) int {
+				switch r {
+				case 105:
+					return -1
+				case 108:
+					return -1
+				case 115:
+					return -1
+				case 116:
+					return -1
+				}
+				return -1
+			},
+		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1, -1}, nil},
+
 		// [0-9a-zA-Z_\\-\\+=\\*\\/<>]+
 		{[]bool{false, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
@@ -547,23 +616,27 @@ OUTER0:
 			}
 		case 1:
 			{
-				lval.sym = ast.Symbol(yylex.Text())
-				return tSymbol
+				return tListKeyword
 			}
 		case 2:
 			{
-				return int(yylex.Text()[0])
+				lval.sym = ast.Symbol(yylex.Text())
+				return tSymbol
 			}
 		case 3:
-			{ /* eat up whitespace */
+			{
+				return int(yylex.Text()[0])
 			}
 		case 4:
-			{ /* eat up one-line comments */
+			{ /* eat up whitespace */
 			}
 		case 5:
-			{ /* eat up multi-line comments. ugly but functional regex */
+			{ /* eat up one-line comments */
 			}
 		case 6:
+			{ /* eat up multi-line comments. ugly but functional regex */
+			}
+		case 7:
 			{
 				yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text()))
 			}

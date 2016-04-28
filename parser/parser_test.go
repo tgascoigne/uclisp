@@ -44,6 +44,10 @@ var simpleTestCases = []simpleTest{
 		(let ((z (+ x y)))
 		  (+ z y)))`, ast.Integer(6)},
 	{"(let ((x 2) (y 4)) (+ x y) (+ x x x y))", ast.Integer(10)},
+	{"(car (list 1 2))", ast.Integer(1)},
+	{"(cdr (list 1 2))", ast.List{ast.Integer(2)}},
+	{"(= nil nil)", ast.True},
+	{"(= nil t)", ast.Nil},
 }
 
 func TestSimpleCases(t *testing.T) {
@@ -54,7 +58,7 @@ func TestSimpleCases(t *testing.T) {
 		t.Logf(dump(prog))
 
 		result := expr.Eval(ast.Global)
-		if result != tc.Result {
+		if !result.Equals(ast.Global, tc.Result) {
 			t.Errorf("Value incorrect: got %v expected %v. Expression: %v", result, tc.Result, tc.Expression)
 		}
 	}

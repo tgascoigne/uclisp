@@ -15,12 +15,13 @@ import "lisp/ast"
 
 %token <sym> tSymbol
 %token <ival> tIntAtom
+%token tListKeyword
 
 %token tWhitespace
 %token tEOL
 
-%type <list> list_members
-%type <form> form
+%type <list> list
+%type <form> form quoted_form
 
 %start prog
 
@@ -32,18 +33,26 @@ prog
     ;
 
 form
-    : '(' list_members ')'
-      { $$ = $2 }
+    : '(' list ')'
+      { $$ = ast.ListForm($2) }
+	| quoted_form
     | tSymbol
       { $$ = ast.Form($1) }
     | tIntAtom
       { $$ = ast.Integer($1) }
     ;
 
-list_members
+quoted_form
+	: '\'' '(' list ')'
+      { $$ = ast.Quoted{$3} }
+    | '(' tListKeyword list ')'
+      { $$ = ast.Quoted{$3} }
+	;
+
+list
     : ws✳
       { $$ = make(ast.List, 0) }
-    | list_members form
+    | list form
       { $$ = append($$, $2) }
     | form
       {

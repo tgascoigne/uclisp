@@ -27,3 +27,7 @@ func (n nilValue) IsNil() bool {
 func (n nilValue) Eval(env *Env) Value {
 	return n
 }
+
+func (n nilValue) Equals(env *Env, other Value) bool {
+	return other == Nil
+}

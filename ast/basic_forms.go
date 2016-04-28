@@ -9,10 +9,56 @@ var ErrInvalidVarForm = errors.New("invalid variable binding list")
 var ErrInvalidType = errors.New("invalid type")
 
 func init() {
+	Global.Set(Symbol("car"), SpecialForm{carForm})
+	Global.Set(Symbol("cdr"), SpecialForm{cdrForm})
 	Global.Set(Symbol("let"), SpecialForm{letForm})
 	Global.Set(Symbol("if"), SpecialForm{ifForm})
 	Global.Set(Symbol("+"), SpecialForm{addForm})
 	Global.Set(Symbol("="), SpecialForm{mathEqualForm})
+}
+
+func carForm(env *Env, args List) Value {
+	if len(args) != 1 {
+		exceptionArgCount("car", len(args))
+	}
+
+	val := args[0].Eval(env)
+
+	if val.IsNil() {
+		return Nil
+	}
+
+	if val, ok := val.(List); ok {
+		return val[0].Eval(env)
+	} else {
+		exception(ErrInvalidType, val)
+	}
+
+	return Nil
+}
+
+func cdrForm(env *Env, args List) Value {
+	if len(args) != 1 {
+		exceptionArgCount("cdr", len(args))
+	}
+
+	val := args[0].Eval(env)
+
+	if val.IsNil() {
+		return Nil
+	}
+
+	if val, ok := val.(List); ok {
+		if len(val) < 2 {
+			return Nil
+		}
+
+		return val[1:]
+	} else {
+		exception(ErrInvalidType, val)
+	}
+
+	return Nil
 }
 
 func letForm(env *Env, args List) Value {
@@ -20,9 +66,9 @@ func letForm(env *Env, args List) Value {
 		exceptionArgCount("if", len(args))
 	}
 
-	if bindings, ok := args[0].(List); ok {
+	if bindings, ok := args[0].(ListForm); ok {
 		for _, b := range bindings {
-			if b, ok := b.(List); ok {
+			if b, ok := b.(ListForm); ok {
 				// ((sym value) ..) syntax
 				if len(b) != 2 {
 					exception(ErrInvalidVarForm, b)
