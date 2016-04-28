@@ -47,6 +47,8 @@ var simpleTestCases = []simpleTest{
 	{"(let ((x 2) (y 4)) (+ x y) (+ x x x y))", ast.Integer(10)},
 	{"(car (list 1 2))", ast.Integer(1)},
 	{"(cdr (list 1 2))", ast.List{ast.Integer(2)}},
+	{"(car '(1 2))", ast.Integer(1)},
+	{"(cdr '(1 2))", ast.List{ast.Integer(2)}},
 	{"(= nil nil)", ast.True},
 	{"(= nil t)", ast.Nil},
 }
