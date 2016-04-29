@@ -53,6 +53,19 @@ var simpleTestCases = []simpleTest{
 	{"(cdr '(1 2))", ast.List{ast.Integer(2)}},
 	{"(= nil nil)", ast.True},
 	{"(= nil t)", ast.Nil},
+	{"(/= 1 2)", ast.True},
+	{"(/= 1 1)", ast.Nil},
+	{"(< 3 2 1)", ast.True},
+	{"(< 1 2 3)", ast.Nil},
+	{"(> 3 2 1)", ast.Nil},
+	{"(> 1 2 3)", ast.True},
+	{"(<= 3 2 2 1)", ast.True},
+	{"(>= 1 2 2 3)", ast.True},
+	{"(>= 3 2 2 1)", ast.Nil},
+	{"(<= 1 2 2 3)", ast.Nil},
+	{"(not nil)", ast.True},
+	{"(not t)", ast.Nil},
+	{"(not (if (= 1 1) t))", ast.Nil},
 }
 
 func TestSimpleCases(t *testing.T) {
