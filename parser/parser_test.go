@@ -27,6 +27,8 @@ var simpleTestCases = []simpleTest{
 	5
 	(+ 6 7 8 9
 	))`, ast.Integer(44)},
+	{"(- 10 (+ 5 1))", ast.Integer(4)},
+	{"(* 2 12 (/ 5 2 1))", ast.Integer(48)},
 	{"(= 1 1 1)", ast.True},
 	{"(= 1 2 1)", ast.Nil},
 	{"(= 1 2)", ast.Nil},

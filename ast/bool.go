@@ -1,8 +1,10 @@
 package ast
 
 var (
-	Nil  nilValue = nilValue{}
-	True Integer  = Integer(1)
+	// Nil is the global nil value
+	Nil nilValue = nilValue{}
+	// True is the global t value
+	True Integer = Integer(1)
 )
 
 func init() {
