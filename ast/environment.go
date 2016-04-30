@@ -7,7 +7,7 @@ var ErrNoSymbol = errors.New("no such symbol")
 func init() {
 	Builtin.Define(Symbol("let"), SpecialForm{letForm})
 	Builtin.Define(Symbol("set"), SpecialForm{setForm})
-	Builtin.Define(Symbol("defvar"), SpecialForm{defvarForm})
+	Builtin.Define(Symbol("define"), SpecialForm{defineForm})
 }
 
 // Env is a mapping of Symbol -> Value.
@@ -84,9 +84,9 @@ func (e *Env) New() *Env {
 	return NewEnv(e)
 }
 
-func defvarForm(env *Env, args List) Value {
+func defineForm(env *Env, args List) Value {
 	if len(args) != 2 {
-		exceptionArgCount("defvar", len(args))
+		exceptionArgCount("define", len(args))
 	}
 
 	var symbolForm, value Form

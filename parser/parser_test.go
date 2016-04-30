@@ -67,14 +67,14 @@ var simpleTestCases = []simpleTest{
 	{"(not t)", ast.Nil},
 	{"(not (if (= 1 1) t))", ast.Nil},
 	{`(progn
-		(defvar square (lambda (x) (* x x)))
+		(define square (lambda (x) (* x x)))
 		(square 2))`, ast.Integer(4)},
 	{`(progn
-		(defvar x 20)
-		(defvar x 40)
+		(define x 20)
+		(define x 40)
 		x)`, ast.Integer(20)},
 	{`(progn
-		(defvar x 20)
+		(define x 20)
 		(set x 40)
 		x)`, ast.Integer(40)},
 }
