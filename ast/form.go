@@ -27,6 +27,18 @@ func (l ListForm) Eval(env *Env) Value {
 	return lambda.Call(env, args)
 }
 
+type Prog []Form
+
+func (p Prog) Eval(env *Env) Value {
+	var result Value
+	result = Nil
+	for _, f := range p {
+		result = f.Eval(env)
+	}
+
+	return result
+}
+
 // A SpecialForm is a Form which is built in to the interpreter
 // Symbols matching built in forms will eval to this type (via specialForms map)
 type SpecialForm struct {

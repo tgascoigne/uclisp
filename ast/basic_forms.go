@@ -12,6 +12,7 @@ func init() {
 	Global.Set(Symbol("progn"), SpecialForm{prognForm})
 	Global.Set(Symbol("if"), SpecialForm{ifForm})
 	Global.Set(Symbol("defvar"), SpecialForm{defvarForm})
+	Global.Set(Symbol("lambda"), SpecialForm{lambdaForm})
 }
 
 func carForm(env *Env, args List) Value {
@@ -100,13 +101,12 @@ func letForm(env *Env, args List) Value {
 }
 
 func prognForm(env *Env, args List) Value {
-	var result Value
-	result = Nil
-	for _, f := range args {
-		result = f.Eval(env)
+	prog := make(Prog, len(args))
+	for i, f := range args {
+		prog[i] = f
 	}
 
-	return result
+	return prog.Eval(env)
 }
 
 func ifForm(env *Env, args List) Value {
@@ -149,3 +149,34 @@ func defvarForm(env *Env, args List) Value {
 
 	return symbol
 }
+
+var ErrInvalidArgList = errors.New("invalid argument list")
+
+func lambdaForm(env *Env, args List) Value {
+	if len(args) < 2 {
+		exceptionArgCount("lambda", len(args))
+	}
+
+	var bindings []Symbol
+	if b, ok := args[0].(ListForm); ok {
+		bindings = make([]Symbol, len(b))
+		for i, item := range b {
+			if sym, ok := item.(Symbol); ok {
+				bindings[i] = sym
+			} else {
+				exception(ErrNotASymbol, item)
+			}
+		}
+	} else {
+		exception(ErrInvalidArgList, args[0])
+	}
+
+	prog := make(Prog, len(args[1:]))
+	for i, f := range args[1:] {
+		prog[i] = f
+	}
+
+	return Lambda{bindings, prog}
+}
+
+//(funcall (lambda (x y) (+ x y) (* x y)) 2 4)

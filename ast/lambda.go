@@ -2,8 +2,8 @@ package ast
 
 // Lambda is a Callable value whose body is a Prog
 type Lambda struct {
-	argBindings []Symbol
-	prog        Form
+	Bindings []Symbol
+	Prog     Prog
 }
 
 func (l Lambda) Type() Type {
@@ -18,17 +18,21 @@ func (l Lambda) IsNil() bool {
 	return false
 }
 
+func (l Lambda) Equals(env *Env, other Value) bool {
+	return false
+}
+
 func (l Lambda) Call(parentEnv *Env, args List) Value {
-	if len(args) != len(l.argBindings) {
-		exceptionArgCountExpected("lambda", len(l.argBindings), len(args))
+	if len(args) != len(l.Bindings) {
+		exceptionArgCountExpected("lambda", len(l.Bindings), len(args))
 	}
 
 	env := parentEnv.New()
 
 	// bind symbols
-	for i, sym := range l.argBindings {
+	for i, sym := range l.Bindings {
 		env.Set(sym, args[i].Eval(env))
 	}
 
-	return l.prog.Eval(env)
+	return l.Prog.Eval(env)
 }

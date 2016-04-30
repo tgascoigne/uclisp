@@ -66,6 +66,9 @@ var simpleTestCases = []simpleTest{
 	{"(not nil)", ast.True},
 	{"(not t)", ast.Nil},
 	{"(not (if (= 1 1) t))", ast.Nil},
+	{`(progn
+		(defvar square (lambda (x) (* x x)))
+		(square 2))`, ast.Integer(4)},
 }
 
 func TestSimpleCases(t *testing.T) {
