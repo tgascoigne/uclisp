@@ -9,7 +9,9 @@ func init() {
 	Global.Set(Symbol("car"), SpecialForm{carForm})
 	Global.Set(Symbol("cdr"), SpecialForm{cdrForm})
 	Global.Set(Symbol("let"), SpecialForm{letForm})
+	Global.Set(Symbol("progn"), SpecialForm{prognForm})
 	Global.Set(Symbol("if"), SpecialForm{ifForm})
+	Global.Set(Symbol("defvar"), SpecialForm{defvarForm})
 }
 
 func carForm(env *Env, args List) Value {
@@ -97,6 +99,16 @@ func letForm(env *Env, args List) Value {
 	return result
 }
 
+func prognForm(env *Env, args List) Value {
+	var result Value
+	result = Nil
+	for _, f := range args {
+		result = f.Eval(env)
+	}
+
+	return result
+}
+
 func ifForm(env *Env, args List) Value {
 	var test, then, els Form
 	if len(args) == 2 {
@@ -116,4 +128,24 @@ func ifForm(env *Env, args List) Value {
 	}
 
 	return Nil
+}
+
+func defvarForm(env *Env, args List) Value {
+	if len(args) != 2 {
+		exceptionArgCount("defvar", len(args))
+	}
+
+	var symbolForm, value Form
+	var symbol Symbol
+	symbolForm, value = args[0], args[1]
+
+	if s, ok := symbolForm.(Symbol); ok {
+		symbol = s
+	} else {
+		exception(ErrNotASymbol, symbol)
+	}
+
+	Global.Set(symbol, value.Eval(env))
+
+	return symbol
 }

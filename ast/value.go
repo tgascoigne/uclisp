@@ -6,6 +6,7 @@ const (
 	IntegerType Type = iota
 	LambdaType
 	ListType
+	SymbolType
 	NilType
 )
 
