@@ -47,6 +47,8 @@ quoted_form
       { $$ = ast.Quoted{$3} }
     | '(' tListKeyword list ')'
       { $$ = ast.Quoted{$3} }
+    | '\'' tSymbol
+      { $$ = ast.Quoted{$2}}
 	;
 
 list

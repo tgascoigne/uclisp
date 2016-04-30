@@ -3,17 +3,17 @@ package ast
 import "fmt"
 
 func init() {
-	Global.Set(Symbol("+"), SpecialForm{addForm})
-	Global.Set(Symbol("-"), SpecialForm{subForm})
-	Global.Set(Symbol("*"), SpecialForm{mulForm})
-	Global.Set(Symbol("/"), SpecialForm{divForm})
-	Global.Set(Symbol("="), SpecialForm{mathEqualForm})
-	Global.Set(Symbol("/="), SpecialForm{mathNotEqualForm})
-	Global.Set(Symbol("not"), SpecialForm{notForm})
-	Global.Set(Symbol("<"), SpecialForm{compLessForm})
-	Global.Set(Symbol("<="), SpecialForm{compLessEqForm})
-	Global.Set(Symbol(">"), SpecialForm{compGreaterForm})
-	Global.Set(Symbol(">="), SpecialForm{compGreaterEqForm})
+	Builtin.Define(Symbol("+"), SpecialForm{addForm})
+	Builtin.Define(Symbol("-"), SpecialForm{subForm})
+	Builtin.Define(Symbol("*"), SpecialForm{mulForm})
+	Builtin.Define(Symbol("/"), SpecialForm{divForm})
+	Builtin.Define(Symbol("="), SpecialForm{mathEqualForm})
+	Builtin.Define(Symbol("/="), SpecialForm{mathNotEqualForm})
+	Builtin.Define(Symbol("not"), SpecialForm{notForm})
+	Builtin.Define(Symbol("<"), SpecialForm{compLessForm})
+	Builtin.Define(Symbol("<="), SpecialForm{compLessEqForm})
+	Builtin.Define(Symbol(">"), SpecialForm{compGreaterForm})
+	Builtin.Define(Symbol(">="), SpecialForm{compGreaterEqForm})
 }
 
 func addForm(env *Env, args List) Value {

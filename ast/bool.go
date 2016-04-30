@@ -8,8 +8,8 @@ var (
 )
 
 func init() {
-	Global.Set(Symbol("nil"), &Nil)
-	Global.Set(Symbol("t"), &True)
+	Builtin.Define(Symbol("nil"), &Nil)
+	Builtin.Define(Symbol("t"), &True)
 }
 
 type nilValue struct{}

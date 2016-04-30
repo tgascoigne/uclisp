@@ -8,7 +8,7 @@ import (
 	"github.com/tgascoigne/uclisp/ast"
 )
 
-func dump(prog ast.Form) string {
+func dump(prog interface{}) string {
 	astStr, _ := json.Marshal(prog)
 	return fmt.Sprintf("%v", string(astStr))
 }
@@ -69,6 +69,14 @@ var simpleTestCases = []simpleTest{
 	{`(progn
 		(defvar square (lambda (x) (* x x)))
 		(square 2))`, ast.Integer(4)},
+	{`(progn
+		(defvar x 20)
+		(defvar x 40)
+		x)`, ast.Integer(20)},
+	{`(progn
+		(defvar x 20)
+		(set x 40)
+		x)`, ast.Integer(40)},
 }
 
 func TestSimpleCases(t *testing.T) {
@@ -78,9 +86,13 @@ func TestSimpleCases(t *testing.T) {
 
 		t.Logf(dump(prog))
 
+		// Create a new global env for each test case for isolation
+		ast.Global = ast.Builtin.New()
+
 		result := expr.Eval(ast.Global)
 		if !result.Equals(ast.Global, tc.Result) {
 			t.Errorf("Value incorrect: got %v expected %v. Expression: %v", result, tc.Result, tc.Expression)
+			t.Errorf("Environment: %v", dump(ast.Global.Map))
 		}
 	}
 }
@@ -93,6 +105,9 @@ type exceptionTest struct {
 var exceptionTestCases = []exceptionTest{
 	{`(progn
 		(let ((x 20)) (* 2 x))
+		x)`, ast.ErrNoSymbol},
+	{`(progn
+		(set x 20)
 		x)`, ast.ErrNoSymbol},
 }
 
@@ -112,6 +127,9 @@ func TestExceptionCases(t *testing.T) {
 			expr := prog
 
 			t.Logf(dump(prog))
+
+			// Create a new global env for each test case for isolation
+			ast.Global = ast.Builtin.New()
 
 			result := expr.Eval(ast.Global)
 			t.Errorf("Result was %v", result) // Eval should have panicked

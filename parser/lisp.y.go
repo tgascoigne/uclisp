@@ -40,7 +40,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line lisp.y:76
+//line lisp.y:78
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -49,53 +49,54 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 16
+const yyNprod = 17
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 50
+const yyLast = 51
 
 var yyAct = [...]int{
 
-	11, 2, 8, 3, 14, 5, 6, 9, 14, 17,
-	7, 15, 18, 3, 22, 5, 6, 13, 20, 17,
-	7, 17, 3, 21, 5, 6, 12, 10, 3, 7,
-	5, 6, 1, 14, 4, 7, 3, 16, 5, 6,
-	19, 0, 3, 7, 5, 6, 0, 0, 0, 7,
+	11, 2, 8, 3, 14, 5, 6, 9, 14, 18,
+	7, 13, 19, 12, 3, 23, 5, 6, 21, 10,
+	18, 7, 18, 3, 22, 5, 6, 20, 1, 3,
+	7, 5, 6, 15, 14, 16, 7, 3, 17, 5,
+	6, 4, 0, 3, 7, 5, 6, 0, 0, 0,
+	7,
 }
 var yyPact = [...]int{
 
-	38, -1000, -1000, -1, -1000, -1000, -1000, 7, 32, 24,
-	-1000, -1000, -1000, -5, -1000, 24, -1000, -1000, 18, -1000,
-	9, -1000, -1000,
+	39, -1000, -1000, -1, -1000, -1000, -1000, 29, 33, 25,
+	-1000, -1000, -1000, -5, -1000, 25, -1000, -1000, -1000, 19,
+	-1000, 10, -1000, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 2, 0, 34, 32, 27, 17, 26,
+	0, 2, 0, 41, 28, 19, 11, 13,
 }
 var yyR1 = [...]int{
 
-	0, 4, 2, 2, 2, 2, 3, 3, 1, 1,
-	1, 6, 7, 7, 5, 5,
+	0, 4, 2, 2, 2, 2, 3, 3, 3, 1,
+	1, 1, 6, 7, 7, 5, 5,
 }
 var yyR2 = [...]int{
 
-	0, 1, 3, 1, 1, 1, 4, 4, 1, 2,
-	1, 1, 1, 2, 0, 1,
+	0, 1, 3, 1, 1, 1, 4, 4, 2, 1,
+	2, 1, 1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
 	-1000, -4, -2, 4, -3, 6, 7, 11, -1, 8,
-	-5, -2, -7, -6, 9, 4, 5, -2, -1, -7,
-	-1, 5, 5,
+	-5, -2, -7, -6, 9, 4, 6, 5, -2, -1,
+	-7, -1, 5, 5,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 14, 3, 4, 5, 0, 0, 14,
-	8, 10, 15, 12, 11, 14, 2, 9, 0, 13,
-	0, 7, 6,
+	0, -2, 1, 15, 3, 4, 5, 0, 0, 15,
+	9, 11, 16, 13, 12, 15, 8, 2, 10, 0,
+	14, 0, 7, 6,
 }
 var yyTok1 = [...]int{
 
@@ -490,20 +491,26 @@ yydefault:
 			yyVAL.form = ast.Quoted{yyDollar[3].list}
 		}
 	case 8:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:51
+		{
+			yyVAL.form = ast.Quoted{yyDollar[2].sym}
+		}
+	case 9:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:54
+		//line lisp.y:56
 		{
 			yyVAL.list = make(ast.List, 0)
 		}
-	case 9:
+	case 10:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:56
+		//line lisp.y:58
 		{
 			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
-	case 10:
+	case 11:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:58
+		//line lisp.y:60
 		{
 			yyVAL.list = make(ast.List, 0)
 			yyVAL.list = append(yyVAL.list, yyDollar[1].form)

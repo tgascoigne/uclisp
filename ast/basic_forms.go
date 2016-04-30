@@ -6,13 +6,10 @@ var ErrInvalidVarForm = errors.New("invalid variable binding list")
 var ErrInvalidType = errors.New("invalid type")
 
 func init() {
-	Global.Set(Symbol("car"), SpecialForm{carForm})
-	Global.Set(Symbol("cdr"), SpecialForm{cdrForm})
-	Global.Set(Symbol("let"), SpecialForm{letForm})
-	Global.Set(Symbol("progn"), SpecialForm{prognForm})
-	Global.Set(Symbol("if"), SpecialForm{ifForm})
-	Global.Set(Symbol("defvar"), SpecialForm{defvarForm})
-	Global.Set(Symbol("lambda"), SpecialForm{lambdaForm})
+	Builtin.Define(Symbol("car"), SpecialForm{carForm})
+	Builtin.Define(Symbol("cdr"), SpecialForm{cdrForm})
+	Builtin.Define(Symbol("progn"), SpecialForm{prognForm})
+	Builtin.Define(Symbol("if"), SpecialForm{ifForm})
 }
 
 func carForm(env *Env, args List) Value {
@@ -59,49 +56,6 @@ func cdrForm(env *Env, args List) Value {
 	return Nil
 }
 
-func letForm(parentEnv *Env, args List) Value {
-	if len(args) == 0 {
-		exceptionArgCount("if", len(args))
-	}
-
-	env := parentEnv.New()
-
-	if bindings, ok := args[0].(ListForm); ok {
-		for _, b := range bindings {
-			if b, ok := b.(ListForm); ok {
-				// ((sym value) ..) syntax
-				if len(b) != 2 {
-					exception(ErrInvalidVarForm, b)
-				}
-
-				if sym, ok := b[0].(Symbol); ok {
-					env.Set(sym, b[1].Eval(env))
-				} else {
-					exception(ErrInvalidSymbol, b)
-				}
-				continue
-			}
-
-			// (sym ..) syntax
-			if sym, ok := b.(Symbol); ok {
-				env.Set(sym, Nil)
-			} else {
-				exception(ErrInvalidSymbol, b)
-			}
-		}
-	} else {
-		exception(ErrInvalidVarForm, args[0])
-	}
-
-	var result Value
-	result = Nil
-	for _, f := range args[1:] {
-		result = f.Eval(env)
-	}
-
-	return result
-}
-
 func prognForm(env *Env, args List) Value {
 	prog := make(Prog, len(args))
 	for i, f := range args {
@@ -131,54 +85,3 @@ func ifForm(env *Env, args List) Value {
 
 	return Nil
 }
-
-func defvarForm(env *Env, args List) Value {
-	if len(args) != 2 {
-		exceptionArgCount("defvar", len(args))
-	}
-
-	var symbolForm, value Form
-	var symbol Symbol
-	symbolForm, value = args[0], args[1]
-
-	if s, ok := symbolForm.(Symbol); ok {
-		symbol = s
-	} else {
-		exception(ErrInvalidSymbol, symbol)
-	}
-
-	Global.Set(symbol, value.Eval(env))
-
-	return symbol
-}
-
-var ErrInvalidArgList = errors.New("invalid argument list")
-
-func lambdaForm(env *Env, args List) Value {
-	if len(args) < 2 {
-		exceptionArgCount("lambda", len(args))
-	}
-
-	var bindings []Symbol
-	if b, ok := args[0].(ListForm); ok {
-		bindings = make([]Symbol, len(b))
-		for i, item := range b {
-			if sym, ok := item.(Symbol); ok {
-				bindings[i] = sym
-			} else {
-				exception(ErrInvalidSymbol, item)
-			}
-		}
-	} else {
-		exception(ErrInvalidArgList, args[0])
-	}
-
-	prog := make(Prog, len(args[1:]))
-	for i, f := range args[1:] {
-		prog[i] = f
-	}
-
-	return Lambda{bindings, prog}
-}
-
-//(funcall (lambda (x y) (+ x y) (* x y)) 2 4)
