@@ -2,7 +2,7 @@ package ast
 
 import "errors"
 
-var ErrNotASymbol = errors.New("not a valid symbol")
+var ErrInvalidSymbol = errors.New("not a valid symbol")
 
 // A Symbol is a value which references another value within the current environment.
 type Symbol string

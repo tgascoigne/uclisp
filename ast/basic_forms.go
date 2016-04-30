@@ -59,10 +59,12 @@ func cdrForm(env *Env, args List) Value {
 	return Nil
 }
 
-func letForm(env *Env, args List) Value {
+func letForm(parentEnv *Env, args List) Value {
 	if len(args) == 0 {
 		exceptionArgCount("if", len(args))
 	}
+
+	env := parentEnv.New()
 
 	if bindings, ok := args[0].(ListForm); ok {
 		for _, b := range bindings {
@@ -75,7 +77,7 @@ func letForm(env *Env, args List) Value {
 				if sym, ok := b[0].(Symbol); ok {
 					env.Set(sym, b[1].Eval(env))
 				} else {
-					exception(ErrNotASymbol, b)
+					exception(ErrInvalidSymbol, b)
 				}
 				continue
 			}
@@ -84,7 +86,7 @@ func letForm(env *Env, args List) Value {
 			if sym, ok := b.(Symbol); ok {
 				env.Set(sym, Nil)
 			} else {
-				exception(ErrNotASymbol, b)
+				exception(ErrInvalidSymbol, b)
 			}
 		}
 	} else {
@@ -142,7 +144,7 @@ func defvarForm(env *Env, args List) Value {
 	if s, ok := symbolForm.(Symbol); ok {
 		symbol = s
 	} else {
-		exception(ErrNotASymbol, symbol)
+		exception(ErrInvalidSymbol, symbol)
 	}
 
 	Global.Set(symbol, value.Eval(env))
@@ -164,7 +166,7 @@ func lambdaForm(env *Env, args List) Value {
 			if sym, ok := item.(Symbol); ok {
 				bindings[i] = sym
 			} else {
-				exception(ErrNotASymbol, item)
+				exception(ErrInvalidSymbol, item)
 			}
 		}
 	} else {

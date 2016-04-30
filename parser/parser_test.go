@@ -84,3 +84,37 @@ func TestSimpleCases(t *testing.T) {
 		}
 	}
 }
+
+type exceptionTest struct {
+	Expression string
+	Exception  error
+}
+
+var exceptionTestCases = []exceptionTest{
+	{`(progn
+		(let ((x 20)) (* 2 x))
+		x)`, ast.ErrNoSymbol},
+}
+
+func TestExceptionCases(t *testing.T) {
+	for _, tc := range exceptionTestCases {
+		func() {
+			expectedCause := tc.Exception
+			defer func() {
+				if err := recover(); err != nil {
+					if detailed, ok := err.(ast.DetailedError); !ok || expectedCause != detailed.Cause() {
+						t.Errorf("Didn't raise expected exception: %v, expected %v", detailed.Cause(), expectedCause)
+					}
+				}
+			}()
+
+			prog := Parse("test", tc.Expression)
+			expr := prog
+
+			t.Logf(dump(prog))
+
+			result := expr.Eval(ast.Global)
+			t.Errorf("Result was %v", result) // Eval should have panicked
+		}()
+	}
+}
