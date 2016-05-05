@@ -8,6 +8,7 @@ import "github.com/tgascoigne/uclisp/ast"
     list ast.List
     form ast.Form
     sym ast.Symbol
+    str string
     ival int
 }
 
@@ -15,6 +16,7 @@ import "github.com/tgascoigne/uclisp/ast"
 
 %token <sym> tSymbol
 %token <ival> tIntAtom
+%token <str> tStringAtom
 
 %token tWhitespace
 %token tEOL
@@ -39,6 +41,8 @@ form
       { $$ = ast.Form($1) }
     | tIntAtom
       { $$ = ast.Integer($1) }
+    | tStringAtom
+      { $$ = ast.String($1) }
     ;
 
 quoted_form

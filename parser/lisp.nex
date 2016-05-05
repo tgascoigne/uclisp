@@ -7,6 +7,12 @@
 	return tIntAtom
 }
 
+/"[^"\n]*"/ {
+	text := yylex.Text()
+    lval.str = text[1:len(text)-1]
+    return tStringAtom
+}
+
 /[0-9a-zA-Z_+=*\/<>-]+/ {
 	lval.sym = ast.Symbol(yylex.Text())
 	return tSymbol

@@ -19,6 +19,8 @@ type simpleTest struct {
 }
 
 var simpleTestCases = []simpleTest{
+	{`"foo"`, ast.String("foo")},
+	{`(progn "foo")`, ast.String("foo")},
 	{"(+ 2 (+ 3 4 5))", ast.Integer(14)},
 	{"(+ 2 (+ 3 4) 5 (+ 6 7 8 9))", ast.Integer(44)},
 	{`(+

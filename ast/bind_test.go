@@ -32,6 +32,10 @@ func (f *fooObject) TestFunc3(a, b int) (int, int) {
 	return f.X, f.Y
 }
 
+func (f *fooObject) TestFunc4() string {
+	return fmt.Sprintf("%v", f.X)
+}
+
 var foo = fooObject{
 	X: 20,
 	Y: 16,
@@ -63,6 +67,7 @@ var bindTestCases = []bindTest{
 		(let ((ztmp (with foo (with Bar Z))))
 		  (with foo (with Bar (set Z 20)))
 		  (* (with foo (with Bar Z)) ztmp)))`, ast.Integer(foo.Bar.Z * 20)},
+	{"(with foo (TestFunc4))", ast.String(fmt.Sprintf("%v", foo.X))},
 }
 
 func TestSimpleCases(t *testing.T) {

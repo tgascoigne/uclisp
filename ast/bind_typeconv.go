@@ -13,6 +13,10 @@ func BindValue(o reflect.Value) Value {
 		return Integer(int(o.Int()))
 	}
 
+	if o.Kind() == reflect.String {
+		return String(o.String())
+	}
+
 	return &GoEnv{V: o}
 }
 

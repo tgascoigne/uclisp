@@ -4,6 +4,7 @@ type Type int
 
 const (
 	IntegerType Type = iota
+	StringType
 	LambdaType
 	ListType
 	SymbolType
