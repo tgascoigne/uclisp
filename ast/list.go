@@ -7,15 +7,11 @@ func (l List) Type() Type {
 	return ListType
 }
 
-func (l List) IsAtom() bool {
-	return false
-}
-
 func (l List) IsNil() bool {
 	return len(l) == 0
 }
 
-func (l List) Equals(env *Env, other Value) bool {
+func (l List) Equals(env Env, other Value) bool {
 	var otherList List
 	if j, ok := other.(List); ok {
 		otherList = j

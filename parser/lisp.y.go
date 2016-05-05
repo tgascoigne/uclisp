@@ -17,9 +17,8 @@ type yySymType struct {
 
 const tSymbol = 57346
 const tIntAtom = 57347
-const tListKeyword = 57348
-const tWhitespace = 57349
-const tEOL = 57350
+const tWhitespace = 57348
+const tEOL = 57349
 
 var yyToknames = [...]string{
 	"$end",
@@ -29,7 +28,6 @@ var yyToknames = [...]string{
 	"')'",
 	"tSymbol",
 	"tIntAtom",
-	"tListKeyword",
 	"tWhitespace",
 	"tEOL",
 	"'\\''",
@@ -40,7 +38,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line lisp.y:78
+//line lisp.y:75
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -49,66 +47,64 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 17
+const yyNprod = 16
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 51
+const yyLast = 39
 
 var yyAct = [...]int{
 
-	11, 2, 8, 3, 14, 5, 6, 9, 14, 18,
-	7, 13, 19, 12, 3, 23, 5, 6, 21, 10,
-	18, 7, 18, 3, 22, 5, 6, 20, 1, 3,
-	7, 5, 6, 15, 14, 16, 7, 3, 17, 5,
-	6, 4, 0, 3, 7, 5, 6, 0, 0, 0,
-	7,
+	10, 2, 8, 13, 3, 20, 5, 6, 12, 17,
+	7, 14, 3, 15, 5, 6, 13, 19, 7, 9,
+	17, 3, 16, 5, 6, 11, 3, 7, 5, 6,
+	1, 4, 7, 0, 0, 0, 0, 0, 18,
 }
 var yyPact = [...]int{
 
-	39, -1000, -1000, -1, -1000, -1000, -1000, 29, 33, 25,
-	-1000, -1000, -1000, -5, -1000, 25, -1000, -1000, -1000, 19,
-	-1000, 10, -1000, -1000,
+	22, -1000, -1000, 8, -1000, -1000, -1000, 7, 17, -1000,
+	-1000, -1000, -5, -1000, 8, -1000, -1000, -1000, -1000, 0,
+	-1000,
 }
 var yyPgo = [...]int{
 
-	0, 2, 0, 41, 28, 19, 11, 13,
+	0, 2, 0, 31, 30, 19, 8, 25,
 }
 var yyR1 = [...]int{
 
-	0, 4, 2, 2, 2, 2, 3, 3, 3, 1,
-	1, 1, 6, 7, 7, 5, 5,
+	0, 4, 2, 2, 2, 2, 3, 3, 1, 1,
+	1, 6, 7, 7, 5, 5,
 }
 var yyR2 = [...]int{
 
-	0, 1, 3, 1, 1, 1, 4, 4, 2, 1,
-	2, 1, 1, 1, 2, 0, 1,
+	0, 1, 3, 1, 1, 1, 4, 2, 1, 2,
+	1, 1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -4, -2, 4, -3, 6, 7, 11, -1, 8,
-	-5, -2, -7, -6, 9, 4, 6, 5, -2, -1,
-	-7, -1, 5, 5,
+	-1000, -4, -2, 4, -3, 6, 7, 10, -1, -5,
+	-2, -7, -6, 8, 4, 6, 5, -2, -7, -1,
+	5,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 15, 3, 4, 5, 0, 0, 15,
-	9, 11, 16, 13, 12, 15, 8, 2, 10, 0,
-	14, 0, 7, 6,
+	0, -2, 1, 14, 3, 4, 5, 0, 0, 8,
+	10, 15, 12, 11, 14, 7, 2, 9, 13, 0,
+	6,
 }
 var yyTok1 = [...]int{
 
 	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 11,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
 	4, 5,
 }
 var yyTok2 = [...]int{
 
-	2, 3, 6, 7, 8, 9, 10,
+	2, 3, 6, 7, 8, 9,
 }
 var yyTok3 = [...]int{
 	0,
@@ -456,61 +452,55 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:32
+		//line lisp.y:31
 		{
 			yylex.(*Lexer).Ast(yyDollar[1].form)
 		}
 	case 2:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line lisp.y:37
+		//line lisp.y:36
 		{
 			yyVAL.form = ast.ListForm(yyDollar[2].list)
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:40
+		//line lisp.y:39
 		{
 			yyVAL.form = ast.Form(yyDollar[1].sym)
 		}
 	case 5:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:42
+		//line lisp.y:41
 		{
 			yyVAL.form = ast.Integer(yyDollar[1].ival)
 		}
 	case 6:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line lisp.y:47
+		//line lisp.y:46
 		{
 			yyVAL.form = ast.Quoted{yyDollar[3].list}
 		}
 	case 7:
-		yyDollar = yyS[yypt-4 : yypt+1]
-		//line lisp.y:49
-		{
-			yyVAL.form = ast.Quoted{yyDollar[3].list}
-		}
-	case 8:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:51
+		//line lisp.y:48
 		{
 			yyVAL.form = ast.Quoted{yyDollar[2].sym}
 		}
-	case 9:
+	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:56
+		//line lisp.y:53
 		{
 			yyVAL.list = make(ast.List, 0)
 		}
-	case 10:
+	case 9:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:58
+		//line lisp.y:55
 		{
 			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
-	case 11:
+	case 10:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:60
+		//line lisp.y:57
 		{
 			yyVAL.list = make(ast.List, 0)
 			yyVAL.list = append(yyVAL.list, yyDollar[1].form)

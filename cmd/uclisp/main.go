@@ -18,6 +18,10 @@ var (
 	history_fn = filepath.Join(os.TempDir(), ".uclisp")
 )
 
+type fooObject struct {
+	X, Y int
+}
+
 func dump(val ast.Value) string {
 	astStr, _ := json.Marshal(val)
 	return fmt.Sprintf("%v", string(astStr))
@@ -31,7 +35,7 @@ func main() {
 
 	// Autocomplete from the global namespace
 	line.SetCompleter(func(line string) (c []string) {
-		for n, _ := range ast.Global.Map {
+		for n, _ := range ast.Global.Map() {
 			if strings.HasPrefix(string(n), strings.ToLower(line)) {
 				c = append(c, string(n))
 			}

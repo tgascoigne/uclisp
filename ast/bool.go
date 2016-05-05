@@ -18,18 +18,14 @@ func (n nilValue) Type() Type {
 	return IntegerType
 }
 
-func (n nilValue) IsAtom() bool {
-	return true
-}
-
 func (n nilValue) IsNil() bool {
 	return true
 }
 
-func (n nilValue) Eval(env *Env) Value {
+func (n nilValue) Eval(env Env) Value {
 	return n
 }
 
-func (n nilValue) Equals(env *Env, other Value) bool {
+func (n nilValue) Equals(env Env, other Value) bool {
 	return other == Nil
 }

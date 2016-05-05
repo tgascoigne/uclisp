@@ -77,6 +77,15 @@ var simpleTestCases = []simpleTest{
 		(define x 20)
 		(set x 40)
 		x)`, ast.Integer(40)},
+	{`(progn
+		(define x 20)
+		(define y 40)
+		(list x y))`, ast.List{ast.Integer(20), ast.Integer(40)}},
+	{`(progn
+		(define x 20)
+		(define y 40)
+		'(x y))`, ast.List{ast.Symbol("x"), ast.Symbol("y")}},
+	{`'(x y)`, ast.List{ast.Symbol("x"), ast.Symbol("y")}},
 }
 
 func TestSimpleCases(t *testing.T) {
@@ -87,12 +96,11 @@ func TestSimpleCases(t *testing.T) {
 		t.Logf(dump(prog))
 
 		// Create a new global env for each test case for isolation
-		ast.Global = ast.Builtin.New()
+		ast.Global = ast.NewEnv(ast.Builtin)
 
 		result := expr.Eval(ast.Global)
 		if !result.Equals(ast.Global, tc.Result) {
 			t.Errorf("Value incorrect: got %v expected %v. Expression: %v", result, tc.Result, tc.Expression)
-			t.Errorf("Environment: %v", dump(ast.Global.Map))
 		}
 	}
 }
@@ -129,7 +137,7 @@ func TestExceptionCases(t *testing.T) {
 			t.Logf(dump(prog))
 
 			// Create a new global env for each test case for isolation
-			ast.Global = ast.Builtin.New()
+			ast.Global = ast.NewEnv(ast.Builtin)
 
 			result := expr.Eval(ast.Global)
 			t.Errorf("Result was %v", result) // Eval should have panicked

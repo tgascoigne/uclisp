@@ -185,75 +185,6 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
 
-		// list
-		{[]bool{false, false, false, false, true}, []func(rune) int{ // Transitions
-			func(r rune) int {
-				switch r {
-				case 105:
-					return -1
-				case 108:
-					return 1
-				case 115:
-					return -1
-				case 116:
-					return -1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 105:
-					return 2
-				case 108:
-					return -1
-				case 115:
-					return -1
-				case 116:
-					return -1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 105:
-					return -1
-				case 108:
-					return -1
-				case 115:
-					return 3
-				case 116:
-					return -1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 105:
-					return -1
-				case 108:
-					return -1
-				case 115:
-					return -1
-				case 116:
-					return 4
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 105:
-					return -1
-				case 108:
-					return -1
-				case 115:
-					return -1
-				case 116:
-					return -1
-				}
-				return -1
-			},
-		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1, -1}, nil},
-
 		// [0-9a-zA-Z_+=*\/<>-]+
 		{[]bool{false, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
@@ -621,27 +552,23 @@ OUTER0:
 			}
 		case 1:
 			{
-				return tListKeyword
-			}
-		case 2:
-			{
 				lval.sym = ast.Symbol(yylex.Text())
 				return tSymbol
 			}
-		case 3:
+		case 2:
 			{
 				return int(yylex.Text()[0])
 			}
-		case 4:
+		case 3:
 			{ /* eat up whitespace */
 			}
-		case 5:
+		case 4:
 			{ /* eat up one-line comments */
 			}
-		case 6:
+		case 5:
 			{ /* eat up multi-line comments. ugly but functional regex */
 			}
-		case 7:
+		case 6:
 			{
 				yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text()))
 			}

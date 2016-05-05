@@ -16,7 +16,7 @@ func init() {
 	Builtin.Define(Symbol(">="), SpecialForm{compGreaterEqForm})
 }
 
-func addForm(env *Env, args List) Value {
+func addForm(env Env, args List) Value {
 	var accum Integer
 	for _, op := range args {
 		iop := op.Eval(env)
@@ -30,7 +30,7 @@ func addForm(env *Env, args List) Value {
 	return accum
 }
 
-func subForm(env *Env, args List) Value {
+func subForm(env Env, args List) Value {
 	var accum Integer
 	for i, op := range args {
 		iop := op.Eval(env)
@@ -48,7 +48,7 @@ func subForm(env *Env, args List) Value {
 	return accum
 }
 
-func mulForm(env *Env, args List) Value {
+func mulForm(env Env, args List) Value {
 	var accum Integer
 	for i, op := range args {
 		iop := op.Eval(env)
@@ -66,7 +66,7 @@ func mulForm(env *Env, args List) Value {
 	return accum
 }
 
-func divForm(env *Env, args List) Value {
+func divForm(env Env, args List) Value {
 	var accum Integer
 	for i, op := range args {
 		iop := op.Eval(env)
@@ -84,7 +84,7 @@ func divForm(env *Env, args List) Value {
 	return accum
 }
 
-func notForm(env *Env, args List) Value {
+func notForm(env Env, args List) Value {
 	if len(args) != 1 {
 		exceptionArgCount("not", len(args))
 	}
@@ -100,7 +100,7 @@ func notForm(env *Env, args List) Value {
 
 /* comparisons */
 
-func mathEqualForm(env *Env, args List) Value {
+func mathEqualForm(env Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue
@@ -114,7 +114,7 @@ func mathEqualForm(env *Env, args List) Value {
 	return True
 }
 
-func mathNotEqualForm(env *Env, args List) Value {
+func mathNotEqualForm(env Env, args List) Value {
 	if len(args) != 2 {
 		exceptionArgCount("/=", len(args))
 	}
@@ -125,7 +125,7 @@ func mathNotEqualForm(env *Env, args List) Value {
 	return Nil
 }
 
-func compLessForm(env *Env, args List) Value {
+func compLessForm(env Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue
@@ -151,7 +151,7 @@ func compLessForm(env *Env, args List) Value {
 	return True
 }
 
-func compLessEqForm(env *Env, args List) Value {
+func compLessEqForm(env Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue
@@ -177,7 +177,7 @@ func compLessEqForm(env *Env, args List) Value {
 	return True
 }
 
-func compGreaterForm(env *Env, args List) Value {
+func compGreaterForm(env Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue
@@ -203,7 +203,7 @@ func compGreaterForm(env *Env, args List) Value {
 	return True
 }
 
-func compGreaterEqForm(env *Env, args List) Value {
+func compGreaterEqForm(env Env, args List) Value {
 	for i := range args {
 		if i == 0 {
 			continue

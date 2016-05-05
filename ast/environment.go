@@ -1,50 +1,72 @@
 package ast
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
-var ErrNoSymbol = errors.New("no such symbol")
+var ErrImmutableEnv = errors.New("immutable environment")
+var ErrNotAnEnvironment = errors.New("not a valid environment")
 
 func init() {
 	Builtin.Define(Symbol("let"), SpecialForm{letForm})
 	Builtin.Define(Symbol("set"), SpecialForm{setForm})
 	Builtin.Define(Symbol("define"), SpecialForm{defineForm})
+	Builtin.Define(Symbol("dumpenv"), SpecialForm{dumpenvForm})
 }
 
 // Env is a mapping of Symbol -> Value.
 // An Environment is heirarchical: each Env has a parent Env, and all Envs are rooted at Global.
 // Nested Envs are used for scoping of variables.
-type Env struct {
-	Map    map[Symbol]Value
-	Parent *Env
+type Env interface {
+	Map() map[Symbol]Value
+	Parent() Env
+	Define(s Symbol, v Value)
+	Defined(s Symbol) bool
+	Set(s Symbol, v Value)
+	Get(s Symbol) Value
+}
+
+type env struct {
+	m      map[Symbol]Value
+	parent Env
+}
+
+func (e *env) Map() map[Symbol]Value {
+	return e.m
+}
+
+func (e *env) Parent() Env {
+	return e.parent
 }
 
 // Builtin is the set of built in symbols
-var Builtin *Env = NewEnv(nil)
+var Builtin Env = NewEnv(nil)
 
 // Global is the interpreter's global scope.
-var Global *Env = NewEnv(Builtin)
+var Global Env = NewEnv(Builtin)
 
-func NewEnv(parent *Env) *Env {
-	return &Env{
-		Map:    make(map[Symbol]Value),
-		Parent: parent,
+func NewEnv(parent Env) Env {
+	return &env{
+		m:      make(map[Symbol]Value),
+		parent: parent,
 	}
 }
 
 // Define a symbol within this scope
-func (e *Env) Define(s Symbol, v Value) {
-	e.Map[s] = v
+func (e *env) Define(s Symbol, v Value) {
+	e.m[s] = v
 }
 
 // Set sets a value within this or a parent's scope
-func (e *Env) Set(s Symbol, v Value) {
-	if _, ok := e.Map[s]; ok {
-		e.Map[s] = v
+func (e *env) Set(s Symbol, v Value) {
+	if _, ok := e.m[s]; ok {
+		e.m[s] = v
 		return
 	}
 
-	if e.Parent != nil {
-		e.Parent.Set(s, v)
+	if e.parent != nil {
+		e.parent.Set(s, v)
 		return
 	}
 
@@ -52,13 +74,13 @@ func (e *Env) Set(s Symbol, v Value) {
 }
 
 // Test if s is set in this scope
-func (e *Env) Defined(s Symbol) bool {
-	if _, ok := e.Map[s]; ok {
+func (e *env) Defined(s Symbol) bool {
+	if _, ok := e.m[s]; ok {
 		return true
 	}
 
-	if e.Parent != nil {
-		return e.Parent.Defined(s)
+	if e.parent != nil {
+		return e.parent.Defined(s)
 	}
 
 	return false
@@ -66,25 +88,20 @@ func (e *Env) Defined(s Symbol) bool {
 
 // Get looks up a value within a given scope.
 // If the symbol does not exist in the current scope, it recurses up until it reaches the global scope.
-func (e *Env) Get(s Symbol) Value {
-	if v, ok := e.Map[s]; ok {
+func (e *env) Get(s Symbol) Value {
+	if v, ok := e.m[s]; ok {
 		return v
 	}
 
-	if e.Parent != nil {
-		return e.Parent.Get(s)
+	if e.parent != nil {
+		return e.parent.Get(s)
 	}
 
 	exception(ErrNoSymbol, string(s))
 	return nil
 }
 
-// New creates an environment with a parent environment of 'e'
-func (e *Env) New() *Env {
-	return NewEnv(e)
-}
-
-func defineForm(env *Env, args List) Value {
+func defineForm(env Env, args List) Value {
 	if len(args) != 2 {
 		exceptionArgCount("define", len(args))
 	}
@@ -106,7 +123,7 @@ func defineForm(env *Env, args List) Value {
 	return symbol
 }
 
-func setForm(env *Env, args List) Value {
+func setForm(env Env, args List) Value {
 	if len(args) != 2 {
 		exceptionArgCount("set", len(args))
 	}
@@ -128,12 +145,12 @@ func setForm(env *Env, args List) Value {
 	return env.Get(symbol)
 }
 
-func letForm(parentEnv *Env, args List) Value {
+func letForm(parentenv Env, args List) Value {
 	if len(args) == 0 {
 		exceptionArgCount("if", len(args))
 	}
 
-	env := parentEnv.New()
+	env := NewEnv(parentenv)
 
 	if bindings, ok := args[0].(ListForm); ok {
 		for _, b := range bindings {
@@ -169,4 +186,10 @@ func letForm(parentEnv *Env, args List) Value {
 	}
 
 	return result
+}
+
+func dumpenvForm(env Env, args List) Value {
+	//todo: dump in a more sensible way
+	fmt.Printf("%V\n", env)
+	return Nil
 }

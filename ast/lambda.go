@@ -16,24 +16,20 @@ func (l Lambda) Type() Type {
 	return LambdaType
 }
 
-func (l Lambda) IsAtom() bool {
-	return false
-}
-
 func (l Lambda) IsNil() bool {
 	return false
 }
 
-func (l Lambda) Equals(env *Env, other Value) bool {
+func (l Lambda) Equals(env Env, other Value) bool {
 	return false
 }
 
-func (l Lambda) Call(parentEnv *Env, args List) Value {
+func (l Lambda) Call(parentEnv Env, args List) Value {
 	if len(args) != len(l.Bindings) {
 		exceptionArgCountExpected("lambda", len(l.Bindings), len(args))
 	}
 
-	env := parentEnv.New()
+	env := NewEnv(parentEnv)
 
 	// bind symbols
 	for i, sym := range l.Bindings {
@@ -45,7 +41,7 @@ func (l Lambda) Call(parentEnv *Env, args List) Value {
 
 var ErrInvalidArgList = errors.New("invalid argument list")
 
-func lambdaForm(env *Env, args List) Value {
+func lambdaForm(env Env, args List) Value {
 	if len(args) < 2 {
 		exceptionArgCount("lambda", len(args))
 	}

@@ -12,7 +12,7 @@ func init() {
 	Builtin.Define(Symbol("if"), SpecialForm{ifForm})
 }
 
-func carForm(env *Env, args List) Value {
+func carForm(env Env, args List) Value {
 	if len(args) != 1 {
 		exceptionArgCount("car", len(args))
 	}
@@ -32,7 +32,7 @@ func carForm(env *Env, args List) Value {
 	return Nil
 }
 
-func cdrForm(env *Env, args List) Value {
+func cdrForm(env Env, args List) Value {
 	if len(args) != 1 {
 		exceptionArgCount("cdr", len(args))
 	}
@@ -56,7 +56,7 @@ func cdrForm(env *Env, args List) Value {
 	return Nil
 }
 
-func prognForm(env *Env, args List) Value {
+func prognForm(env Env, args List) Value {
 	prog := make(Prog, len(args))
 	for i, f := range args {
 		prog[i] = f
@@ -65,7 +65,7 @@ func prognForm(env *Env, args List) Value {
 	return prog.Eval(env)
 }
 
-func ifForm(env *Env, args List) Value {
+func ifForm(env Env, args List) Value {
 	var test, then, els Form
 	if len(args) == 2 {
 		test, then = args[0], args[1]

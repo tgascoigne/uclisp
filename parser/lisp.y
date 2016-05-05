@@ -15,7 +15,6 @@ import "github.com/tgascoigne/uclisp/ast"
 
 %token <sym> tSymbol
 %token <ival> tIntAtom
-%token tListKeyword
 
 %token tWhitespace
 %token tEOL
@@ -44,8 +43,6 @@ form
 
 quoted_form
 	: '\'' '(' list ')'
-      { $$ = ast.Quoted{$3} }
-    | '(' tListKeyword list ')'
       { $$ = ast.Quoted{$3} }
     | '\'' tSymbol
       { $$ = ast.Quoted{$2}}
