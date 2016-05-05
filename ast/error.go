@@ -17,7 +17,7 @@ func (e DetailedError) Cause() error {
 }
 
 func (e DetailedError) Error() string {
-	return fmt.Sprintf("%v: %v", e.err.Error(), e.detail)
+	return fmt.Sprintf("%v: %#v", e.err.Error(), e.detail)
 }
 
 func exceptionArgCount(callee string, given int) {

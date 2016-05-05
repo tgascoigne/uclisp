@@ -1,6 +1,10 @@
 package ast
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"io/ioutil"
+)
 
 var ErrInvalidVarForm = errors.New("invalid variable binding list")
 var ErrInvalidType = errors.New("invalid type")
@@ -10,6 +14,65 @@ func init() {
 	Builtin.Define(Symbol("cdr"), SpecialForm{cdrForm})
 	Builtin.Define(Symbol("progn"), SpecialForm{prognForm})
 	Builtin.Define(Symbol("if"), SpecialForm{ifForm})
+	Builtin.Define(Symbol("load-file"), SpecialForm{loadFileForm})
+	Builtin.Define(Symbol("eval"), SpecialForm{evalForm})
+	Builtin.Define(Symbol("symbol-value"), SpecialForm{symbolValueForm})
+}
+
+func evalForm(env Env, args List) Value {
+	if len(args) != 1 {
+		exceptionArgCount("eval", len(args))
+	}
+
+	form := args[0].Eval(env)
+	if form, ok := form.(Form); ok {
+		fmt.Printf("evaling %#v\n", form)
+		val := form.Eval(env)
+		fmt.Printf(".. into %#v\n", val)
+		return val
+	}
+
+	return form
+}
+
+func symbolValueForm(env Env, args List) Value {
+	if len(args) != 1 {
+		exceptionArgCount("symbol-value", len(args))
+	}
+
+	symbol := args[0].Eval(env)
+	if symbol.Type() != SymbolType {
+		exception(ErrInvalidType, symbol)
+	}
+
+	return env.Get(symbol.(Symbol))
+}
+
+func loadFileForm(parentenv Env, args List) Value {
+	if len(args) != 1 {
+		exceptionArgCount("load-file", len(args))
+	}
+
+	sVal := args[0].Eval(parentenv)
+
+	var path string
+	if sVal.Type() == StringType {
+		path = string(sVal.(String))
+	} else {
+		exception(ErrInvalidType, sVal)
+	}
+
+	//todo: better logging
+	fmt.Printf("load-file: %v\n", path)
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		exception(err, path)
+	}
+
+	env := NewEnv(parentenv)
+	prog := Parse(path, string(data))
+	return prog.Eval(env)
 }
 
 func carForm(env Env, args List) Value {

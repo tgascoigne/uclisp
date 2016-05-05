@@ -1,4 +1,4 @@
-package parser
+package ast
 
 import (
 	"bufio"
@@ -6,8 +6,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-
-	"github.com/tgascoigne/uclisp/ast"
 )
 
 type frame struct {
@@ -339,13 +337,13 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1}, []int{ /* End-of-input transitions */ -1, -1}, nil},
 
-		// \/\/[^\n]*
+		// ;;[^\n]*
 		{[]bool{false, false, true, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
 				switch r {
 				case 10:
 					return -1
-				case 47:
+				case 59:
 					return 1
 				}
 				return -1
@@ -354,7 +352,7 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 				switch r {
 				case 10:
 					return -1
-				case 47:
+				case 59:
 					return 2
 				}
 				return -1
@@ -363,7 +361,7 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 				switch r {
 				case 10:
 					return -1
-				case 47:
+				case 59:
 					return 3
 				}
 				return 3
@@ -372,146 +370,12 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 				switch r {
 				case 10:
 					return -1
-				case 47:
+				case 59:
 					return 3
 				}
 				return 3
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1}, nil},
-
-		// \/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*\/
-		{[]bool{false, false, false, false, false, false, false, false, true, false}, []func(rune) int{ // Transitions
-			func(r rune) int {
-				switch r {
-				case 10:
-					return -1
-				case 13:
-					return -1
-				case 42:
-					return -1
-				case 47:
-					return 1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return -1
-				case 13:
-					return -1
-				case 42:
-					return 2
-				case 47:
-					return -1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 3
-				case 13:
-					return 3
-				case 42:
-					return 4
-				case 47:
-					return 5
-				}
-				return 5
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 3
-				case 13:
-					return 3
-				case 42:
-					return 4
-				case 47:
-					return 5
-				}
-				return 5
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 6
-				case 13:
-					return 6
-				case 42:
-					return 7
-				case 47:
-					return 8
-				}
-				return 9
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 3
-				case 13:
-					return 3
-				case 42:
-					return 4
-				case 47:
-					return 5
-				}
-				return 5
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 3
-				case 13:
-					return 3
-				case 42:
-					return 4
-				case 47:
-					return 5
-				}
-				return 5
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 6
-				case 13:
-					return 6
-				case 42:
-					return 7
-				case 47:
-					return -1
-				}
-				return 9
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return -1
-				case 13:
-					return -1
-				case 42:
-					return -1
-				case 47:
-					return -1
-				}
-				return -1
-			},
-			func(r rune) int {
-				switch r {
-				case 10:
-					return 3
-				case 13:
-					return 3
-				case 42:
-					return 4
-				case 47:
-					return 5
-				}
-				return 5
-			},
-		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, nil},
 
 		// .
 		{[]bool{false, true}, []func(rune) int{ // Transitions
@@ -598,7 +462,7 @@ OUTER0:
 			}
 		case 2:
 			{
-				lval.sym = ast.Symbol(yylex.Text())
+				lval.sym = Symbol(yylex.Text())
 				return tSymbol
 			}
 		case 3:
@@ -609,12 +473,9 @@ OUTER0:
 			{ /* eat up whitespace */
 			}
 		case 5:
-			{ /* eat up one-line comments */
+			{ /* eat up comments */
 			}
 		case 6:
-			{ /* eat up multi-line comments. ugly but functional regex */
-			}
-		case 7:
 			{
 				yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text()))
 			}

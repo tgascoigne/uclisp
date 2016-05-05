@@ -1,13 +1,13 @@
 %{
-package parser
+package ast
 
-import "github.com/tgascoigne/uclisp/ast"
 %}
 
 %union {
-    list ast.List
-    form ast.Form
-    sym ast.Symbol
+    prog Prog
+    list List
+    form Form
+    sym Symbol
     str string
     ival int
 }
@@ -23,43 +23,53 @@ import "github.com/tgascoigne/uclisp/ast"
 
 %type <list> list
 %type <form> form quoted_form
+%type <prog> prog
 
-%start prog
+%start begin
 
 %%
 
-prog
-    : form
+begin
+	: prog
       { yylex.(*Lexer).Ast($1) }
+	;
+
+prog
+	: ws✳
+      { $$ = make(Prog, 0) }
+    | prog form
+      { $$ = append($$, $2) }
+    | form
+      { $$ = Prog{$1} }
     ;
 
 form
     : '(' list ')'
-      { $$ = ast.ListForm($2) }
+      { $$ = ListForm($2) }
 	| quoted_form
     | tSymbol
-      { $$ = ast.Form($1) }
+      { $$ = Form($1) }
     | tIntAtom
-      { $$ = ast.Integer($1) }
+      { $$ = Integer($1) }
     | tStringAtom
-      { $$ = ast.String($1) }
+      { $$ = String($1) }
     ;
 
 quoted_form
 	: '\'' '(' list ')'
-      { $$ = ast.Quoted{$3} }
+      { $$ = Quoted{$3} }
     | '\'' tSymbol
-      { $$ = ast.Quoted{$2}}
+      { $$ = Quoted{$2}}
 	;
 
 list
     : ws✳
-      { $$ = make(ast.List, 0) }
+      { $$ = make(List, 0) }
     | list form
       { $$ = append($$, $2) }
     | form
       {
-        $$ = make(ast.List, 0)
+        $$ = make(List, 0)
         $$ = append($$, $1)
       }
     ;

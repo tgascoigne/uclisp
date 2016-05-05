@@ -1,17 +1,16 @@
 //line lisp.y:2
-package parser
+package ast
 
 import __yyfmt__ "fmt"
 
 //line lisp.y:2
-import "github.com/tgascoigne/uclisp/ast"
-
-//line lisp.y:7
+//line lisp.y:6
 type yySymType struct {
 	yys  int
-	list ast.List
-	form ast.Form
-	sym  ast.Symbol
+	prog Prog
+	list List
+	form Form
+	sym  Symbol
 	str  string
 	ival int
 }
@@ -41,7 +40,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line lisp.y:79
+//line lisp.y:89
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -50,52 +49,53 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 17
+const yyNprod = 20
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 39
+const yyLast = 41
 
 var yyAct = [...]int{
 
-	11, 2, 3, 21, 5, 6, 7, 13, 14, 8,
-	18, 3, 9, 5, 6, 7, 14, 12, 8, 10,
-	1, 18, 3, 17, 5, 6, 7, 4, 20, 8,
-	3, 19, 5, 6, 7, 0, 15, 8, 16,
+	17, 4, 15, 14, 6, 24, 8, 9, 10, 5,
+	6, 12, 8, 9, 10, 13, 22, 12, 13, 16,
+	3, 18, 23, 11, 22, 6, 21, 8, 9, 10,
+	1, 6, 12, 8, 9, 10, 2, 19, 12, 20,
+	7,
 }
 var yyPact = [...]int{
 
-	26, -1000, -1000, 7, -1000, -1000, -1000, -1000, 32, 18,
-	-1000, -1000, -1000, -1, -1000, 7, -1000, -1000, -1000, -1000,
-	-2, -1000,
+	6, -1000, 27, -1000, -1000, -1000, 6, -1000, -1000, -1000,
+	-1000, 9, 33, -1000, -1000, 21, -1000, -1000, -1000, 6,
+	-1000, -1000, -1000, 0, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 12, 0, 27, 20, 19, 7, 17,
+	0, 2, 0, 40, 36, 30, 19, 23, 9,
 }
 var yyR1 = [...]int{
 
-	0, 4, 2, 2, 2, 2, 2, 3, 3, 1,
-	1, 1, 6, 7, 7, 5, 5,
+	0, 5, 4, 4, 4, 2, 2, 2, 2, 2,
+	3, 3, 1, 1, 1, 7, 8, 8, 6, 6,
 }
 var yyR2 = [...]int{
 
-	0, 1, 3, 1, 1, 1, 1, 4, 2, 1,
-	2, 1, 1, 1, 2, 0, 1,
+	0, 1, 1, 2, 1, 3, 1, 1, 1, 1,
+	4, 2, 1, 2, 1, 1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -4, -2, 4, -3, 6, 7, 8, 11, -1,
-	-5, -2, -7, -6, 9, 4, 6, 5, -2, -7,
-	-1, 5,
+	-1000, -5, -4, -6, -2, -8, 4, -3, 6, 7,
+	8, -7, 11, 9, -2, -1, -6, -2, -8, 4,
+	6, 5, -2, -1, 5,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 15, 3, 4, 5, 6, 0, 0,
-	9, 11, 16, 13, 12, 15, 8, 2, 10, 14,
-	0, 7,
+	18, -2, 1, 2, 4, 19, 18, 6, 7, 8,
+	9, 16, 0, 15, 3, 0, 12, 14, 17, 18,
+	11, 5, 13, 0, 10,
 }
 var yyTok1 = [...]int{
 
@@ -455,63 +455,81 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:33
+		//line lisp.y:34
 		{
-			yylex.(*Lexer).Ast(yyDollar[1].form)
+			yylex.(*Lexer).Ast(yyDollar[1].prog)
 		}
 	case 2:
-		yyDollar = yyS[yypt-3 : yypt+1]
-		//line lisp.y:38
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:39
 		{
-			yyVAL.form = ast.ListForm(yyDollar[2].list)
+			yyVAL.prog = make(Prog, 0)
+		}
+	case 3:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:41
+		{
+			yyVAL.prog = append(yyVAL.prog, yyDollar[2].form)
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:41
-		{
-			yyVAL.form = ast.Form(yyDollar[1].sym)
-		}
-	case 5:
-		yyDollar = yyS[yypt-1 : yypt+1]
 		//line lisp.y:43
 		{
-			yyVAL.form = ast.Integer(yyDollar[1].ival)
+			yyVAL.prog = Prog{yyDollar[1].form}
 		}
-	case 6:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:45
+	case 5:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line lisp.y:48
 		{
-			yyVAL.form = ast.String(yyDollar[1].str)
+			yyVAL.form = ListForm(yyDollar[2].list)
 		}
 	case 7:
-		yyDollar = yyS[yypt-4 : yypt+1]
-		//line lisp.y:50
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:51
 		{
-			yyVAL.form = ast.Quoted{yyDollar[3].list}
+			yyVAL.form = Form(yyDollar[1].sym)
 		}
 	case 8:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:52
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:53
 		{
-			yyVAL.form = ast.Quoted{yyDollar[2].sym}
+			yyVAL.form = Integer(yyDollar[1].ival)
 		}
 	case 9:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:57
+		//line lisp.y:55
 		{
-			yyVAL.list = make(ast.List, 0)
+			yyVAL.form = String(yyDollar[1].str)
 		}
 	case 10:
+		yyDollar = yyS[yypt-4 : yypt+1]
+		//line lisp.y:60
+		{
+			yyVAL.form = Quoted{yyDollar[3].list}
+		}
+	case 11:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:59
+		//line lisp.y:62
+		{
+			yyVAL.form = Quoted{yyDollar[2].sym}
+		}
+	case 12:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:67
+		{
+			yyVAL.list = make(List, 0)
+		}
+	case 13:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:69
 		{
 			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
-	case 11:
+	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:61
+		//line lisp.y:71
 		{
-			yyVAL.list = make(ast.List, 0)
+			yyVAL.list = make(List, 0)
 			yyVAL.list = append(yyVAL.list, yyDollar[1].form)
 		}
 	}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/tgascoigne/uclisp/ast"
-	"github.com/tgascoigne/uclisp/parser"
 
 	"github.com/peterh/liner"
 )
@@ -20,14 +18,19 @@ var (
 
 type fooObject struct {
 	X, Y int
+	Bar  struct {
+		Z int
+	}
 }
 
-func dump(val ast.Value) string {
-	astStr, _ := json.Marshal(val)
-	return fmt.Sprintf("%v", string(astStr))
+func dump(val interface{}) string {
+	return fmt.Sprintf("%#v", val)
 }
 
 func main() {
+	foo := fooObject{X: 10, Y: 20}
+	ast.Builtin.Define(ast.Symbol("foo"), ast.Bind(&foo))
+
 	line := liner.NewLiner()
 	defer line.Close()
 
@@ -78,7 +81,7 @@ func doLine(line string) {
 		}
 	}()
 
-	prog := parser.Parse("stdin", line)
+	prog := ast.Parse("stdin", line)
 	if prog == nil {
 		panic("parse returned nil")
 	}

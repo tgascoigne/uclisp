@@ -1,0 +1,29 @@
+/[0-9]+/ {
+	var err error
+	lval.ival, err = strconv.Atoi(yylex.Text())
+	if err != nil {
+		yylex.Error(err.Error())
+	}
+	return tIntAtom
+}
+
+/"[^"\n]*"/ {
+	text := yylex.Text()
+    lval.str = text[1:len(text)-1]
+    return tStringAtom
+}
+
+/[0-9a-zA-Z_+=*\/<>-]+/ {
+	lval.sym = Symbol(yylex.Text())
+	return tSymbol
+}
+
+/[()']/ {
+    return int(yylex.Text()[0])
+}
+
+/[ \t\n]+/   { /* eat up whitespace */ }
+/;;[^\n]*/   { /* eat up comments */ }
+/./          { yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text())) }
+//
+package ast
