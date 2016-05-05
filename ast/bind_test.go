@@ -10,10 +10,12 @@ import (
 )
 
 type barObject struct {
+	Z int
 }
 
 type fooObject struct {
 	X, Y int
+	Bar  barObject
 }
 
 func (f fooObject) TestFunc1() int {
@@ -33,6 +35,9 @@ func (f *fooObject) TestFunc3(a, b int) (int, int) {
 var foo = fooObject{
 	X: 20,
 	Y: 16,
+	Bar: barObject{
+		10,
+	},
 }
 
 type bindTest struct {
@@ -54,6 +59,10 @@ var bindTestCases = []bindTest{
 	{"(with foo (TestFunc2 12 34))", ast.Integer(12 + 34)},
 	{"(with foo (TestFunc3 12 34))", ast.List{ast.Integer(12), ast.Integer(34)}},
 	{"(with foo (TestFunc3 12 34) (list X Y))", ast.List{ast.Integer(12), ast.Integer(34)}},
+	{`(progn
+		(let ((ztmp (with foo (with Bar Z))))
+		  (with foo (with Bar (set Z 20)))
+		  (* (with foo (with Bar Z)) ztmp)))`, ast.Integer(foo.Bar.Z * 20)},
 }
 
 func TestSimpleCases(t *testing.T) {
@@ -66,7 +75,7 @@ func TestSimpleCases(t *testing.T) {
 		// Create a new global env for each test case for isolation
 		ast.Global = ast.NewEnv(ast.Builtin)
 		fooCopy := foo
-		ast.Global.Define(ast.Symbol("foo"), ast.BindType(&fooCopy))
+		ast.Global.Define(ast.Symbol("foo"), ast.Bind(&fooCopy))
 
 		result := expr.Eval(ast.Global)
 		if !result.Equals(ast.Global, tc.Result) {
@@ -84,7 +93,7 @@ func TestFieldPersistence(t *testing.T) {
 
 	// Create a new global env for each test case for isolation
 	ast.Global = ast.NewEnv(ast.Builtin)
-	ast.Global.Define(ast.Symbol("foo"), ast.BindType(&fooCopy))
+	ast.Global.Define(ast.Symbol("foo"), ast.Bind(&fooCopy))
 
 	prog := parser.Parse("test", `(progn
 		(with foo (set X (+ X 500)))

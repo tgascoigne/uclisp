@@ -3,7 +3,7 @@ package ast
 import "reflect"
 
 type GoFunc struct {
-	v     interface{}
+	v     reflect.Value
 	index int
 }
 
@@ -12,7 +12,7 @@ func (f GoFunc) Type() Type {
 }
 
 func (f GoFunc) IsNil() bool {
-	return f.v == nil
+	return f.v.IsNil()
 }
 
 func (f GoFunc) Equals(env Env, other Value) bool {
@@ -20,7 +20,7 @@ func (f GoFunc) Equals(env Env, other Value) bool {
 }
 
 func (f GoFunc) Call(env Env, args List) Value {
-	recvVal := reflect.ValueOf(f.v)
+	recvVal := f.v
 	method := recvVal.Method(f.index)
 
 	goArgs := make([]reflect.Value, len(args))
@@ -33,7 +33,7 @@ func (f GoFunc) Call(env Env, args List) Value {
 
 	outputs := make(List, len(goOutputs))
 	for i := range goOutputs {
-		v := typeConvIn(goOutputs[i].Interface())
+		v := BindValue(goOutputs[i])
 		switch v := v.(type) {
 		case Form:
 			outputs[i] = v

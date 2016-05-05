@@ -21,7 +21,7 @@ func addForm(env Env, args List) Value {
 	for _, op := range args {
 		iop := op.Eval(env)
 		if iop.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", iop.Type(), IntegerType))
 		}
 
 		accum += iop.(Integer)
@@ -35,7 +35,7 @@ func subForm(env Env, args List) Value {
 	for i, op := range args {
 		iop := op.Eval(env)
 		if iop.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", iop.Type(), IntegerType))
 		}
 
 		if i == 0 {
@@ -53,7 +53,7 @@ func mulForm(env Env, args List) Value {
 	for i, op := range args {
 		iop := op.Eval(env)
 		if iop.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", iop.Type(), IntegerType))
 		}
 
 		if i == 0 {
@@ -71,7 +71,7 @@ func divForm(env Env, args List) Value {
 	for i, op := range args {
 		iop := op.Eval(env)
 		if iop.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", iop.Type(), IntegerType))
 		}
 
 		if i == 0 {
@@ -133,12 +133,12 @@ func compLessForm(env Env, args List) Value {
 
 		op1 := args[i-1].Eval(env)
 		if op1.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op1.Type(), IntegerType))
 		}
 
 		op2 := args[i].Eval(env)
 		if op2.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op2.Type(), IntegerType))
 		}
 
 		iop1, iop2 := op1.(Integer), op2.(Integer)
@@ -159,12 +159,12 @@ func compLessEqForm(env Env, args List) Value {
 
 		op1 := args[i-1].Eval(env)
 		if op1.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op1.Type(), IntegerType))
 		}
 
 		op2 := args[i].Eval(env)
 		if op2.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op2.Type(), IntegerType))
 		}
 
 		iop1, iop2 := op1.(Integer), op2.(Integer)
@@ -185,12 +185,12 @@ func compGreaterForm(env Env, args List) Value {
 
 		op1 := args[i-1].Eval(env)
 		if op1.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op1.Type(), IntegerType))
 		}
 
 		op2 := args[i].Eval(env)
 		if op2.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op2.Type(), IntegerType))
 		}
 
 		iop1, iop2 := op1.(Integer), op2.(Integer)
@@ -211,12 +211,12 @@ func compGreaterEqForm(env Env, args List) Value {
 
 		op1 := args[i-1].Eval(env)
 		if op1.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op1.Type(), IntegerType))
 		}
 
 		op2 := args[i].Eval(env)
 		if op2.Type() != IntegerType {
-			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v"))
+			exception(ErrInvalidType, fmt.Sprintf("Type is %v, expected %v", op2.Type(), IntegerType))
 		}
 
 		iop1, iop2 := op1.(Integer), op2.(Integer)

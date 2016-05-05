@@ -33,14 +33,9 @@ func withForm(parentenv Env, args List) Value {
 	return result
 }
 
-// BindType produces a value which can be used to access and manipulate go values from lisp
-func BindType(o interface{}) Value {
-	return &GoEnv{V: o}
-}
-
 // GoEnv is an environment which provides access to methods and fields (if V is a struct) of a go type
 type GoEnv struct {
-	V interface{}
+	V reflect.Value
 	// maps of symbol to reflect indices
 	fields     map[Symbol][]int
 	methods    map[Symbol]int
@@ -52,19 +47,19 @@ func (e *GoEnv) Type() Type {
 }
 
 func (e *GoEnv) IsNil() bool {
-	return e.V == nil
+	return e.V.IsNil()
 }
 
 func (e *GoEnv) Equals(env Env, other Value) bool {
 	if other, ok := other.(*GoEnv); ok {
-		return e.V == other.V
+		return e.V.Interface() == other.V.Interface()
 	}
 
 	return false
 }
 
 func (e *GoEnv) Eval(env Env) Value {
-	return typeConvIn(e.V)
+	return BindValue(e.V)
 }
 
 func (e *GoEnv) reflect() {
@@ -73,8 +68,8 @@ func (e *GoEnv) reflect() {
 		return
 	}
 
-	ptrTyp := reflect.TypeOf(e.V)
-	typ := ptrTyp
+	typ := e.V.Type()
+	ptrType := typ
 	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Interface {
 		typ = typ.Elem()
 	}
@@ -86,8 +81,8 @@ func (e *GoEnv) reflect() {
 	}
 
 	e.methods = make(map[Symbol]int)
-	for i := 0; i < ptrTyp.NumMethod(); i++ {
-		methodType := ptrTyp.Method(i)
+	for i := 0; i < ptrType.NumMethod(); i++ {
+		methodType := ptrType.Method(i)
 		e.methods[Symbol(methodType.Name)] = methodType.Index
 	}
 }
@@ -154,7 +149,7 @@ var ErrImmutableSet = fmt.Errorf("%s, binding on non-pointer value?", ErrImmutab
 func (e *GoEnv) setField(s Symbol, index []int, v Value) {
 	e.reflect()
 
-	envVal := reflect.ValueOf(e.V)
+	envVal := e.V
 	if envVal.Kind() == reflect.Ptr || envVal.Kind() == reflect.Interface {
 		envVal = envVal.Elem()
 	}
@@ -169,16 +164,16 @@ func (e *GoEnv) setField(s Symbol, index []int, v Value) {
 	field.Set(reflect.ValueOf(convValue))
 }
 
-func (e *GoEnv) getField(index []int) *GoEnv {
+func (e *GoEnv) getField(index []int) Value {
 	e.reflect()
 
-	envVal := reflect.ValueOf(e.V)
+	envVal := e.V
 	if envVal.Kind() == reflect.Ptr || envVal.Kind() == reflect.Interface {
 		envVal = envVal.Elem()
 	}
 
 	val := envVal.FieldByIndex(index)
-	return &GoEnv{V: val.Interface()}
+	return BindValue(val)
 }
 
 func (e *GoEnv) getMethod(index int) Value {
