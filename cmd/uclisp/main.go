@@ -31,6 +31,20 @@ func main() {
 	foo := fooObject{X: 10, Y: 20}
 	ast.Builtin.Define(ast.Symbol("foo"), ast.Bind(&foo))
 
+	log.SetPrefix("")
+	log.SetFlags(0)
+
+	if len(os.Args) > 1 {
+		path := os.Args[1]
+		prog := ast.Parse(path, "(load-file \""+path+"\")")
+		result := prog.Eval(ast.Global)
+		log.Print(dump(result))
+	} else {
+		repl()
+	}
+}
+
+func repl() {
 	line := liner.NewLiner()
 	defer line.Close()
 
@@ -50,9 +64,6 @@ func main() {
 		line.ReadHistory(f)
 		f.Close()
 	}
-
-	log.SetPrefix("")
-	log.SetFlags(0)
 
 	for {
 		if expr, err := line.Prompt("> "); err == nil {

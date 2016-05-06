@@ -40,7 +40,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line lisp.y:89
+//line lisp.y:95
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -505,29 +505,33 @@ yydefault:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		//line lisp.y:60
 		{
-			yyVAL.form = Quoted{yyDollar[3].list}
+			qlist := yyDollar[3].list
+			for i := range qlist {
+				qlist[i] = Quoted{qlist[i]}
+			}
+			yyVAL.form = Quoted(qlist)
 		}
 	case 11:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:62
+		//line lisp.y:68
 		{
 			yyVAL.form = Quoted{yyDollar[2].sym}
 		}
 	case 12:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:67
+		//line lisp.y:73
 		{
 			yyVAL.list = make(List, 0)
 		}
 	case 13:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:69
+		//line lisp.y:75
 		{
 			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
 	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:71
+		//line lisp.y:77
 		{
 			yyVAL.list = make(List, 0)
 			yyVAL.list = append(yyVAL.list, yyDollar[1].form)

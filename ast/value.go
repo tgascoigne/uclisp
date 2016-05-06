@@ -19,11 +19,11 @@ func init() {
 // Quoted wraps a Value into a Form, such that when evaluated it returns itsself.
 // eg. '(1 2 3) evaluates to (1 2 3) rather than to a function call on the symbol '1'
 type Quoted struct {
-	V Value
+	Value
 }
 
 func (q Quoted) Eval(env Env) Value {
-	return q.V
+	return q.Value
 }
 
 type Value interface {
