@@ -3,6 +3,10 @@ package uclisp
 // Procedure is a function which can be called with some arguments
 type Procedure func(env Env, args []Elem) Elem
 
+func (p Procedure) Equals(env Env, other Elem) bool {
+	return false
+}
+
 func (p Procedure) Eval(env Env) Elem {
 	return p
 }
