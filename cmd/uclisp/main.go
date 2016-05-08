@@ -5,9 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/tgascoigne/uclisp/ast"
+	"github.com/tgascoigne/uclisp"
 
 	"github.com/peterh/liner"
 )
@@ -16,35 +15,15 @@ var (
 	history_fn = filepath.Join(os.TempDir(), ".uclisp")
 )
 
-type fooObject struct {
-	X, Y int
-	Bar  struct {
-		Z int
-	}
-}
-
 func dump(val interface{}) string {
 	return fmt.Sprintf("%#v", val)
 }
 
 func main() {
-	foo := fooObject{X: 10, Y: 20}
-	ast.Builtin.Define(ast.Symbol("foo"), ast.Bind(&foo))
-
 	line := liner.NewLiner()
 	defer line.Close()
 
 	line.SetCtrlCAborts(true)
-
-	// Autocomplete from the global namespace
-	line.SetCompleter(func(line string) (c []string) {
-		for n, _ := range ast.Global.Map() {
-			if strings.HasPrefix(string(n), strings.ToLower(line)) {
-				c = append(c, string(n))
-			}
-		}
-		return
-	})
 
 	if f, err := os.Open(history_fn); err == nil {
 		line.ReadHistory(f)
@@ -81,10 +60,10 @@ func doLine(line string) {
 		}
 	}()
 
-	prog := ast.Parse("stdin", line)
+	prog := uclisp.Parse("stdin", line)
 	if prog == nil {
 		panic("parse returned nil")
 	}
-	result := prog.Eval(ast.Global)
+	result := prog.Eval(uclisp.Global)
 	log.Println(dump(result))
 }

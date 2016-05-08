@@ -1,10 +1,13 @@
-package ast
+package uclisp
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
-	"io"
 	"strconv"
+)
+import (
+	"bufio"
+	"io"
 	"strings"
 )
 
@@ -448,21 +451,23 @@ OUTER0:
 		case 0:
 			{
 				var err error
-				lval.ival, err = strconv.Atoi(yylex.Text())
+				var i int
+				i, err = strconv.Atoi(yylex.Text())
 				if err != nil {
 					yylex.Error(err.Error())
 				}
+				lval.elem = Integer(i)
 				return tIntAtom
 			}
 		case 1:
 			{
 				text := yylex.Text()
-				lval.str = text[1 : len(text)-1]
+				lval.elem = String(text[1 : len(text)-1])
 				return tStringAtom
 			}
 		case 2:
 			{
-				lval.sym = Symbol(yylex.Text())
+				lval.elem = Symbol(yylex.Text())
 				return tSymbol
 			}
 		case 3:
@@ -487,4 +492,25 @@ OUTER0:
 	yylex.pop()
 
 	return 0
+}
+
+type result struct {
+	Ast Elem
+}
+
+func (l *Lexer) Ast(prog Elem) {
+	l.parseResult.(*result).Ast = prog
+}
+
+func (l *Lexer) Error(err string) {}
+
+func Parse(filename, source string) Elem {
+	result := &result{}
+	lexer := NewLexerWithInit(bytes.NewBufferString(source), func(lex *Lexer) {
+		lex.parseResult = result
+	})
+
+	yyErrorVerbose = true
+	_ = yyParse(lexer)
+	return result.Ast
 }

@@ -1,5 +1,5 @@
 //line lisp.y:2
-package ast
+package uclisp
 
 import __yyfmt__ "fmt"
 
@@ -8,11 +8,7 @@ import __yyfmt__ "fmt"
 type yySymType struct {
 	yys  int
 	prog Prog
-	list List
-	form Form
-	sym  Symbol
-	str  string
-	ival int
+	elem Elem
 }
 
 const tSymbol = 57346
@@ -27,20 +23,20 @@ var yyToknames = [...]string{
 	"$unk",
 	"'('",
 	"')'",
+	"'\\''",
 	"tSymbol",
 	"tIntAtom",
 	"tStringAtom",
 	"tWhitespace",
 	"tEOL",
-	"'\\''",
 }
 var yyStatenames = [...]string{}
 
 const yyEofCode = 1
 const yyErrCode = 2
-const yyMaxDepth = 200
+const yyInitialStackSize = 16
 
-//line lisp.y:89
+//line lisp.y:61
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -49,7 +45,7 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 20
+const yyNprod = 15
 const yyPrivate = 57344
 
 var yyTokenNames []string
@@ -59,55 +55,52 @@ const yyLast = 41
 
 var yyAct = [...]int{
 
-	17, 4, 15, 14, 6, 24, 8, 9, 10, 5,
-	6, 12, 8, 9, 10, 13, 22, 12, 13, 16,
-	3, 18, 23, 11, 22, 6, 21, 8, 9, 10,
-	1, 6, 12, 8, 9, 10, 2, 19, 12, 20,
-	7,
+	10, 2, 3, 8, 4, 5, 6, 7, 13, 16,
+	3, 19, 4, 5, 6, 7, 14, 13, 18, 16,
+	3, 15, 4, 5, 6, 7, 3, 11, 4, 5,
+	6, 7, 12, 9, 1, 0, 0, 0, 0, 0,
+	17,
 }
 var yyPact = [...]int{
 
-	6, -1000, 27, -1000, -1000, -1000, 6, -1000, -1000, -1000,
-	-1000, 9, 33, -1000, -1000, 21, -1000, -1000, -1000, 6,
-	-1000, -1000, -1000, 0, -1000,
+	22, -1000, -1000, -2, 12, -1000, -1000, -1000, 16, -1000,
+	-1000, -1000, 7, -1000, -2, -1000, -1000, -1000, 6, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 2, 0, 40, 36, 30, 19, 23, 9,
+	0, 0, 3, 34, 33, 32, 27,
 }
 var yyR1 = [...]int{
 
-	0, 5, 4, 4, 4, 2, 2, 2, 2, 2,
-	3, 3, 1, 1, 1, 7, 8, 8, 6, 6,
+	0, 3, 1, 1, 1, 1, 1, 2, 2, 2,
+	5, 6, 6, 4, 4,
 }
 var yyR2 = [...]int{
 
-	0, 1, 1, 2, 1, 3, 1, 1, 1, 1,
-	4, 2, 1, 2, 1, 1, 1, 2, 0, 1,
+	0, 1, 3, 4, 1, 1, 1, 1, 2, 1,
+	1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -5, -4, -6, -2, -8, 4, -3, 6, 7,
-	8, -7, 11, 9, -2, -1, -6, -2, -8, 4,
-	6, 5, -2, -1, 5,
+	-1000, -3, -1, 4, 6, 7, 8, 9, -2, -4,
+	-1, -6, -5, 10, 4, 5, -1, -6, -2, 5,
 }
 var yyDef = [...]int{
 
-	18, -2, 1, 2, 4, 19, 18, 6, 7, 8,
-	9, 16, 0, 15, 3, 0, 12, 14, 17, 18,
-	11, 5, 13, 0, 10,
+	0, -2, 1, 13, 0, 4, 5, 6, 0, 7,
+	9, 14, 11, 10, 13, 2, 8, 12, 0, 3,
 }
 var yyTok1 = [...]int{
 
 	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 11,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 6,
 	4, 5,
 }
 var yyTok2 = [...]int{
 
-	2, 3, 6, 7, 8, 9, 10,
+	2, 3, 7, 8, 9, 10, 11,
 }
 var yyTok3 = [...]int{
 	0,
@@ -139,18 +132,17 @@ type yyParser interface {
 }
 
 type yyParserImpl struct {
-	lookahead func() int
+	lval  yySymType
+	stack [yyInitialStackSize]yySymType
+	char  int
 }
 
 func (p *yyParserImpl) Lookahead() int {
-	return p.lookahead()
+	return p.char
 }
 
 func yyNewParser() yyParser {
-	p := &yyParserImpl{
-		lookahead: func() int { return -1 },
-	}
-	return p
+	return &yyParserImpl{}
 }
 
 const yyFlag = -1000
@@ -278,22 +270,20 @@ func yyParse(yylex yyLexer) int {
 
 func (yyrcvr *yyParserImpl) Parse(yylex yyLexer) int {
 	var yyn int
-	var yylval yySymType
 	var yyVAL yySymType
 	var yyDollar []yySymType
 	_ = yyDollar // silence set and not used
-	yyS := make([]yySymType, yyMaxDepth)
+	yyS := yyrcvr.stack[:]
 
 	Nerrs := 0   /* number of errors */
 	Errflag := 0 /* error recovery flag */
 	yystate := 0
-	yychar := -1
-	yytoken := -1 // yychar translated into internal numbering
-	yyrcvr.lookahead = func() int { return yychar }
+	yyrcvr.char = -1
+	yytoken := -1 // yyrcvr.char translated into internal numbering
 	defer func() {
 		// Make sure we report no lookahead when not parsing.
 		yystate = -1
-		yychar = -1
+		yyrcvr.char = -1
 		yytoken = -1
 	}()
 	yyp := -1
@@ -325,8 +315,8 @@ yynewstate:
 	if yyn <= yyFlag {
 		goto yydefault /* simple state */
 	}
-	if yychar < 0 {
-		yychar, yytoken = yylex1(yylex, &yylval)
+	if yyrcvr.char < 0 {
+		yyrcvr.char, yytoken = yylex1(yylex, &yyrcvr.lval)
 	}
 	yyn += yytoken
 	if yyn < 0 || yyn >= yyLast {
@@ -334,9 +324,9 @@ yynewstate:
 	}
 	yyn = yyAct[yyn]
 	if yyChk[yyn] == yytoken { /* valid shift */
-		yychar = -1
+		yyrcvr.char = -1
 		yytoken = -1
-		yyVAL = yylval
+		yyVAL = yyrcvr.lval
 		yystate = yyn
 		if Errflag > 0 {
 			Errflag--
@@ -348,8 +338,8 @@ yydefault:
 	/* default state action */
 	yyn = yyDef[yystate]
 	if yyn == -2 {
-		if yychar < 0 {
-			yychar, yytoken = yylex1(yylex, &yylval)
+		if yyrcvr.char < 0 {
+			yyrcvr.char, yytoken = yylex1(yylex, &yyrcvr.lval)
 		}
 
 		/* look through exception table */
@@ -412,7 +402,7 @@ yydefault:
 			if yytoken == yyEofCode {
 				goto ret1
 			}
-			yychar = -1
+			yyrcvr.char = -1
 			yytoken = -1
 			goto yynewstate /* try again in the same state */
 		}
@@ -455,82 +445,39 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:34
+		//line lisp.y:27
 		{
-			yylex.(*Lexer).Ast(yyDollar[1].prog)
+			yylex.(*Lexer).Ast(yyDollar[1].elem)
 		}
 	case 2:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:39
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line lisp.y:32
 		{
-			yyVAL.prog = make(Prog, 0)
+			yyVAL.elem = yyDollar[2].prog
 		}
 	case 3:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:41
+		yyDollar = yyS[yypt-4 : yypt+1]
+		//line lisp.y:34
 		{
-			yyVAL.prog = append(yyVAL.prog, yyDollar[2].form)
-		}
-	case 4:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:43
-		{
-			yyVAL.prog = Prog{yyDollar[1].form}
-		}
-	case 5:
-		yyDollar = yyS[yypt-3 : yypt+1]
-		//line lisp.y:48
-		{
-			yyVAL.form = ListForm(yyDollar[2].list)
+			yyVAL.elem = append(Prog{Symbol("quote")}, yyDollar[3].prog...)
 		}
 	case 7:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:51
+		//line lisp.y:42
 		{
-			yyVAL.form = Form(yyDollar[1].sym)
+			yyVAL.prog = make(Prog, 0)
 		}
 	case 8:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:53
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:44
 		{
-			yyVAL.form = Integer(yyDollar[1].ival)
+			yyVAL.prog = append(yyVAL.prog, yyDollar[2].elem)
 		}
 	case 9:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:55
+		//line lisp.y:46
 		{
-			yyVAL.form = String(yyDollar[1].str)
-		}
-	case 10:
-		yyDollar = yyS[yypt-4 : yypt+1]
-		//line lisp.y:60
-		{
-			yyVAL.form = Quoted{yyDollar[3].list}
-		}
-	case 11:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:62
-		{
-			yyVAL.form = Quoted{yyDollar[2].sym}
-		}
-	case 12:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:67
-		{
-			yyVAL.list = make(List, 0)
-		}
-	case 13:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:69
-		{
-			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
-		}
-	case 14:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:71
-		{
-			yyVAL.list = make(List, 0)
-			yyVAL.list = append(yyVAL.list, yyDollar[1].form)
+			yyVAL.prog = Prog{yyDollar[1].elem}
 		}
 	}
 	goto yystack /* stack new state and value */
