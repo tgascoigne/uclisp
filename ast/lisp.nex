@@ -27,3 +27,30 @@
 /./          { yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text())) }
 //
 package ast
+
+import (
+    "bytes"
+    "fmt"
+    "strconv"
+)
+
+type result struct {
+	Ast Form
+}
+
+func (l *Lexer) Ast(prog Form) {
+	l.parseResult.(*result).Ast = prog
+}
+
+func (l *Lexer) Error(err string) {}
+
+func Parse(filename, source string) Form {
+	result := &result{}
+	lexer := NewLexerWithInit(bytes.NewBufferString(source), func(lex *Lexer) {
+		lex.parseResult = result
+	})
+
+	yyErrorVerbose = true
+	_ = yyParse(lexer)
+	return result.Ast
+}

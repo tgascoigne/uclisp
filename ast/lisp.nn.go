@@ -1,10 +1,13 @@
 package ast
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
-	"io"
 	"strconv"
+)
+import (
+	"bufio"
+	"io"
 	"strings"
 )
 
@@ -487,4 +490,25 @@ OUTER0:
 	yylex.pop()
 
 	return 0
+}
+
+type result struct {
+	Ast Form
+}
+
+func (l *Lexer) Ast(prog Form) {
+	l.parseResult.(*result).Ast = prog
+}
+
+func (l *Lexer) Error(err string) {}
+
+func Parse(filename, source string) Form {
+	result := &result{}
+	lexer := NewLexerWithInit(bytes.NewBufferString(source), func(lex *Lexer) {
+		lex.parseResult = result
+	})
+
+	yyErrorVerbose = true
+	_ = yyParse(lexer)
+	return result.Ast
 }

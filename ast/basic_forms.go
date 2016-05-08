@@ -49,13 +49,15 @@ func evalForm(env Env, args List) Value {
 		exceptionArgCount("eval", len(args))
 	}
 
-	form := args[0].Eval(env)
-	if form, ok := form.(Form); ok {
-		val := form.Eval(env)
-		return val
+	var form Form
+	var ok bool
+
+	value := args[0].Eval(env)
+	for form, ok = value.(Form); ok; form, ok = value.(Form) {
+		value = form.Eval(env)
 	}
 
-	return form
+	return value
 }
 
 func funcallForm(env Env, args List) Value {

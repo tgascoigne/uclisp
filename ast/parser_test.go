@@ -51,6 +51,7 @@ var simpleTestCases = []simpleTest{
 	{"(cdr (list 1 2))", List{Integer(2)}},
 	{"(car '(1 2))", Integer(1)},
 	{"(cdr '(1 2))", List{Integer(2)}},
+	{"(car '((+ 1 1) 2)", List{Symbol("+"), Integer(1), Integer(1)}},
 	{"(= nil nil)", True},
 	{"(= nil t)", Nil},
 	{"(/= 1 2)", True},

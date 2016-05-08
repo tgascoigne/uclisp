@@ -86,12 +86,12 @@ func repl() {
 }
 
 func doLine(line string) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Parse error: ", r)
-		}
-	}()
-
+	/*	defer func() {
+			if r := recover(); r != nil {
+				log.Println("Parse error: ", r)
+			}
+		}()
+	*/
 	prog := ast.Parse("stdin", line)
 	if prog == nil {
 		panic("parse returned nil")

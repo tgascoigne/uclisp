@@ -2,8 +2,6 @@ package ast
 
 import "fmt"
 
-var specialForms = map[Symbol]Callable{}
-
 // A Form is an object to be evaluated, a self evaluating object, or a symbol
 type Form interface {
 	Eval(Env) Value
@@ -11,6 +9,18 @@ type Form interface {
 
 // A ListForm is a List which can be evaluated as a function call
 type ListForm List
+
+func (l ListForm) Type() Type {
+	return List(l).Type()
+}
+
+func (l ListForm) IsNil() bool {
+	return List(l).IsNil()
+}
+
+func (l ListForm) Equals(env Env, other Value) bool {
+	return List(l).Equals(env, other)
+}
 
 func (l ListForm) Eval(env Env) Value {
 	fn := l[0].Eval(env)

@@ -7,6 +7,7 @@ package ast
     prog Prog
     list List
     form Form
+    value Value
     sym Symbol
     str string
     ival int
@@ -22,7 +23,8 @@ package ast
 %token tEOL
 
 %type <list> list
-%type <form> form quoted_form
+%type <form> form
+%type <value> value
 %type <prog> prog
 
 %start begin
@@ -46,20 +48,17 @@ prog
 form
     : '(' list ')'
       { $$ = ListForm($2) }
-	| quoted_form
     | tSymbol
       { $$ = Form($1) }
-    | tIntAtom
+    | '\'' form
+      { $$ = ListForm{Symbol("quote"), $2} }
+    ;
+
+value
+	: tIntAtom
       { $$ = Integer($1) }
     | tStringAtom
       { $$ = String($1) }
-    ;
-
-quoted_form
-	: '\'' '(' list ')'
-      { $$ = Quoted{$3} }
-    | '\'' tSymbol
-      { $$ = Quoted{$2}}
 	;
 
 list
@@ -73,6 +72,10 @@ list
         $$ = append($$, $1)
       }
     ;
+
+(defun test (v) (message "%s" v))
+
+(test (car '((+ 1 1) 2)))
 
 ws
 	: tWhitespace

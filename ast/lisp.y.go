@@ -9,7 +9,7 @@ type yySymType struct {
 	yys  int
 	prog Prog
 	list List
-	form Form
+	form Value
 	sym  Symbol
 	str  string
 	ival int
@@ -38,9 +38,9 @@ var yyStatenames = [...]string{}
 
 const yyEofCode = 1
 const yyErrCode = 2
-const yyMaxDepth = 200
+const yyInitialStackSize = 16
 
-//line lisp.y:95
+//line lisp.y:83
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -49,53 +49,52 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 20
+const yyNprod = 18
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 41
+const yyLast = 31
 
 var yyAct = [...]int{
 
-	17, 4, 15, 14, 6, 24, 8, 9, 10, 5,
-	6, 12, 8, 9, 10, 13, 22, 12, 13, 16,
-	3, 18, 23, 11, 22, 6, 21, 8, 9, 10,
-	1, 6, 12, 8, 9, 10, 2, 19, 12, 20,
-	7,
+	4, 5, 6, 13, 7, 8, 9, 16, 12, 10,
+	11, 17, 1, 18, 3, 20, 6, 19, 7, 8,
+	9, 15, 6, 10, 7, 8, 9, 12, 2, 10,
+	14,
 }
 var yyPact = [...]int{
 
-	6, -1000, 27, -1000, -1000, -1000, 6, -1000, -1000, -1000,
-	-1000, 9, 33, -1000, -1000, 21, -1000, -1000, -1000, 6,
-	-1000, -1000, -1000, 0, -1000,
+	18, -1000, -2, -1000, -1000, -1000, 18, -1000, -1000, -1000,
+	-2, -1, -1000, -1000, 12, -1000, -1000, -1000, -1000, -1000,
+	-1000,
 }
 var yyPgo = [...]int{
 
-	0, 2, 0, 40, 36, 30, 19, 23, 9,
+	0, 30, 0, 28, 12, 14, 10, 1,
 }
 var yyR1 = [...]int{
 
-	0, 5, 4, 4, 4, 2, 2, 2, 2, 2,
-	3, 3, 1, 1, 1, 7, 8, 8, 6, 6,
+	0, 4, 3, 3, 3, 2, 2, 2, 2, 2,
+	1, 1, 1, 6, 7, 7, 5, 5,
 }
 var yyR2 = [...]int{
 
-	0, 1, 1, 2, 1, 3, 1, 1, 1, 1,
-	4, 2, 1, 2, 1, 1, 1, 2, 0, 1,
+	0, 1, 1, 2, 1, 3, 1, 1, 1, 2,
+	1, 2, 1, 1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -5, -4, -6, -2, -8, 4, -3, 6, 7,
-	8, -7, 11, 9, -2, -1, -6, -2, -8, 4,
-	6, 5, -2, -1, 5,
+	-1000, -4, -3, -5, -2, -7, 4, 6, 7, 8,
+	11, -6, 9, -2, -1, -5, -2, -2, -7, 5,
+	-2,
 }
 var yyDef = [...]int{
 
-	18, -2, 1, 2, 4, 19, 18, 6, 7, 8,
-	9, 16, 0, 15, 3, 0, 12, 14, 17, 18,
-	11, 5, 13, 0, 10,
+	16, -2, 1, 2, 4, 17, 16, 6, 7, 8,
+	0, 14, 13, 3, 0, 10, 12, 9, 15, 5,
+	11,
 }
 var yyTok1 = [...]int{
 
@@ -139,18 +138,17 @@ type yyParser interface {
 }
 
 type yyParserImpl struct {
-	lookahead func() int
+	lval  yySymType
+	stack [yyInitialStackSize]yySymType
+	char  int
 }
 
 func (p *yyParserImpl) Lookahead() int {
-	return p.lookahead()
+	return p.char
 }
 
 func yyNewParser() yyParser {
-	p := &yyParserImpl{
-		lookahead: func() int { return -1 },
-	}
-	return p
+	return &yyParserImpl{}
 }
 
 const yyFlag = -1000
@@ -278,22 +276,20 @@ func yyParse(yylex yyLexer) int {
 
 func (yyrcvr *yyParserImpl) Parse(yylex yyLexer) int {
 	var yyn int
-	var yylval yySymType
 	var yyVAL yySymType
 	var yyDollar []yySymType
 	_ = yyDollar // silence set and not used
-	yyS := make([]yySymType, yyMaxDepth)
+	yyS := yyrcvr.stack[:]
 
 	Nerrs := 0   /* number of errors */
 	Errflag := 0 /* error recovery flag */
 	yystate := 0
-	yychar := -1
-	yytoken := -1 // yychar translated into internal numbering
-	yyrcvr.lookahead = func() int { return yychar }
+	yyrcvr.char = -1
+	yytoken := -1 // yyrcvr.char translated into internal numbering
 	defer func() {
 		// Make sure we report no lookahead when not parsing.
 		yystate = -1
-		yychar = -1
+		yyrcvr.char = -1
 		yytoken = -1
 	}()
 	yyp := -1
@@ -325,8 +321,8 @@ yynewstate:
 	if yyn <= yyFlag {
 		goto yydefault /* simple state */
 	}
-	if yychar < 0 {
-		yychar, yytoken = yylex1(yylex, &yylval)
+	if yyrcvr.char < 0 {
+		yyrcvr.char, yytoken = yylex1(yylex, &yyrcvr.lval)
 	}
 	yyn += yytoken
 	if yyn < 0 || yyn >= yyLast {
@@ -334,9 +330,9 @@ yynewstate:
 	}
 	yyn = yyAct[yyn]
 	if yyChk[yyn] == yytoken { /* valid shift */
-		yychar = -1
+		yyrcvr.char = -1
 		yytoken = -1
-		yyVAL = yylval
+		yyVAL = yyrcvr.lval
 		yystate = yyn
 		if Errflag > 0 {
 			Errflag--
@@ -348,8 +344,8 @@ yydefault:
 	/* default state action */
 	yyn = yyDef[yystate]
 	if yyn == -2 {
-		if yychar < 0 {
-			yychar, yytoken = yylex1(yylex, &yylval)
+		if yyrcvr.char < 0 {
+			yyrcvr.char, yytoken = yylex1(yylex, &yyrcvr.lval)
 		}
 
 		/* look through exception table */
@@ -412,7 +408,7 @@ yydefault:
 			if yytoken == yyEofCode {
 				goto ret1
 			}
-			yychar = -1
+			yyrcvr.char = -1
 			yytoken = -1
 			goto yynewstate /* try again in the same state */
 		}
@@ -483,55 +479,45 @@ yydefault:
 		{
 			yyVAL.form = ListForm(yyDollar[2].list)
 		}
-	case 7:
+	case 6:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:51
+		//line lisp.y:50
 		{
 			yyVAL.form = Form(yyDollar[1].sym)
 		}
-	case 8:
+	case 7:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:53
+		//line lisp.y:52
 		{
 			yyVAL.form = Integer(yyDollar[1].ival)
 		}
-	case 9:
+	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:55
+		//line lisp.y:54
 		{
 			yyVAL.form = String(yyDollar[1].str)
 		}
-	case 10:
-		yyDollar = yyS[yypt-4 : yypt+1]
-		//line lisp.y:60
-		{
-			qlist := yyDollar[3].list
-			for i := range qlist {
-				qlist[i] = Quoted{qlist[i]}
-			}
-			yyVAL.form = Quoted(qlist)
-		}
-	case 11:
+	case 9:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:68
+		//line lisp.y:56
 		{
-			yyVAL.form = Quoted{yyDollar[2].sym}
+			yyVAL.form = ListForm{Symbol("quote"), yyDollar[2].form}
 		}
-	case 12:
+	case 10:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:73
+		//line lisp.y:61
 		{
 			yyVAL.list = make(List, 0)
 		}
-	case 13:
+	case 11:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:75
+		//line lisp.y:63
 		{
 			yyVAL.list = append(yyVAL.list, yyDollar[2].form)
 		}
-	case 14:
+	case 12:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:77
+		//line lisp.y:65
 		{
 			yyVAL.list = make(List, 0)
 			yyVAL.list = append(yyVAL.list, yyDollar[1].form)
