@@ -1,7 +1,5 @@
 package uclisp
 
-import "fmt"
-
 const (
 	UnquoteSymbol = Symbol(",")
 	SpliceSymbol  = Symbol(",@")
@@ -60,8 +58,6 @@ func backquoteForm(env Env, args []Elem) Elem {
 
 				quoted = append(quoted, list...)
 				continue
-			default:
-				fmt.Printf("not a quote symbol: %v\n", form[0])
 			}
 		}
 
