@@ -1,10 +1,19 @@
 package uclisp
 
-// A List is a literal list
+import (
+	"fmt"
+	"strings"
+)
+
+// A List is a list of elements
+// Evaluating a list treats it as a procedure call of the form (procedure args...)
 type List []Elem
 
 func (l List) Equals(env Env, o Elem) bool {
-	other := AssertList(o)
+	other, err := AssertList(o)
+	if err != nil {
+		Raise(err)
+	}
 
 	if len(l) != len(other) {
 		return false
@@ -20,5 +29,23 @@ func (l List) Equals(env Env, o Elem) bool {
 }
 
 func (l List) Eval(env Env) Elem {
-	return l
+	if len(l) == 0 {
+		return Nil
+	}
+
+	proc, err := AssertProcedure(l[0].Eval(env))
+	if err != nil {
+		Raise(err)
+	}
+
+	return proc.Call(env, l[1:])
+}
+
+func (l List) String() string {
+	elems := make([]string, len(l))
+	for i := range l {
+		elems[i] = fmt.Sprintf("%v", l[i])
+	}
+
+	return fmt.Sprintf("(%v)", strings.Join(elems, " "))
 }

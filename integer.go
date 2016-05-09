@@ -4,7 +4,10 @@ package uclisp
 type Integer int
 
 func (i Integer) Equals(env Env, o Elem) bool {
-	other := AssertInteger(o)
+	other, err := AssertInteger(o)
+	if err != nil {
+		Raise(err)
+	}
 
 	return i == other
 }

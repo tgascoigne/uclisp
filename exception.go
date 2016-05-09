@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-var ErrArgCount = errors.New("argument count mismatch: expected %v")
+var ErrArgCount = errors.New("argument count mismatch: got %v expected %v")
 
 // Raise raises an error
 func Raise(err error, args ...interface{}) {

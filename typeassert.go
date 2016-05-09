@@ -12,60 +12,55 @@ func IsNil(e Elem) bool {
 
 var ErrNotASymbol = errors.New("not a symbol: %v")
 
-// AssertSymbol raises an exception if e is not a Symbol. Returns the concrete type on success.
-func AssertSymbol(e Elem) Symbol {
+// AssertSymbol returns an error if e is not a Symbol. Returns the concrete type on success.
+func AssertSymbol(e Elem) (Symbol, error) {
 	if sym, ok := e.(Symbol); ok {
-		return sym
+		return sym, nil
 	}
 
-	Raise(ErrNotASymbol, e)
-	return Symbol("")
+	return Symbol(""), ErrNotASymbol
 }
 
 var ErrNotAList = errors.New("not a list: %v")
 
-// AssertList raises an exception if e is not a List. Returns the concrete type on success.
-func AssertList(e Elem) List {
+// AssertList returns an error if e is not a List. Returns the concrete type on success.
+func AssertList(e Elem) (List, error) {
 	if list, ok := e.(List); ok {
-		return list
+		return list, nil
 	}
 
-	Raise(ErrNotAList, e)
-	return List{}
+	return List{}, ErrNotAList
 }
 
 var ErrNotAnInteger = errors.New("not an integer: %v")
 
-// AssertInteger raises an exception if e is not an Integer. Returns the concrete type on success.
-func AssertInteger(e Elem) Integer {
+// AssertInteger returns an error if e is not an Integer. Returns the concrete type on success.
+func AssertInteger(e Elem) (Integer, error) {
 	if integer, ok := e.(Integer); ok {
-		return integer
+		return integer, nil
 	}
 
-	Raise(ErrNotAnInteger, e)
-	return Integer(0)
+	return Integer(0), ErrNotAnInteger
 }
 
 var ErrNotAString = errors.New("not a string: %v")
 
-// AssertString raises an exception if e is not an String. Returns the concrete type on success.
-func AssertString(e Elem) String {
+// AssertString returns an error if e is not an String. Returns the concrete type on success.
+func AssertString(e Elem) (String, error) {
 	if string, ok := e.(String); ok {
-		return string
+		return string, nil
 	}
 
-	Raise(ErrNotAString, e)
-	return String(0)
+	return String(0), ErrNotAString
 }
 
 var ErrNotAProcedure = errors.New("not a procedure: %v")
 
-// AssertProcedure raises an exception if e is not an Procedure. Returns the concrete type on success.
-func AssertProcedure(e Elem) Procedure {
+// AssertProcedure returns an error if e is not an Procedure. Returns the concrete type on success.
+func AssertProcedure(e Elem) (Procedure, error) {
 	if proc, ok := e.(Procedure); ok {
-		return proc
+		return proc, nil
 	}
 
-	Raise(ErrNotAProcedure, e)
-	return nil
+	return nil, ErrNotAProcedure
 }

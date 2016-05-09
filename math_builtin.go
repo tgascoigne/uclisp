@@ -17,7 +17,11 @@ func addForm(env Env, args []Elem) Elem {
 	accum := Integer(0)
 
 	for i := range args {
-		accum += AssertInteger(args[i].Eval(env))
+		x, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+		accum += x
 	}
 
 	return accum
@@ -27,7 +31,11 @@ func subForm(env Env, args []Elem) Elem {
 	accum := Integer(0)
 
 	for i := range args {
-		val := AssertInteger(args[i].Eval(env))
+		val, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
 		if i == 0 {
 			accum = val
 		} else {
@@ -42,7 +50,11 @@ func mulForm(env Env, args []Elem) Elem {
 	accum := Integer(0)
 
 	for i := range args {
-		val := AssertInteger(args[i].Eval(env))
+		val, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
 		if i == 0 {
 			accum = val
 		} else {
@@ -57,7 +69,11 @@ func divForm(env Env, args []Elem) Elem {
 	accum := Integer(0)
 
 	for i := range args {
-		val := AssertInteger(args[i].Eval(env))
+		val, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
 		if i == 0 {
 			accum = val
 		} else {
@@ -74,8 +90,15 @@ func mathEqualForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		v0 := AssertInteger(args[i-1].Eval(env))
-		v1 := AssertInteger(args[i].Eval(env))
+		v0, err := AssertInteger(args[i-1].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
+		v1, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
 
 		if v0 != v1 {
 			return Nil
@@ -90,8 +113,15 @@ func mathNotEqualForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	v0 := AssertInteger(args[0].Eval(env))
-	v1 := AssertInteger(args[1].Eval(env))
+	v0, err := AssertInteger(args[0].Eval(env))
+	if err != nil {
+		Raise(err)
+	}
+
+	v1, err := AssertInteger(args[1].Eval(env))
+	if err != nil {
+		Raise(err)
+	}
 
 	if v0 != v1 {
 		return True
@@ -106,8 +136,15 @@ func compLessForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		op1 := AssertInteger(args[i-1].Eval(env))
-		op2 := AssertInteger(args[i].Eval(env))
+		op1, err := AssertInteger(args[i-1].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
+		op2, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
 
 		if !(op1 > op2) {
 			return Nil
@@ -123,8 +160,15 @@ func compLessEqForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		op1 := AssertInteger(args[i-1].Eval(env))
-		op2 := AssertInteger(args[i].Eval(env))
+		op1, err := AssertInteger(args[i-1].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
+		op2, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
 
 		if !(op1 >= op2) {
 			return Nil
@@ -140,8 +184,15 @@ func compGreaterForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		op1 := AssertInteger(args[i-1].Eval(env))
-		op2 := AssertInteger(args[i].Eval(env))
+		op1, err := AssertInteger(args[i-1].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
+		op2, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
 
 		if !(op1 < op2) {
 			return Nil
@@ -157,8 +208,15 @@ func compGreaterEqForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		op1 := AssertInteger(args[i-1].Eval(env))
-		op2 := AssertInteger(args[i].Eval(env))
+		op1, err := AssertInteger(args[i-1].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
+
+		op2, err := AssertInteger(args[i].Eval(env))
+		if err != nil {
+			Raise(err)
+		}
 
 		if !(op1 <= op2) {
 			return Nil

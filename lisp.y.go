@@ -7,7 +7,7 @@ import __yyfmt__ "fmt"
 //line lisp.y:6
 type yySymType struct {
 	yys  int
-	prog Prog
+	list List
 	elem Elem
 }
 
@@ -24,6 +24,9 @@ var yyToknames = [...]string{
 	"'('",
 	"')'",
 	"'\\''",
+	"'`'",
+	"','",
+	"'@'",
 	"tSymbol",
 	"tIntAtom",
 	"tStringAtom",
@@ -36,7 +39,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line lisp.y:61
+//line lisp.y:67
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -45,50 +48,54 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 15
+const yyNprod = 18
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 41
+const yyLast = 57
 
 var yyAct = [...]int{
 
-	10, 2, 3, 8, 4, 5, 6, 7, 13, 16,
-	3, 19, 4, 5, 6, 7, 14, 13, 18, 16,
-	3, 15, 4, 5, 6, 7, 3, 11, 4, 5,
-	6, 7, 12, 9, 1, 0, 0, 0, 0, 0,
-	17,
+	16, 2, 19, 11, 10, 6, 12, 3, 4, 5,
+	13, 7, 8, 9, 21, 23, 6, 18, 3, 4,
+	5, 23, 7, 8, 9, 19, 6, 25, 3, 4,
+	5, 17, 7, 8, 9, 6, 22, 3, 4, 5,
+	15, 7, 8, 9, 14, 6, 1, 3, 4, 5,
+	24, 7, 8, 9, 0, 0, 20,
 }
 var yyPact = [...]int{
 
-	22, -1000, -1000, -2, 12, -1000, -1000, -1000, 16, -1000,
-	-1000, -1000, 7, -1000, -2, -1000, -1000, -1000, 6, -1000,
+	41, -1000, -1000, 41, -1, 1, 12, -1000, -1000, -1000,
+	-1000, 12, -1000, 41, 31, -1000, -1000, -1000, -11, -1000,
+	22, -1000, -1000, -1000, -1000, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 0, 3, 34, 33, 32, 27,
+	0, 0, 44, 46, 40, 17, 31,
 }
 var yyR1 = [...]int{
 
-	0, 3, 1, 1, 1, 1, 1, 2, 2, 2,
-	5, 6, 6, 4, 4,
+	0, 3, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 2, 5, 6, 6, 4, 4,
 }
 var yyR2 = [...]int{
 
-	0, 1, 3, 4, 1, 1, 1, 1, 2, 1,
-	1, 1, 2, 0, 1,
+	0, 1, 2, 4, 2, 3, 3, 1, 1, 1,
+	1, 2, 1, 1, 1, 2, 0, 1,
 }
 var yyChk = [...]int{
 
-	-1000, -3, -1, 4, 6, 7, 8, 9, -2, -4,
-	-1, -6, -5, 10, 4, 5, -1, -6, -2, 5,
+	-1000, -3, -1, 6, 7, 8, 4, 10, 11, 12,
+	-1, 4, -1, 9, -2, -4, -1, -6, -5, 13,
+	-2, -1, 5, -1, -6, 5,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 13, 0, 4, 5, 6, 0, 7,
-	9, 14, 11, 10, 13, 2, 8, 12, 0, 3,
+	0, -2, 1, 0, 0, 0, 16, 7, 8, 9,
+	2, 16, 4, 0, 0, 10, 12, 17, 14, 13,
+	0, 5, 6, 11, 15, 3,
 }
 var yyTok1 = [...]int{
 
@@ -96,11 +103,16 @@ var yyTok1 = [...]int{
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 6,
-	4, 5,
+	4, 5, 3, 3, 8, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 9, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 7,
 }
 var yyTok2 = [...]int{
 
-	2, 3, 7, 8, 9, 10, 11,
+	2, 3, 10, 11, 12, 13, 14,
 }
 var yyTok3 = [...]int{
 	0,
@@ -450,34 +462,52 @@ yydefault:
 			yylex.(*Lexer).Ast(yyDollar[1].elem)
 		}
 	case 2:
-		yyDollar = yyS[yypt-3 : yypt+1]
+		yyDollar = yyS[yypt-2 : yypt+1]
 		//line lisp.y:32
 		{
-			yyVAL.elem = yyDollar[2].prog
+			yyVAL.elem = List{Symbol("quote"), yyDollar[2].elem}
 		}
 	case 3:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		//line lisp.y:34
 		{
-			yyVAL.elem = append(Prog{Symbol("quote")}, yyDollar[3].prog...)
+			yyVAL.elem = List{Symbol("backquote"), List(yyDollar[3].list)}
 		}
-	case 7:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:42
-		{
-			yyVAL.prog = make(Prog, 0)
-		}
-	case 8:
+	case 4:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line lisp.y:44
+		//line lisp.y:36
 		{
-			yyVAL.prog = append(yyVAL.prog, yyDollar[2].elem)
+			yyVAL.elem = List{Symbol(","), yyDollar[2].elem}
 		}
-	case 9:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line lisp.y:46
+	case 5:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line lisp.y:38
 		{
-			yyVAL.prog = Prog{yyDollar[1].elem}
+			yyVAL.elem = List{Symbol(",@"), yyDollar[3].elem}
+		}
+	case 6:
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line lisp.y:40
+		{
+			yyVAL.elem = List(yyDollar[2].list)
+		}
+	case 10:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:48
+		{
+			yyVAL.list = make(List, 0)
+		}
+	case 11:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line lisp.y:50
+		{
+			yyVAL.list = append(yyVAL.list, yyDollar[2].elem)
+		}
+	case 12:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line lisp.y:52
+		{
+			yyVAL.list = List{yyDollar[1].elem}
 		}
 	}
 	goto yystack /* stack new state and value */

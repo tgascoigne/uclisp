@@ -4,11 +4,11 @@ package uclisp
 %}
 
 %union {
-    prog Prog
+    list List
     elem Elem
 }
 
-%token '(' ')' '\''
+%token '(' ')' '\'' '`' ',' '@'
 
 %token <elem> tSymbol tIntAtom tStringAtom
 
@@ -16,7 +16,7 @@ package uclisp
 %token tEOL
 
 %type <elem> elem
-%type <prog> list_contents
+%type <list> list_contents
 
 %start begin
 
@@ -28,10 +28,16 @@ begin
 	;
 
 elem
-	: '(' list_contents ')'
-      { $$ = $2 }
-	| '\'' '(' list_contents ')'
-      { $$ = append(Prog{ Symbol("quote") }, $3...) }
+	: '\'' elem
+      { $$ = List{ Symbol("quote"), $2 } }
+	| '`' '(' list_contents ')'
+      { $$ = List{ Symbol("backquote"), List($3) } }
+	| ',' elem
+      { $$ = List{ Symbol(","), $2 } }
+	| ',' '@' elem
+      { $$ = List{ Symbol(",@"), $3 } }
+	| '(' list_contents ')'
+      { $$ = List($2) }
     | tSymbol
     | tIntAtom
     | tStringAtom
@@ -39,11 +45,11 @@ elem
 
 list_contents
 	: ws✳
-      { $$ = make(Prog, 0) }
+      { $$ = make(List, 0) }
     | list_contents elem
       { $$ = append($$, $2) }
     | elem
-      { $$ = Prog{$1} }
+      { $$ = List{$1} }
     ;
 
 ws

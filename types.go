@@ -8,7 +8,6 @@ const (
 	StringType
 	SymbolType
 	ProcedureType
-	ProgType
 	UnknownType
 )
 
@@ -24,8 +23,6 @@ func TypeOf(e Elem) Type {
 		return SymbolType
 	case Procedure:
 		return ProcedureType
-	case Prog:
-		return ProgType
 	}
 	return UnknownType
 }

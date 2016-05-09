@@ -20,7 +20,7 @@
 	return tSymbol
 }
 
-/[()']/ {
+/[()'`,@]/ {
     return int(yylex.Text()[0])
 }
 

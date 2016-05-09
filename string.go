@@ -4,7 +4,10 @@ package uclisp
 type String string
 
 func (s String) Equals(env Env, o Elem) bool {
-	other := AssertString(o)
+	other, err := AssertString(o)
+	if err != nil {
+		Raise(err)
+	}
 
 	return s == other
 }
