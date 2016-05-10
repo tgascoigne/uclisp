@@ -6,6 +6,7 @@ func init() {
 
 func prognForm(env Env, args []Elem) Elem {
 	var result Elem
+	result = Nil
 
 	for _, form := range args {
 		result = form.Eval(env)
