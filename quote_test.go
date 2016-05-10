@@ -11,6 +11,7 @@ var quoteTests = BasicTests{
 	{"'(+ 1 (+ 1 1))", uclisp.List{uclisp.Symbol("+"), uclisp.Integer(1), uclisp.List{uclisp.Symbol("+"), uclisp.Integer(1), uclisp.Integer(1)}}},
 	{"`(+ 1 ,(+ 1 1))", uclisp.List{uclisp.Symbol("+"), uclisp.Integer(1), uclisp.Integer(2)}},
 	{"(eval '(+ 1 (+ 1 1)))", uclisp.Integer(3)},
+	{"`(+ 1 (+ 2 ,(* 2 2)))", uclisp.List{uclisp.Symbol("+"), uclisp.Integer(1), uclisp.List{uclisp.Symbol("+"), uclisp.Integer(2), uclisp.Integer(4)}}},
 }
 
 func TestQuote(t *testing.T) {

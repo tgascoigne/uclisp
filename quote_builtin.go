@@ -25,46 +25,56 @@ func backquoteForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	backquoted, err := AssertList(args[0])
-	if err != nil {
-		Raise(err)
-	}
+	var unquote func(Elem) Elem
 
-	quoted := make(List, 0)
-	for _, el := range backquoted {
-		if form, err := AssertList(el); err == nil && len(form) > 0 {
-			switch {
-			case Equal(env, form[0], UnquoteSymbol):
-				if len(form) != 2 {
-					Raise(ErrArgCount, len(form), 2)
-				}
-
-				el = form[1].Eval(env)
-
-				quoted = append(quoted, el)
-				continue
-
-			case Equal(env, form[0], SpliceSymbol):
-				if len(form) != 2 {
-					Raise(ErrArgCount, len(form), 2)
-				}
-
-				el = form[1].Eval(env)
-
-				list, err := AssertList(el)
-				if err != nil {
-					Raise(err)
-				}
-
-				quoted = append(quoted, list...)
-				continue
-			}
+	unquote = func(el Elem) Elem {
+		backquoted, err := AssertList(el)
+		if err != nil {
+			Raise(err)
 		}
 
-		quoted = append(quoted, el)
+		quoted := make(List, 0)
+		for _, el := range backquoted {
+			if form, err := AssertList(el); err == nil && len(form) > 0 {
+				switch {
+				case Equal(env, form[0], UnquoteSymbol):
+					if len(form) != 2 {
+						Raise(ErrArgCount, len(form), 2)
+					}
+
+					el = form[1].Eval(env)
+
+					quoted = append(quoted, el)
+					continue
+
+				case Equal(env, form[0], SpliceSymbol):
+					if len(form) != 2 {
+						Raise(ErrArgCount, len(form), 2)
+					}
+
+					el = form[1].Eval(env)
+
+					list, err := AssertList(el)
+					if err != nil {
+						Raise(err)
+					}
+
+					quoted = append(quoted, list...)
+					continue
+				default:
+					el = unquote(form)
+					quoted = append(quoted, el)
+					continue
+				}
+			}
+
+			quoted = append(quoted, el)
+		}
+
+		return quoted
 	}
 
-	return quoted
+	return unquote(args[0])
 }
 
 func evalForm(env Env, args []Elem) Elem {
