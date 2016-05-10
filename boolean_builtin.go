@@ -1,10 +1,10 @@
 package uclisp
 
 func init() {
-	Builtin.Set("nil", Nil)
-	Builtin.Set("t", True)
-	Builtin.Set("not", Procedure(notForm))
-	Builtin.Set("cond", Procedure(condForm))
+	Builtin.Define("nil", Nil)
+	Builtin.Define("t", True)
+	Builtin.Define("not", Procedure(notForm))
+	Builtin.Define("cond", Procedure(condForm))
 }
 
 func notForm(env Env, args []Elem) Elem {

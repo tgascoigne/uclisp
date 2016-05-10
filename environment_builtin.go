@@ -5,8 +5,10 @@ import "errors"
 var ErrInvalidBindSpec = errors.New("invalid bind specification: %v")
 
 func init() {
-	Builtin.Set("let", genLetForms(false))
-	Builtin.Set("let*", genLetForms(true))
+	Builtin.Define("define", Procedure(defineForm))
+	Builtin.Define("let", genLetForms(false))
+	Builtin.Define("let*", genLetForms(true))
+	Builtin.Define("set", Procedure(setForm))
 }
 
 func genLetForms(starform bool) Procedure {
@@ -37,16 +39,16 @@ func genLetForms(starform bool) Procedure {
 
 				if starform {
 					// let* can reference earlier bindings
-					bound.Set(sym, initial.Eval(bound))
+					bound.Define(sym, initial.Eval(bound))
 				} else {
-					bound.Set(sym, initial.Eval(env))
+					bound.Define(sym, initial.Eval(env))
 				}
 
 				continue
 			}
 
 			if sym, err := AssertSymbol(el); err == nil {
-				bound.Set(sym, Nil)
+				bound.Define(sym, Nil)
 			} else {
 				Raise(err)
 			}
@@ -55,4 +57,36 @@ func genLetForms(starform bool) Procedure {
 		body := append(List{Symbol("progn")}, args[1:]...)
 		return body.Eval(bound)
 	})
+}
+
+func defineForm(env Env, args []Elem) Elem {
+	if len(args) < 2 {
+		Raise(ErrArgCount, len(args), 2)
+	}
+
+	symbol, err := AssertSymbol(args[0])
+	if err != nil {
+		Raise(err)
+	}
+
+	value := args[1].Eval(env)
+
+	Global.Define(symbol, value)
+	return symbol
+}
+
+func setForm(env Env, args []Elem) Elem {
+	if len(args) < 2 {
+		Raise(ErrArgCount, len(args), 2)
+	}
+
+	symbol, err := AssertSymbol(args[0])
+	if err != nil {
+		Raise(err)
+	}
+
+	value := args[1].Eval(env)
+
+	env.Set(symbol, value)
+	return symbol
 }

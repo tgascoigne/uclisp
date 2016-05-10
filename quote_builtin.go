@@ -6,9 +6,9 @@ const (
 )
 
 func init() {
-	Builtin.Set("quote", Procedure(quoteForm))
-	Builtin.Set("backquote", Procedure(backquoteForm))
-	Builtin.Set("eval", Procedure(evalForm))
+	Builtin.Define("quote", Procedure(quoteForm))
+	Builtin.Define("backquote", Procedure(backquoteForm))
+	Builtin.Define("eval", Procedure(evalForm))
 }
 
 func quoteForm(env Env, args []Elem) Elem {

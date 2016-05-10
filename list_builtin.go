@@ -1,11 +1,11 @@
 package uclisp
 
 func init() {
-	Builtin.Set("list", Procedure(listForm))
-	Builtin.Set("car", Procedure(carForm))
-	Builtin.Set("cdr", Procedure(cdrForm))
-	Builtin.Set("last", Procedure(lastForm))
-	Builtin.Set("butlast", Procedure(butlastForm))
+	Builtin.Define("list", Procedure(listForm))
+	Builtin.Define("car", Procedure(carForm))
+	Builtin.Define("cdr", Procedure(cdrForm))
+	Builtin.Define("last", Procedure(lastForm))
+	Builtin.Define("butlast", Procedure(butlastForm))
 }
 
 func listForm(env Env, args []Elem) Elem {

@@ -1,7 +1,7 @@
 package uclisp
 
 func init() {
-	Builtin.Set("progn", Procedure(prognForm))
+	Builtin.Define("progn", Procedure(prognForm))
 }
 
 func prognForm(env Env, args []Elem) Elem {

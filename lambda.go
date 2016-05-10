@@ -1,7 +1,7 @@
 package uclisp
 
 func init() {
-	Builtin.Set("lambda", Procedure(lambdaForm))
+	Builtin.Define("lambda", Procedure(lambdaForm))
 }
 
 type argumentBinding []Symbol
@@ -13,7 +13,7 @@ func (symbols argumentBinding) Bind(env Env, args []Elem) Env {
 	}
 
 	for i, sym := range symbols {
-		bound.Set(sym, args[i])
+		bound.Define(sym, args[i])
 	}
 
 	return bound

@@ -5,6 +5,8 @@ var Global = NewBasicEnv(Builtin)
 
 // Env is a scope mapping of symbols to elements
 type Env interface {
+	Defined(s Symbol) bool
+	Define(s Symbol, v Elem)
 	Get(Symbol) Elem
 	Set(Symbol, Elem)
 }
@@ -34,6 +36,28 @@ func (e *BasicEnv) Get(s Symbol) Elem {
 	return nil
 }
 
-func (e *BasicEnv) Set(s Symbol, v Elem) {
+func (e *BasicEnv) Defined(s Symbol) bool {
+	if _, ok := e.m[s]; ok {
+		return true
+	}
+
+	return false
+}
+
+func (e *BasicEnv) Define(s Symbol, v Elem) {
 	e.m[s] = v
+}
+
+func (e *BasicEnv) Set(s Symbol, v Elem) {
+	if e.Defined(s) {
+		e.m[s] = v
+		return
+	}
+
+	if e.parent != nil {
+		e.parent.Set(s, v)
+		return
+	}
+
+	Raise(ErrSymbolNotDefined, s)
 }
