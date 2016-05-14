@@ -1,14 +1,19 @@
 (progn
 
   (defmacro if (condition then &rest else)
-    `(cond
-      (,condition ,then)
-      (t ,@else)))
+    (let ((result (list 'cond (list condition then))))
+      (cond ((eq '() 'else))
+            (setq result (append result (list 't else))))
+      result))
 
   (defmacro unless (condition &rest body)
     `(if ,condition
          ()
        ,@body))
+
+  (defmacro when (condition &rest body)
+    `(if ,condition
+         (progn ,@body)))
 
 
   (deftests
@@ -28,8 +33,20 @@
     (test-expect 1
                  (unless (= 1 2) 1))
 
+    (test-expect 3
+                 (unless (= 1 2) 1 2 3))
+
     (test-expect nil
                  (unless (= 1 1) 1))
+
+    (test-expect 1
+                 (when t 1))
+
+    (test-expect 3
+                 (when t 1 2 3))
+
+    (test-expect nil
+                 (when nil 1 2 3))
 
     )
 

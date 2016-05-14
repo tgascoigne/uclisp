@@ -6,6 +6,7 @@ func init() {
 	Builtin.Define("cdr", Procedure(cdrForm))
 	Builtin.Define("last", Procedure(lastForm))
 	Builtin.Define("butlast", Procedure(butlastForm))
+	Builtin.Define("append", Procedure(appendForm))
 }
 
 func listForm(env Env, args []Elem) Elem {
@@ -83,4 +84,17 @@ func butlastForm(env Env, args []Elem) Elem {
 	}
 
 	return List(list[:len(list)-1])
+}
+
+func appendForm(env Env, args []Elem) Elem {
+	result := List{}
+	for _, list := range args {
+		if list, err := AssertList(list.Eval(env)); err == nil {
+			result = append(result, list...)
+		} else {
+			Raise(err)
+		}
+	}
+
+	return result
 }
