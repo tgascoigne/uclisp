@@ -4,6 +4,8 @@ import "errors"
 
 var ErrSymbolNotDefined = errors.New("symbol not defined: %v")
 
+var EmptySymbol Symbol
+
 // Symbol is a string which maps to an Elem within a given Env
 type Symbol string
 

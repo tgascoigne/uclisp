@@ -1,6 +1,7 @@
 package uclisp_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/tgascoigne/uclisp"
@@ -31,4 +32,11 @@ func (tcs BasicTests) Do(t *testing.T) {
 	for _, tc := range tcs {
 		tc.Do(t)
 	}
+}
+
+func DoLispTest(path string, t *testing.T) {
+	BasicTest{
+		fmt.Sprintf("(load-file \"%v\")", path),
+		uclisp.True,
+	}.Do(t)
 }

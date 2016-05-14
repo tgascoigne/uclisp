@@ -1,36 +1,52 @@
 package uclisp
 
+import "fmt"
+
 func init() {
 	Builtin.Define("macro", Procedure(macroForm))
 }
+
+// todo: macroexpand
 
 func macroForm(env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
-	bindSpec, err := AssertList(args[0])
+	argSpec, err := AssertList(args[0])
 	if err != nil {
 		Raise(err)
 	}
 
-	bindings := make(argumentBinding, 0)
-	for _, el := range bindSpec {
-		sym, err := AssertSymbol(el)
+	argSpecSymbols := make([]Symbol, len(argSpec))
+	for i := range argSpec {
+		argSpecSymbols[i], err = AssertSymbol(argSpec[i])
 		if err != nil {
 			Raise(err)
 		}
-
-		bindings = append(bindings, sym)
 	}
+
+	bindings := parseArgSpec(argSpecSymbols)
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
 	return Procedure(func(callerEnv Env, args []Elem) Elem {
-		args = args[:] // copy original list
+		// Macros are implemented similarly to lambda.
+		// however, instead of evaluating arguments and then binding, we just
+		// bind exactly what's passed in.
+		//
+		// We then evaluate the body within this binding, with the expectation that
+		// the body returns a s-expr which represents the expanded macro
+		//
+		// Finally, this expanded macro is evaluated in the caller's environment.
 
 		bound := bindings.Bind(env, args)
 		expanded := body.Eval(bound)
+
+		if Global.Defined(Symbol("*macro-debug*")) {
+			fmt.Printf("expanded to %v\n", expanded)
+		}
+
 		return expanded.Eval(callerEnv)
 	})
 }

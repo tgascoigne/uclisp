@@ -226,10 +226,12 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 		}, []int{ /* Start-of-input transitions */ -1, -1, -1, -1}, []int{ /* End-of-input transitions */ -1, -1, -1, -1}, nil},
 
-		// [0-9a-zA-Z_+=*\/<>-]+
+		// [0-9a-zA-Z_+=&*\/<>-]+
 		{[]bool{false, true}, []func(rune) int{ // Transitions
 			func(r rune) int {
 				switch r {
+				case 38:
+					return 1
 				case 42:
 					return 1
 				case 43:
@@ -259,6 +261,8 @@ func NewLexerWithInit(in io.Reader, initFun func(*Lexer)) *Lexer {
 			},
 			func(r rune) int {
 				switch r {
+				case 38:
+					return 1
 				case 42:
 					return 1
 				case 43:
