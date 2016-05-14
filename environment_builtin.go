@@ -6,6 +6,7 @@ var ErrInvalidBindSpec = errors.New("invalid bind specification: %v")
 
 func init() {
 	Builtin.Define("define", Procedure(defineForm))
+	Builtin.Define("defined", Procedure(definedForm))
 	Builtin.Define("let", genLetForms(false))
 	Builtin.Define("let*", genLetForms(true))
 	Builtin.Define("set", Procedure(setForm))
@@ -75,12 +76,28 @@ func defineForm(env Env, args []Elem) Elem {
 	return symbol
 }
 
+func definedForm(env Env, args []Elem) Elem {
+	if len(args) < 1 {
+		Raise(ErrArgCount, len(args), 1)
+	}
+
+	symbol, err := AssertSymbol(args[0])
+	if err != nil {
+		Raise(err)
+	}
+
+	if Global.Defined(symbol) {
+		return True
+	}
+	return Nil
+}
+
 func setForm(env Env, args []Elem) Elem {
 	if len(args) < 2 {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	symbol, err := AssertSymbol(args[0])
+	symbol, err := AssertSymbol(args[0].Eval(env))
 	if err != nil {
 		Raise(err)
 	}

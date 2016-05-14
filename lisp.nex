@@ -25,7 +25,7 @@
 }
 
 /[ \t\n]+/   { /* eat up whitespace */ }
-/;;[^\n]*/   { /* eat up comments */ }
+/;[^\n]*/   { /* eat up comments */ }
 /./          { yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text())) }
 //
 package uclisp

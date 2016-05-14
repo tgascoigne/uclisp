@@ -16,9 +16,9 @@ var envTests = BasicTests{
 	{"(progn (define x 20) (* x x))", uclisp.Integer(400)},
 	{"(progn (define x 20) (let ((x 5)) x))", uclisp.Integer(5)},
 	{"(progn (define x 20) (let ((y x)) x))", uclisp.Integer(20)},
-	{"(progn (define x 20) (let ((x 5)) (set x 10) x))", uclisp.Integer(10)},
-	{"(progn (define x 20) (set x 10) (let ((x 5)) x))", uclisp.Integer(5)},
-	{"(progn (define x 20) (set x 10) (let ((x 5)) x) x)", uclisp.Integer(10)},
+	{"(progn (define x 20) (let ((x 5)) (set 'x 10) x))", uclisp.Integer(10)},
+	{"(progn (define x 20) (set 'x 10) (let ((x 5)) x))", uclisp.Integer(5)},
+	{"(progn (define x 20) (set 'x 10) (let ((x 5)) x) x)", uclisp.Integer(10)},
 }
 
 func TestEnvironment(t *testing.T) {

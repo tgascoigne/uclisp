@@ -11,7 +11,6 @@
        ,@body))
 
 
-  (load-file "lib/test/framework.lisp")
   (deftests
 
     (test-expect 4
