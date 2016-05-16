@@ -1,3 +1,5 @@
+(define test-set '())
+
 (defmacro test-expect (expected expr)
   `(progn
      (message "Testing %v expecting %v" ',expr ',expected)
@@ -7,19 +9,16 @@
          (message "Value incorrect: got %v expected %v" result ,expected)
          (set '*test-success* nil)))))
 
-(defun testingp ()
-  (defined *testing*))
-
 (defmacro deftests (&rest body)
-  `(if (testingp)
-       (progn
-         (message "Running tests for %v" *load-file-path*)
-         ,@body)))
+  `(setq test-set (append test-set `((,*load-file-path* ,body)))))
 
-(defmacro run-tests (&rest body)
-  `(progn
-     (message "Running tests...")
+(defun run-tests ()
+  (progn
      (define *testing* t)
      (define *test-success* t)
-     ,@body
-     *test-success*))
+     (dolist (tests test-set *test-success*)
+       (let ((lisp-file (nth 0 tests))
+             (test-funcs (nth 1 tests)))
+         (message "Testing %v..." lisp-file)
+         (dolist (test test-funcs *test-success*)
+           (eval test))))))

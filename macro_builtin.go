@@ -40,7 +40,7 @@ func macroForm(env Env, args []Elem) Elem {
 		//
 		// Finally, this expanded macro is evaluated in the caller's environment.
 
-		bound := bindings.Bind(env, args)
+		bound := bindings.Bind(callerEnv, args)
 		expanded := body.Eval(bound)
 
 		if Global.Defined(Symbol("*macro-debug*")) {

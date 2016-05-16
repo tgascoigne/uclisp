@@ -2,6 +2,7 @@
 ;; load order is important here
 (load-file "lib/decl.lisp")
 (load-file "lib/test/framework.lisp")
+(load-file "lib/decl-tests.lisp")
 (load-file "lib/cond.lisp")
 (load-file "lib/arithmetic.lisp")
 (load-file "lib/iter.lisp")
@@ -9,5 +10,4 @@
 (load-file "lib/package.lisp")
 
 ;; Now we can begin loading packages..
-(when testingp
-  (require "hooks"))
+(require "hooks")

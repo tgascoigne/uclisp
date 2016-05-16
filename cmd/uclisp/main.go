@@ -16,10 +16,12 @@ var (
 )
 
 func dump(val interface{}) string {
-	return fmt.Sprintf("%#v", val)
+	return fmt.Sprintf("%v", val)
 }
 
 func main() {
+	uclisp.Global.Define(uclisp.SymLoadFileName, uclisp.String("stdin"))
+
 	line := liner.NewLiner()
 	defer line.Close()
 

@@ -31,7 +31,9 @@
 (deftests
 
   (test-expect 16
-               (progn (require "test-package")
-                      (test-foo 4)))
+               (progn
+                 (add-to-list 'load-path "lib/test")
+                 (require "test-package")
+                 (test-foo 4)))
 
   )
