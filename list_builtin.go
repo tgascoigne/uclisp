@@ -7,6 +7,7 @@ func init() {
 	Builtin.Define("last", Procedure(lastForm))
 	Builtin.Define("butlast", Procedure(butlastForm))
 	Builtin.Define("append", Procedure(appendForm))
+	Builtin.Define("nth", Procedure(nthForm))
 }
 
 func listForm(env Env, args []Elem) Elem {
@@ -93,12 +94,37 @@ func butlastForm(env Env, args []Elem) Elem {
 func appendForm(env Env, args []Elem) Elem {
 	result := List{}
 	for _, list := range args {
-		if list, err := AssertList(list.Eval(env)); err == nil {
+		listElem := list.Eval(env)
+		if list, err := AssertList(listElem); err == nil {
 			result = append(result, list...)
 		} else {
-			Raise(err)
+			Raise(err, listElem)
 		}
 	}
 
 	return result
+}
+
+func nthForm(env Env, args []Elem) Elem {
+	if len(args) != 2 {
+		Raise(ErrArgCount, len(args), 2)
+	}
+
+	nElem := args[0].Eval(env)
+	n, err := AssertInteger(nElem)
+	if err != nil {
+		Raise(err, nElem)
+	}
+
+	listElem := args[1].Eval(env)
+	list, err := AssertList(listElem)
+	if err != nil {
+		Raise(err, listElem)
+	}
+
+	if len(list) < int(n) {
+		return Nil
+	}
+
+	return list[n]
 }
