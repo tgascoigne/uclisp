@@ -119,17 +119,14 @@ func lambdaForm(env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return Procedure(func(callerEnv Env, args []Elem) Elem {
-		args = args[:] // copy original list
+	return Procedure(func(callerEnv Env, _args []Elem) Elem {
+		args := make([]Elem, len(_args))
+		copy(args, _args)
 		for i := range args {
-			// arguments are evaluated in the caller's environment
 			args[i] = args[i].Eval(callerEnv)
 		}
 
-		// ... but the body of the function is evaluated in the environment at the point
-		// of declaration.
-		// Roughly emulates lexical/dynamic binding
-		bound := bindings.Bind(env, args)
+		bound := bindings.Bind(callerEnv, args)
 		return body.Eval(bound)
 	})
 }
