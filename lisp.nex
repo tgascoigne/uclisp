@@ -9,7 +9,7 @@
 	return tIntAtom
 }
 
-/"[^"\n]*"/ {
+/"[^"]*"/ {
 	text := yylex.Text()
     lval.elem = String(text[1:len(text)-1])
     return tStringAtom
