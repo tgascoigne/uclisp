@@ -1,6 +1,4 @@
-(progn
-  (load-file "lib/std.lisp")
-  (run-tests
-   (load-file "lib/std.lisp")
-   )
-  )
+(load-file "lib/std.lisp")
+(run-tests
+ (load-file "lib/std.lisp")
+ )

@@ -23,8 +23,8 @@ package uclisp
 %%
 
 begin
-	: elem
-      { yylex.(*Lexer).Ast($1) }
+	: list_contents
+    { yylex.(*Lexer).Ast(append(List{Symbol("progn")}, $1...)) }
 	;
 
 elem
