@@ -22,14 +22,14 @@ var mathTests = BasicTests{
 	{"(= 1 2)", uclisp.Nil},
 	{"(/= 1 2)", uclisp.True},
 	{"(/= 1 1)", uclisp.Nil},
-	{"(< 3 2 1)", uclisp.True},
-	{"(< 1 2 3)", uclisp.Nil},
-	{"(> 3 2 1)", uclisp.Nil},
-	{"(> 1 2 3)", uclisp.True},
-	{"(<= 3 2 2 1)", uclisp.True},
-	{"(>= 1 2 2 3)", uclisp.True},
-	{"(>= 3 2 2 1)", uclisp.Nil},
-	{"(<= 1 2 2 3)", uclisp.Nil},
+	{"(> 3 2 1)", uclisp.True},
+	{"(> 1 2 3)", uclisp.Nil},
+	{"(< 3 2 1)", uclisp.Nil},
+	{"(< 1 2 3)", uclisp.True},
+	{"(<= 3 2 2 1)", uclisp.Nil},
+	{"(>= 1 2 2 3)", uclisp.Nil},
+	{"(>= 3 2 2 1)", uclisp.True},
+	{"(<= 1 2 2 3)", uclisp.True},
 }
 
 func TestMath(t *testing.T) {

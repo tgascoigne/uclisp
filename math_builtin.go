@@ -146,7 +146,7 @@ func compLessForm(env Env, args []Elem) Elem {
 			Raise(err)
 		}
 
-		if !(op1 > op2) {
+		if !(op1 < op2) {
 			return Nil
 		}
 	}
@@ -170,7 +170,7 @@ func compLessEqForm(env Env, args []Elem) Elem {
 			Raise(err)
 		}
 
-		if !(op1 >= op2) {
+		if !(op1 <= op2) {
 			return Nil
 		}
 	}
@@ -194,7 +194,7 @@ func compGreaterForm(env Env, args []Elem) Elem {
 			Raise(err)
 		}
 
-		if !(op1 < op2) {
+		if !(op1 > op2) {
 			return Nil
 		}
 	}
@@ -218,7 +218,7 @@ func compGreaterEqForm(env Env, args []Elem) Elem {
 			Raise(err)
 		}
 
-		if !(op1 <= op2) {
+		if !(op1 >= op2) {
 			return Nil
 		}
 	}
