@@ -12,7 +12,7 @@ type Symbol string
 func (s Symbol) Equals(env Env, o Elem) bool {
 	other, err := AssertSymbol(o)
 	if err != nil {
-		Raise(err)
+		Raise(err, o)
 	}
 
 	return s == other

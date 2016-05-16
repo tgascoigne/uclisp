@@ -104,14 +104,14 @@ func lambdaForm(env Env, args []Elem) Elem {
 
 	argSpec, err := AssertList(args[0])
 	if err != nil {
-		Raise(err)
+		Raise(err, args[0])
 	}
 
 	argSpecSymbols := make([]Symbol, len(argSpec))
 	for i := range argSpec {
 		argSpecSymbols[i], err = AssertSymbol(argSpec[i])
 		if err != nil {
-			Raise(err)
+			Raise(err, argSpec[i])
 		}
 	}
 

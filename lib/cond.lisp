@@ -2,8 +2,7 @@
 
   (defmacro if (condition then &rest else)
     (let ((result (list 'cond (list condition then))))
-      (cond ((eq '() 'else))
-            (setq result (append result (list 't else))))
+      (cond (else (setq result (append result (list `(t (progn ,@else)))))))
       result))
 
   (defmacro unless (condition &rest body)

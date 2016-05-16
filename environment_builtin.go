@@ -22,7 +22,7 @@ func genLetForms(starform bool) Procedure {
 
 		bindSpec, err := AssertList(args[0])
 		if err != nil {
-			Raise(err)
+			Raise(err, args[0])
 		}
 
 		for _, el := range bindSpec {
@@ -33,7 +33,7 @@ func genLetForms(starform bool) Procedure {
 
 				sym, err := AssertSymbol(bindList[0])
 				if err != nil {
-					Raise(err)
+					Raise(err, bindList[0])
 				}
 
 				initial := bindList[1]
@@ -51,7 +51,7 @@ func genLetForms(starform bool) Procedure {
 			if sym, err := AssertSymbol(el); err == nil {
 				bound.Define(sym, Nil)
 			} else {
-				Raise(err)
+				Raise(err, el)
 			}
 		}
 
@@ -67,7 +67,7 @@ func defineForm(env Env, args []Elem) Elem {
 
 	symbol, err := AssertSymbol(args[0])
 	if err != nil {
-		Raise(err)
+		Raise(err, args[0])
 	}
 
 	value := args[1].Eval(env)
@@ -83,7 +83,7 @@ func definedForm(env Env, args []Elem) Elem {
 
 	symbol, err := AssertSymbol(args[0])
 	if err != nil {
-		Raise(err)
+		Raise(err, args[0])
 	}
 
 	if Global.Defined(symbol) {
@@ -97,9 +97,10 @@ func setForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	symbol, err := AssertSymbol(args[0].Eval(env))
+	symbolElem := args[0].Eval(env)
+	symbol, err := AssertSymbol(symbolElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, symbolElem)
 	}
 
 	value := args[1].Eval(env)

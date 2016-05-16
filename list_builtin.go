@@ -23,9 +23,10 @@ func carForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	list, err := AssertList(args[0].Eval(env))
+	listElem := args[0].Eval(env)
+	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -40,9 +41,10 @@ func cdrForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	list, err := AssertList(args[0].Eval(env))
+	listElem := args[0].Eval(env)
+	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -57,9 +59,10 @@ func lastForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	list, err := AssertList(args[0].Eval(env))
+	listElem := args[0].Eval(env)
+	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -74,9 +77,10 @@ func butlastForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	list, err := AssertList(args[0].Eval(env))
+	listElem := args[0].Eval(env)
+	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, listElem)
 	}
 
 	if len(list) == 0 {

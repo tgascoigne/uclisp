@@ -30,7 +30,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 	unquote = func(el Elem) Elem {
 		backquoted, err := AssertList(el)
 		if err != nil {
-			Raise(err)
+			Raise(err, el)
 		}
 
 		quoted := make(List, 0)
@@ -56,7 +56,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 
 					list, err := AssertList(el)
 					if err != nil {
-						Raise(err)
+						Raise(err, el)
 					}
 
 					quoted = append(quoted, list...)

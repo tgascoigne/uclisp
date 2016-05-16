@@ -6,7 +6,7 @@ type String string
 func (s String) Equals(env Env, o Elem) bool {
 	other, err := AssertString(o)
 	if err != nil {
-		Raise(err)
+		Raise(err, o)
 	}
 
 	return s == other

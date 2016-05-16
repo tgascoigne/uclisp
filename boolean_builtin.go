@@ -38,7 +38,7 @@ func condForm(env Env, args []Elem) Elem {
 				return cond
 			}
 		} else {
-			Raise(err)
+			Raise(err, clause)
 		}
 	}
 

@@ -6,7 +6,7 @@ type Integer int
 func (i Integer) Equals(env Env, o Elem) bool {
 	other, err := AssertInteger(o)
 	if err != nil {
-		Raise(err)
+		Raise(err, other)
 	}
 
 	return i == other

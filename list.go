@@ -12,7 +12,7 @@ type List []Elem
 func (l List) Equals(env Env, o Elem) bool {
 	other, err := AssertList(o)
 	if err != nil {
-		Raise(err)
+		Raise(err, o)
 	}
 
 	if len(l) != len(other) {
@@ -33,9 +33,10 @@ func (l List) Eval(env Env) Elem {
 		return Nil
 	}
 
-	proc, err := AssertProcedure(l[0].Eval(env))
+	procElem := l[0].Eval(env)
+	proc, err := AssertProcedure(procElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, procElem)
 	}
 
 	return proc.Call(env, l[1:])

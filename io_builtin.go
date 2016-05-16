@@ -8,17 +8,17 @@ import (
 
 func init() {
 	Builtin.Define("load-file", Procedure(loadfileForm))
-	Builtin.Define("printf", Procedure(printfForm))
+	Builtin.Define("message", Procedure(messageForm))
 }
 
-func printfForm(env Env, args []Elem) Elem {
+func messageForm(env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
 	format, err := AssertString(args[0])
 	if err != nil {
-		Raise(err)
+		Raise(err, args[0])
 	}
 
 	args = args[1:]
@@ -38,9 +38,10 @@ func loadfileForm(parentEnv Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	path, err := AssertString(args[0].Eval(parentEnv))
+	pathElem := args[0].Eval(parentEnv)
+	path, err := AssertString(pathElem)
 	if err != nil {
-		Raise(err)
+		Raise(err, pathElem)
 	}
 
 	//todo: better logging
@@ -48,7 +49,7 @@ func loadfileForm(parentEnv Env, args []Elem) Elem {
 
 	data, err := ioutil.ReadFile(string(path))
 	if err != nil {
-		Raise(err)
+		Raise(err, path)
 	}
 
 	env := NewBasicEnv(parentEnv)
