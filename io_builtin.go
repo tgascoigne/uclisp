@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 const (
@@ -11,7 +12,9 @@ const (
 )
 
 func init() {
+	Builtin.Define("file-exists-p", Procedure(fileexistsForm))
 	Builtin.Define("load-file", Procedure(loadfileForm))
+	Builtin.Define("read-file", Procedure(readfileForm))
 	Builtin.Define("message", Procedure(messageForm))
 }
 
@@ -37,27 +40,55 @@ func messageForm(env Env, args []Elem) Elem {
 	return String(out)
 }
 
+func fileexistsForm(env Env, args []Elem) Elem {
+	if len(args) != 1 {
+		Raise(ErrArgCount, len(args))
+	}
+
+	pathElem := args[0].Eval(env)
+	path, err := AssertString(pathElem)
+	if err != nil {
+		Raise(err, pathElem)
+	}
+
+	if _, err := os.Stat(string(path)); os.IsNotExist(err) {
+		return Nil
+	}
+
+	return True
+}
+
 func loadfileForm(parentEnv Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
-	pathElem := args[0].Eval(parentEnv)
+	env := NewBasicEnv(parentEnv)
+	prog := readfileForm(env, args)
+	return prog.Eval(env)
+}
+
+func readfileForm(env Env, args []Elem) Elem {
+	if len(args) != 1 {
+		Raise(ErrArgCount, len(args))
+	}
+
+	pathElem := args[0].Eval(env)
 	path, err := AssertString(pathElem)
 	if err != nil {
 		Raise(err, pathElem)
 	}
 
 	//todo: better logging
-	fmt.Printf("load-file: %v\n", path)
+	fmt.Printf("read-file: %v\n", path)
 
 	data, err := ioutil.ReadFile(string(path))
 	if err != nil {
 		Raise(err, path)
 	}
 
-	env := NewBasicEnv(parentEnv)
 	env.Define(SymLoadFileName, path)
+
 	prog := Parse(string(path), string(data))
-	return prog.Eval(env)
+	return prog
 }
