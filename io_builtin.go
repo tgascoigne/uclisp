@@ -6,6 +6,10 @@ import (
 	"log"
 )
 
+const (
+	SymLoadFileName = Symbol("*load-file-path*")
+)
+
 func init() {
 	Builtin.Define("load-file", Procedure(loadfileForm))
 	Builtin.Define("message", Procedure(messageForm))
@@ -53,6 +57,7 @@ func loadfileForm(parentEnv Env, args []Elem) Elem {
 	}
 
 	env := NewBasicEnv(parentEnv)
+	env.Define(SymLoadFileName, path)
 	prog := Parse(string(path), string(data))
 	return prog.Eval(env)
 }

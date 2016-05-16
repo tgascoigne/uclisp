@@ -1,5 +1,4 @@
 (defun list-contains-p (list element)
-  (message "list-contains-p: %v" list)
   (cond
    ((eq list nil) nil)
    ((eq (car list) element) t)

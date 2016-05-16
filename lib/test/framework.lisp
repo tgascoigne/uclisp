@@ -10,7 +10,9 @@
 
 (defmacro deftests (&rest body)
   `(if (defined *testing*)
-       (progn ,@body)))
+       (progn
+         (message "Running tests for %v" *load-file-path*)
+         (progn ,@body))))
 
 (defmacro run-tests (&rest body)
   `(progn
