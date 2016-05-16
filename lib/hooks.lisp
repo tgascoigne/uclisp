@@ -1,16 +1,20 @@
 ;; an emacs-like hook system
 
 (defmacro defhook (symbol)
+  "Defined a new hook variable named `symbol'"
   `(define ,symbol '()))
 
-(defun add-hook (hook function)
-  (add-to-list hook function))
+(defun add-hook (hookvar function)
+  "Adds `function' to the hook `hookvar'"
+  (add-to-list hookvar function))
 
 (defun run-hook (&rest hookvars)
+  "Runs one or more `hookvars'. Hook functions are evaluated with no arguments."
   (dolist (hookvar hookvars)
     (run-hook-with-args hookvar)))
 
 (defun run-hook-with-args (hookvar &rest args)
+  "Runs all functions attached to `hookvar' with the given arguments"
   (dolist (fn (eval hookvar))
     (eval `(fn ,@args))))
 

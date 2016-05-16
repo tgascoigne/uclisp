@@ -11,3 +11,4 @@
 
 ;; Now we can begin loading packages..
 (require "hooks")
+(require "docstring")

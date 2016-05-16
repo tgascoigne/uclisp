@@ -1,10 +1,16 @@
 (defmacro inc (sym &optional count)
+  "increments `sym' by `count'.
+
+`count' is optional, and defaults to 1"
   (unless count (setq count 1))
   `(progn
      (setq ,sym (+ ,sym ,count))
      ,sym))
 
 (defmacro dec (sym &optional count)
+  "decrements `sym' by `count'.
+
+`count' is optional, and defaults to 1"
   (unless count (setq count 1))
   `(progn
      (setq ,sym (- ,sym ,count))
