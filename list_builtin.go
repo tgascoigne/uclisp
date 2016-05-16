@@ -122,7 +122,7 @@ func nthForm(env Env, args []Elem) Elem {
 		Raise(err, listElem)
 	}
 
-	if len(list) < int(n) {
+	if int(n) >= len(list) {
 		return Nil
 	}
 

@@ -5,14 +5,16 @@
        (if (eq result ,expected)
            (message "Ok")
          (message "Value incorrect: got %v expected %v" result ,expected)
-         (set '*test-success* nil))
-       )))
+         (set '*test-success* nil)))))
+
+(defun testingp ()
+  (defined *testing*))
 
 (defmacro deftests (&rest body)
-  `(if (defined *testing*)
+  `(if (testingp)
        (progn
          (message "Running tests for %v" *load-file-path*)
-         (progn ,@body))))
+         ,@body)))
 
 (defmacro run-tests (&rest body)
   `(progn

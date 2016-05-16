@@ -7,3 +7,7 @@
 (load-file "lib/iter.lisp")
 (load-file "lib/listutil.lisp")
 (load-file "lib/package.lisp")
+
+;; Now we can begin loading packages..
+(when testingp
+  (require "hooks"))

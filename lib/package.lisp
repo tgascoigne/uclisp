@@ -32,6 +32,6 @@
 
   (test-expect 16
                (progn (require "test-package")
-                      (square 4)))
+                      (test-foo 4)))
 
   )
