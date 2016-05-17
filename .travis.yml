@@ -1,4 +1,7 @@
 language: go
 
+script:
+  - go test ./... -coverprofile cover.out
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -f cover.out
