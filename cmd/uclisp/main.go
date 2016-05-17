@@ -67,6 +67,7 @@ func doLine(line string) {
 	if prog == nil {
 		panic("parse returned nil")
 	}
-	result := uclisp.Eval(prog, uclisp.Global)
+	ctx := uclisp.NewContext()
+	result := ctx.Begin(prog)
 	log.Println(dump(result))
 }

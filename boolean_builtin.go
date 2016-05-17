@@ -7,12 +7,12 @@ func init() {
 	Builtin.Define("cond", Procedure(condForm))
 }
 
-func notForm(env Env, args []Elem) Elem {
+func notForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
-	val := Eval(args[0], env)
+	val := ctx.Eval(args[0], env)
 
 	if IsNil(val) {
 		return True
@@ -21,18 +21,18 @@ func notForm(env Env, args []Elem) Elem {
 	return Nil
 }
 
-func condForm(env Env, args []Elem) Elem {
+func condForm(ctx *Context, env Env, args []Elem) Elem {
 	for _, clause := range args {
 		if clause, err := AssertList(clause); err == nil {
 			if len(clause) == 0 {
 				continue
 			}
 
-			cond := Eval(clause[0], env)
+			cond := ctx.Eval(clause[0], env)
 			if Equal(env, cond, True) {
 				if len(clause) > 1 {
 					body := append(List{Symbol("progn")}, clause[1:]...)
-					return Eval(body, env)
+					return ctx.Eval(body, env)
 				}
 
 				return cond

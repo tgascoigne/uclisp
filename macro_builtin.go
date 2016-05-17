@@ -8,7 +8,7 @@ func init() {
 
 // todo: macroexpand
 
-func macroForm(env Env, args []Elem) Elem {
+func macroForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args))
 	}
@@ -30,7 +30,7 @@ func macroForm(env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return Procedure(func(callerEnv Env, args []Elem) Elem {
+	return Procedure(func(ctx *Context, callerEnv Env, args []Elem) Elem {
 		// Macros are implemented similarly to lambda.
 		// however, instead of evaluating arguments and then binding, we just
 		// bind exactly what's passed in.
@@ -41,12 +41,12 @@ func macroForm(env Env, args []Elem) Elem {
 		// Finally, this expanded macro is evaluated in the caller's environment.
 
 		bound := bindings.Bind(callerEnv, args)
-		expanded := Eval(body, bound)
+		expanded := ctx.Eval(body, bound)
 
 		if Global.Defined(Symbol("*macro-debug*")) {
 			fmt.Printf("expanded to %v\n", expanded)
 		}
 
-		return Eval(expanded, callerEnv)
+		return ctx.Eval(expanded, callerEnv)
 	})
 }

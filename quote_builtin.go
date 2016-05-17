@@ -10,7 +10,7 @@ func init() {
 	Builtin.Define("backquote", Procedure(backquoteForm))
 }
 
-func quoteForm(env Env, args []Elem) Elem {
+func quoteForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args), 1)
 	}
@@ -18,7 +18,7 @@ func quoteForm(env Env, args []Elem) Elem {
 	return args[0]
 }
 
-func backquoteForm(env Env, args []Elem) Elem {
+func backquoteForm(ctx *Context, env Env, args []Elem) Elem {
 	// `(1 ,foo ,@bar) expands to (backquote (list 1 (, foo) (,@ bar)))
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args), 1)
@@ -41,7 +41,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 						Raise(ErrArgCount, len(form), 2)
 					}
 
-					el = Eval(form[1], env)
+					el = ctx.Eval(form[1], env)
 
 					quoted = append(quoted, el)
 					continue
@@ -51,7 +51,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 						Raise(ErrArgCount, len(form), 2)
 					}
 
-					el = Eval(form[1], env)
+					el = ctx.Eval(form[1], env)
 
 					list, err := AssertList(el)
 					if err != nil {

@@ -9,10 +9,10 @@ func init() {
 	Builtin.Define("concat", Procedure(concatForm))
 }
 
-func concatForm(env Env, args []Elem) Elem {
+func concatForm(ctx *Context, env Env, args []Elem) Elem {
 	list := make([]string, len(args))
 	for i := range args {
-		list[i] = fmt.Sprintf("%v", Eval(args[i], env))
+		list[i] = fmt.Sprintf("%v", ctx.Eval(args[i], env))
 	}
 
 	return String(strings.Join(list, ""))

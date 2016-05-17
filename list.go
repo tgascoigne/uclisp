@@ -28,18 +28,18 @@ func (l List) Equals(env Env, o Elem) bool {
 	return true
 }
 
-func (l List) Eval(env Env) Elem {
+func (l List) Eval(ctx *Context, env Env) Elem {
 	if len(l) == 0 {
 		return Nil
 	}
 
-	procElem := Eval(l[0], env)
+	procElem := ctx.Eval(l[0], env)
 	proc, err := AssertProcedure(procElem)
 	if err != nil {
 		Raise(err, procElem)
 	}
 
-	return proc.Call(env, l[1:])
+	return proc.Call(ctx, env, l[1:])
 }
 
 func (l List) String() string {

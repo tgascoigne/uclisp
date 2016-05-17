@@ -13,7 +13,7 @@ func init() {
 }
 
 func genLetForms(starform bool) Procedure {
-	return Procedure(func(env Env, args []Elem) Elem {
+	return Procedure(func(ctx *Context, env Env, args []Elem) Elem {
 		if len(args) < 1 {
 			Raise(ErrArgCount, len(args))
 		}
@@ -40,9 +40,9 @@ func genLetForms(starform bool) Procedure {
 
 				if starform {
 					// let* can reference earlier bindings
-					bound.Define(sym, Eval(initial, bound))
+					bound.Define(sym, ctx.Eval(initial, bound))
 				} else {
-					bound.Define(sym, Eval(initial, env))
+					bound.Define(sym, ctx.Eval(initial, env))
 				}
 
 				continue
@@ -56,11 +56,11 @@ func genLetForms(starform bool) Procedure {
 		}
 
 		body := append(List{Symbol("progn")}, args[1:]...)
-		return Eval(body, bound)
+		return ctx.Eval(body, bound)
 	})
 }
 
-func defineForm(env Env, args []Elem) Elem {
+func defineForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 2 {
 		Raise(ErrArgCount, len(args), 2)
 	}
@@ -70,13 +70,13 @@ func defineForm(env Env, args []Elem) Elem {
 		Raise(err, args[0])
 	}
 
-	value := Eval(args[1], env)
+	value := ctx.Eval(args[1], env)
 
 	Global.Define(symbol, value)
 	return symbol
 }
 
-func definedForm(env Env, args []Elem) Elem {
+func definedForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args), 1)
 	}
@@ -92,18 +92,18 @@ func definedForm(env Env, args []Elem) Elem {
 	return Nil
 }
 
-func setForm(env Env, args []Elem) Elem {
+func setForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 2 {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	symbolElem := Eval(args[0], env)
+	symbolElem := ctx.Eval(args[0], env)
 	symbol, err := AssertSymbol(symbolElem)
 	if err != nil {
 		Raise(err, symbolElem)
 	}
 
-	value := Eval(args[1], env)
+	value := ctx.Eval(args[1], env)
 
 	env.Set(symbol, value)
 	return symbol

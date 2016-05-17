@@ -12,6 +12,6 @@ func (i Integer) Equals(env Env, o Elem) bool {
 	return i == other
 }
 
-func (i Integer) Eval(env Env) Elem {
+func (i Integer) Eval(ctx *Context, env Env) Elem {
 	return i
 }

@@ -18,7 +18,7 @@ func init() {
 	Builtin.Define("message", Procedure(messageForm))
 }
 
-func messageForm(env Env, args []Elem) Elem {
+func messageForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args))
 	}
@@ -32,7 +32,7 @@ func messageForm(env Env, args []Elem) Elem {
 	argsIface := make([]interface{}, len(args))
 	for i := range args {
 		// arguments are evaluated in the caller's environment
-		argsIface[i] = Eval(args[i], env)
+		argsIface[i] = ctx.Eval(args[i], env)
 	}
 
 	out := fmt.Sprintf(string(format), argsIface...)
@@ -40,12 +40,12 @@ func messageForm(env Env, args []Elem) Elem {
 	return String(out)
 }
 
-func fileexistsForm(env Env, args []Elem) Elem {
+func fileexistsForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
-	pathElem := Eval(args[0], env)
+	pathElem := ctx.Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
 		Raise(err, pathElem)
@@ -58,22 +58,22 @@ func fileexistsForm(env Env, args []Elem) Elem {
 	return True
 }
 
-func loadfileForm(parentEnv Env, args []Elem) Elem {
+func loadfileForm(ctx *Context, parentEnv Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
 	env := NewBasicEnv(parentEnv)
-	prog := readfileForm(env, args)
-	return Eval(prog, env)
+	prog := readfileForm(ctx, env, args)
+	return ctx.Eval(prog, env)
 }
 
-func readfileForm(env Env, args []Elem) Elem {
+func readfileForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
 		Raise(ErrArgCount, len(args))
 	}
 
-	pathElem := Eval(args[0], env)
+	pathElem := ctx.Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
 		Raise(err, pathElem)

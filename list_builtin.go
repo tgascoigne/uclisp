@@ -11,13 +11,13 @@ func init() {
 	Builtin.Define("nth", Procedure(nthForm))
 }
 
-func consForm(env Env, args []Elem) Elem {
+func consForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 2 {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	car := Eval(args[0], env)
-	cdr := Eval(args[1], env)
+	car := ctx.Eval(args[0], env)
+	cdr := ctx.Eval(args[1], env)
 	list := List{car}
 	if cdrList, err := AssertList(cdr); err == nil {
 		list = append(list, cdrList...)
@@ -28,21 +28,21 @@ func consForm(env Env, args []Elem) Elem {
 	return list
 }
 
-func listForm(env Env, args []Elem) Elem {
+func listForm(ctx *Context, env Env, args []Elem) Elem {
 	list := make(List, len(args))
 	for i := range args {
-		list[i] = Eval(args[i], env)
+		list[i] = ctx.Eval(args[i], env)
 	}
 
 	return list
 }
 
-func carForm(env Env, args []Elem) Elem {
+func carForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := Eval(args[0], env)
+	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -55,12 +55,12 @@ func carForm(env Env, args []Elem) Elem {
 	return list[0]
 }
 
-func cdrForm(env Env, args []Elem) Elem {
+func cdrForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := Eval(args[0], env)
+	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -73,12 +73,12 @@ func cdrForm(env Env, args []Elem) Elem {
 	return List(list[1:])
 }
 
-func lastForm(env Env, args []Elem) Elem {
+func lastForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := Eval(args[0], env)
+	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -91,12 +91,12 @@ func lastForm(env Env, args []Elem) Elem {
 	return List{list[len(list)-1]}
 }
 
-func butlastForm(env Env, args []Elem) Elem {
+func butlastForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := Eval(args[0], env)
+	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -109,10 +109,10 @@ func butlastForm(env Env, args []Elem) Elem {
 	return List(list[:len(list)-1])
 }
 
-func appendForm(env Env, args []Elem) Elem {
+func appendForm(ctx *Context, env Env, args []Elem) Elem {
 	result := List{}
 	for _, list := range args {
-		listElem := Eval(list, env)
+		listElem := ctx.Eval(list, env)
 		if list, err := AssertList(listElem); err == nil {
 			result = append(result, list...)
 		} else {
@@ -123,18 +123,18 @@ func appendForm(env Env, args []Elem) Elem {
 	return result
 }
 
-func nthForm(env Env, args []Elem) Elem {
+func nthForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 2 {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	nElem := Eval(args[0], env)
+	nElem := ctx.Eval(args[0], env)
 	n, err := AssertInteger(nElem)
 	if err != nil {
 		Raise(err, nElem)
 	}
 
-	listElem := Eval(args[1], env)
+	listElem := ctx.Eval(args[1], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)

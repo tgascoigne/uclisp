@@ -18,7 +18,7 @@ func (s Symbol) Equals(env Env, o Elem) bool {
 	return s == other
 }
 
-func (s Symbol) Eval(env Env) Elem {
+func (s Symbol) Eval(ctx *Context, env Env) Elem {
 	e := env.Get(s)
 	if e == nil {
 		Raise(ErrSymbolNotDefined, s)

@@ -10,6 +10,6 @@ func (t trueSymbol) Equals(env Env, other Elem) bool {
 	return other == True
 }
 
-func (t trueSymbol) Eval(env Env) Elem {
+func (t trueSymbol) Eval(ctx *Context, env Env) Elem {
 	return True
 }

@@ -97,7 +97,7 @@ OUTER:
 	return bound
 }
 
-func lambdaForm(env Env, args []Elem) Elem {
+func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
 		Raise(ErrArgCount, len(args))
 	}
@@ -119,14 +119,14 @@ func lambdaForm(env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return Procedure(func(callerEnv Env, _args []Elem) Elem {
+	return Procedure(func(ctx *Context, callerEnv Env, _args []Elem) Elem {
 		args := make([]Elem, len(_args))
 		copy(args, _args)
 		for i := range args {
-			args[i] = Eval(args[i], callerEnv)
+			args[i] = ctx.Eval(args[i], callerEnv)
 		}
 
 		bound := bindings.Bind(callerEnv, args)
-		return Eval(body, bound)
+		return ctx.Eval(body, bound)
 	})
 }
