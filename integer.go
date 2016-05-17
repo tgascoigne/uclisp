@@ -3,10 +3,10 @@ package uclisp
 // Integer is an int.
 type Integer int
 
-func (i Integer) Equals(env Env, o Elem) bool {
+func (i Integer) Equals(ctx *Context, env Env, o Elem) bool {
 	other, err := AssertInteger(o)
 	if err != nil {
-		Raise(err, other)
+		ctx.Raise(err, other)
 	}
 
 	return i == other

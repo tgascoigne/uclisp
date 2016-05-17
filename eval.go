@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-var callStack = &Trace{make([]Elem, 0)}
-
 // Context is a thread of execution within a lisp program.
 // A Context has its own call stack, but shares the Global environment with all other threads.
 type Context struct {
@@ -33,17 +31,18 @@ func (c *Context) Begin(elm Elem) Elem {
 // This is preferable to calling elm.Eval directly, as it allows a backtrace to be collected on exceptions.
 func (c *Context) Eval(elm Elem, env Env) Elem {
 	c.CallStack.Push(elm)
+	defer c.CallStack.Pop()
 
-	result := elm.Eval(c, env)
-
-	// Purposefully not deferred, because if Eval panics, we want to leave the stack trace as is
-	c.CallStack.Pop()
-	return result
+	return elm.Eval(c, env)
 }
 
 // Trace is a stack of Elems which represents the trace from the root to the currently evaluating element
 type Trace struct {
 	stack []Elem
+}
+
+func (t *Trace) Depth() int {
+	return len(t.stack)
 }
 
 func (t *Trace) Push(elm Elem) {

@@ -58,6 +58,4 @@ func (e *BasicEnv) Set(s Symbol, v Elem) {
 		e.parent.Set(s, v)
 		return
 	}
-
-	Raise(ErrSymbolNotDefined, s)
 }

@@ -9,10 +9,10 @@ var EmptySymbol Symbol
 // Symbol is a string which maps to an Elem within a given Env
 type Symbol string
 
-func (s Symbol) Equals(env Env, o Elem) bool {
+func (s Symbol) Equals(ctx *Context, env Env, o Elem) bool {
 	other, err := AssertSymbol(o)
 	if err != nil {
-		Raise(err, o)
+		ctx.Raise(err, o)
 	}
 
 	return s == other
@@ -21,7 +21,7 @@ func (s Symbol) Equals(env Env, o Elem) bool {
 func (s Symbol) Eval(ctx *Context, env Env) Elem {
 	e := env.Get(s)
 	if e == nil {
-		Raise(ErrSymbolNotDefined, s)
+		ctx.Raise(ErrSymbolNotDefined, s)
 	}
 
 	return e

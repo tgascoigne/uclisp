@@ -20,12 +20,12 @@ func init() {
 
 func messageForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	format, err := AssertString(args[0])
 	if err != nil {
-		Raise(err, args[0])
+		ctx.Raise(err, args[0])
 	}
 
 	args = args[1:]
@@ -42,13 +42,13 @@ func messageForm(ctx *Context, env Env, args []Elem) Elem {
 
 func fileexistsForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	pathElem := ctx.Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
-		Raise(err, pathElem)
+		ctx.Raise(err, pathElem)
 	}
 
 	if _, err := os.Stat(string(path)); os.IsNotExist(err) {
@@ -60,7 +60,7 @@ func fileexistsForm(ctx *Context, env Env, args []Elem) Elem {
 
 func loadfileForm(ctx *Context, parentEnv Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	env := NewBasicEnv(parentEnv)
@@ -70,13 +70,13 @@ func loadfileForm(ctx *Context, parentEnv Env, args []Elem) Elem {
 
 func readfileForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	pathElem := ctx.Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
-		Raise(err, pathElem)
+		ctx.Raise(err, pathElem)
 	}
 
 	//todo: better logging
@@ -84,7 +84,7 @@ func readfileForm(ctx *Context, env Env, args []Elem) Elem {
 
 	data, err := ioutil.ReadFile(string(path))
 	if err != nil {
-		Raise(err, path)
+		ctx.Raise(err, path)
 	}
 
 	env.Define(SymLoadFileName, path)

@@ -13,7 +13,7 @@ func init() {
 
 func consForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 2 {
-		Raise(ErrArgCount, len(args), 2)
+		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
 	car := ctx.Eval(args[0], env)
@@ -39,13 +39,13 @@ func listForm(ctx *Context, env Env, args []Elem) Elem {
 
 func carForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
-		Raise(ErrArgCount, len(args), 1)
+		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
 	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err, listElem)
+		ctx.Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -57,13 +57,13 @@ func carForm(ctx *Context, env Env, args []Elem) Elem {
 
 func cdrForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
-		Raise(ErrArgCount, len(args), 1)
+		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
 	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err, listElem)
+		ctx.Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -75,13 +75,13 @@ func cdrForm(ctx *Context, env Env, args []Elem) Elem {
 
 func lastForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
-		Raise(ErrArgCount, len(args), 1)
+		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
 	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err, listElem)
+		ctx.Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -93,13 +93,13 @@ func lastForm(ctx *Context, env Env, args []Elem) Elem {
 
 func butlastForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) == 0 {
-		Raise(ErrArgCount, len(args), 1)
+		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
 	listElem := ctx.Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err, listElem)
+		ctx.Raise(err, listElem)
 	}
 
 	if len(list) == 0 {
@@ -116,7 +116,7 @@ func appendForm(ctx *Context, env Env, args []Elem) Elem {
 		if list, err := AssertList(listElem); err == nil {
 			result = append(result, list...)
 		} else {
-			Raise(err, listElem)
+			ctx.Raise(err, listElem)
 		}
 	}
 
@@ -125,19 +125,19 @@ func appendForm(ctx *Context, env Env, args []Elem) Elem {
 
 func nthForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 2 {
-		Raise(ErrArgCount, len(args), 2)
+		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
 	nElem := ctx.Eval(args[0], env)
 	n, err := AssertInteger(nElem)
 	if err != nil {
-		Raise(err, nElem)
+		ctx.Raise(err, nElem)
 	}
 
 	listElem := ctx.Eval(args[1], env)
 	list, err := AssertList(listElem)
 	if err != nil {
-		Raise(err, listElem)
+		ctx.Raise(err, listElem)
 	}
 
 	if int(n) >= len(list) {

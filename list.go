@@ -9,10 +9,10 @@ import (
 // Evaluating a list treats it as a procedure call of the form (procedure args...)
 type List []Elem
 
-func (l List) Equals(env Env, o Elem) bool {
+func (l List) Equals(ctx *Context, env Env, o Elem) bool {
 	other, err := AssertList(o)
 	if err != nil {
-		Raise(err, o)
+		ctx.Raise(err, o)
 	}
 
 	if len(l) != len(other) {
@@ -20,7 +20,7 @@ func (l List) Equals(env Env, o Elem) bool {
 	}
 
 	for i := range l {
-		if !l[i].Equals(env, other[i]) {
+		if !l[i].Equals(ctx, env, other[i]) {
 			return false
 		}
 	}
@@ -36,7 +36,7 @@ func (l List) Eval(ctx *Context, env Env) Elem {
 	procElem := ctx.Eval(l[0], env)
 	proc, err := AssertProcedure(procElem)
 	if err != nil {
-		Raise(err, procElem)
+		ctx.Raise(err, procElem)
 	}
 
 	return proc.Call(ctx, env, l[1:])

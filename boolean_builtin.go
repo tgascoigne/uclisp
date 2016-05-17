@@ -9,7 +9,7 @@ func init() {
 
 func notForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	val := ctx.Eval(args[0], env)
@@ -29,7 +29,7 @@ func condForm(ctx *Context, env Env, args []Elem) Elem {
 			}
 
 			cond := ctx.Eval(clause[0], env)
-			if Equal(env, cond, True) {
+			if Equal(ctx, env, cond, True) {
 				if len(clause) > 1 {
 					body := append(List{Symbol("progn")}, clause[1:]...)
 					return ctx.Eval(body, env)
@@ -38,7 +38,7 @@ func condForm(ctx *Context, env Env, args []Elem) Elem {
 				return cond
 			}
 		} else {
-			Raise(err, clause)
+			ctx.Raise(err, clause)
 		}
 	}
 

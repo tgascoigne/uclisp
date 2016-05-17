@@ -10,23 +10,23 @@ func init() {
 
 func macroForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	argSpec, err := AssertList(args[0])
 	if err != nil {
-		Raise(err, args[0])
+		ctx.Raise(err, args[0])
 	}
 
 	argSpecSymbols := make([]Symbol, len(argSpec))
 	for i := range argSpec {
 		argSpecSymbols[i], err = AssertSymbol(argSpec[i])
 		if err != nil {
-			Raise(err, argSpec[i])
+			ctx.Raise(err, argSpec[i])
 		}
 	}
 
-	bindings := parseArgSpec(argSpecSymbols)
+	bindings := parseArgSpec(ctx, argSpecSymbols)
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
@@ -40,7 +40,7 @@ func macroForm(ctx *Context, env Env, args []Elem) Elem {
 		//
 		// Finally, this expanded macro is evaluated in the caller's environment.
 
-		bound := bindings.Bind(callerEnv, args)
+		bound := bindings.Bind(ctx, callerEnv, args)
 		expanded := ctx.Eval(body, bound)
 
 		if Global.Defined(Symbol("*macro-debug*")) {

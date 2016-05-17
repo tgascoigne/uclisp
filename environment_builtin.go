@@ -15,25 +15,25 @@ func init() {
 func genLetForms(starform bool) Procedure {
 	return Procedure(func(ctx *Context, env Env, args []Elem) Elem {
 		if len(args) < 1 {
-			Raise(ErrArgCount, len(args))
+			ctx.Raise(ErrArgCount, len(args))
 		}
 
 		bound := NewBasicEnv(env)
 
 		bindSpec, err := AssertList(args[0])
 		if err != nil {
-			Raise(err, args[0])
+			ctx.Raise(err, args[0])
 		}
 
 		for _, el := range bindSpec {
 			if bindList, err := AssertList(el); err == nil {
 				if len(bindList) != 2 {
-					Raise(ErrInvalidBindSpec, bindSpec)
+					ctx.Raise(ErrInvalidBindSpec, bindSpec)
 				}
 
 				sym, err := AssertSymbol(bindList[0])
 				if err != nil {
-					Raise(err, bindList[0])
+					ctx.Raise(err, bindList[0])
 				}
 
 				initial := bindList[1]
@@ -51,7 +51,7 @@ func genLetForms(starform bool) Procedure {
 			if sym, err := AssertSymbol(el); err == nil {
 				bound.Define(sym, Nil)
 			} else {
-				Raise(err, el)
+				ctx.Raise(err, el)
 			}
 		}
 
@@ -62,12 +62,12 @@ func genLetForms(starform bool) Procedure {
 
 func defineForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 2 {
-		Raise(ErrArgCount, len(args), 2)
+		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
 	symbol, err := AssertSymbol(args[0])
 	if err != nil {
-		Raise(err, args[0])
+		ctx.Raise(err, args[0])
 	}
 
 	value := ctx.Eval(args[1], env)
@@ -78,12 +78,12 @@ func defineForm(ctx *Context, env Env, args []Elem) Elem {
 
 func definedForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
-		Raise(ErrArgCount, len(args), 1)
+		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
 	symbol, err := AssertSymbol(args[0])
 	if err != nil {
-		Raise(err, args[0])
+		ctx.Raise(err, args[0])
 	}
 
 	if Global.Defined(symbol) {
@@ -94,13 +94,13 @@ func definedForm(ctx *Context, env Env, args []Elem) Elem {
 
 func setForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 2 {
-		Raise(ErrArgCount, len(args), 2)
+		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
 	symbolElem := ctx.Eval(args[0], env)
 	symbol, err := AssertSymbol(symbolElem)
 	if err != nil {
-		Raise(err, symbolElem)
+		ctx.Raise(err, symbolElem)
 	}
 
 	value := ctx.Eval(args[1], env)

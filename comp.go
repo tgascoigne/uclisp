@@ -1,6 +1,6 @@
 package uclisp
 
-func Equal(env Env, v1, v2 Elem) bool {
+func Equal(ctx *Context, env Env, v1, v2 Elem) bool {
 	// are we comparing to t?
 	switch {
 	case v1 == True:
@@ -15,5 +15,5 @@ func Equal(env Env, v1, v2 Elem) bool {
 	}
 
 	// perform the type specific comparison
-	return v1.Equals(env, v2)
+	return v1.Equals(ctx, env, v2)
 }

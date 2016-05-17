@@ -10,7 +10,7 @@ func init() {
 
 func stringpForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	if _, err := AssertString(ctx.Eval(args[0], env)); err != nil {
@@ -22,7 +22,7 @@ func stringpForm(ctx *Context, env Env, args []Elem) Elem {
 
 func symbolpForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	if _, err := AssertSymbol(ctx.Eval(args[0], env)); err != nil {
@@ -34,7 +34,7 @@ func symbolpForm(ctx *Context, env Env, args []Elem) Elem {
 
 func listpForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	if _, err := AssertList(ctx.Eval(args[0], env)); err != nil {
@@ -46,7 +46,7 @@ func listpForm(ctx *Context, env Env, args []Elem) Elem {
 
 func integerpForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	if _, err := AssertInteger(ctx.Eval(args[0], env)); err != nil {
@@ -58,7 +58,7 @@ func integerpForm(ctx *Context, env Env, args []Elem) Elem {
 
 func procedurepForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	if _, err := AssertProcedure(ctx.Eval(args[0], env)); err != nil {

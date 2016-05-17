@@ -6,7 +6,7 @@ var True = trueSymbol("t")
 
 type trueSymbol Symbol
 
-func (t trueSymbol) Equals(env Env, other Elem) bool {
+func (t trueSymbol) Equals(ctx *Context, env Env, other Elem) bool {
 	return other == True
 }
 

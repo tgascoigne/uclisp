@@ -3,10 +3,10 @@ package uclisp
 // String is a string.
 type String string
 
-func (s String) Equals(env Env, o Elem) bool {
+func (s String) Equals(ctx *Context, env Env, o Elem) bool {
 	other, err := AssertString(o)
 	if err != nil {
-		Raise(err, o)
+		ctx.Raise(err, o)
 	}
 
 	return s == other

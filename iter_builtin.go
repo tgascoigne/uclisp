@@ -6,7 +6,7 @@ func init() {
 
 func whileForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	test := args[0]

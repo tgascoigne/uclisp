@@ -17,7 +17,7 @@ type argSpec struct {
 	rest     Symbol
 }
 
-func parseArgSpec(args []Symbol) argSpec {
+func parseArgSpec(ctx *Context, args []Symbol) argSpec {
 	spec := argSpec{
 		required: make([]Symbol, 0),
 		optional: make([]Symbol, 0),
@@ -44,7 +44,7 @@ func parseArgSpec(args []Symbol) argSpec {
 			spec.optional = append(spec.optional, sym)
 		case 2:
 			if spec.rest != EmptySymbol {
-				Raise(ErrInvalidArgSpec, args)
+				ctx.Raise(ErrInvalidArgSpec, args)
 			}
 			spec.rest = sym
 		}
@@ -61,11 +61,11 @@ func (spec argSpec) hasRestArg() bool {
 	return spec.rest != EmptySymbol
 }
 
-func (spec argSpec) Bind(env Env, args []Elem) Env {
+func (spec argSpec) Bind(ctx *Context, env Env, args []Elem) Env {
 	bound := NewBasicEnv(env)
 
 	if len(args) < len(spec.required) {
-		Raise(ErrArgCount, len(args), len(spec.required))
+		ctx.Raise(ErrArgCount, len(args), len(spec.required))
 		return bound
 	}
 
@@ -99,23 +99,23 @@ OUTER:
 
 func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) < 1 {
-		Raise(ErrArgCount, len(args))
+		ctx.Raise(ErrArgCount, len(args))
 	}
 
 	argSpec, err := AssertList(args[0])
 	if err != nil {
-		Raise(err, args[0])
+		ctx.Raise(err, args[0])
 	}
 
 	argSpecSymbols := make([]Symbol, len(argSpec))
 	for i := range argSpec {
 		argSpecSymbols[i], err = AssertSymbol(argSpec[i])
 		if err != nil {
-			Raise(err, argSpec[i])
+			ctx.Raise(err, argSpec[i])
 		}
 	}
 
-	bindings := parseArgSpec(argSpecSymbols)
+	bindings := parseArgSpec(ctx, argSpecSymbols)
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
@@ -126,7 +126,7 @@ func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
 			args[i] = ctx.Eval(args[i], callerEnv)
 		}
 
-		bound := bindings.Bind(callerEnv, args)
+		bound := bindings.Bind(ctx, callerEnv, args)
 		return ctx.Eval(body, bound)
 	})
 }

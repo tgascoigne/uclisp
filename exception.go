@@ -32,7 +32,7 @@ func (exc Exception) Error() string {
 }
 
 // Raise raises an error
-func Raise(err error, args ...interface{}) {
-	exc := Exception{err, args, *callStack}
+func (ctx *Context) Raise(err error, args ...interface{}) {
+	exc := Exception{err, args, *ctx.CallStack}
 	panic(exc)
 }
