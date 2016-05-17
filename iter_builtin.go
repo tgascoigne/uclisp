@@ -11,8 +11,8 @@ func whileForm(env Env, args []Elem) Elem {
 
 	test := args[0]
 	body := append(List{Symbol("progn")}, args[1:]...)
-	for !IsNil(test.Eval(env)) {
-		body.Eval(env)
+	for !IsNil(Eval(test, env)) {
+		Eval(body, env)
 	}
 
 	return Nil

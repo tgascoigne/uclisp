@@ -123,10 +123,10 @@ func lambdaForm(env Env, args []Elem) Elem {
 		args := make([]Elem, len(_args))
 		copy(args, _args)
 		for i := range args {
-			args[i] = args[i].Eval(callerEnv)
+			args[i] = Eval(args[i], callerEnv)
 		}
 
 		bound := bindings.Bind(callerEnv, args)
-		return body.Eval(bound)
+		return Eval(body, bound)
 	})
 }

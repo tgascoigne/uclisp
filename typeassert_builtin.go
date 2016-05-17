@@ -13,7 +13,7 @@ func stringpForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	if _, err := AssertString(args[0].Eval(env)); err != nil {
+	if _, err := AssertString(Eval(args[0], env)); err != nil {
 		return Nil
 	}
 
@@ -25,7 +25,7 @@ func symbolpForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	if _, err := AssertSymbol(args[0].Eval(env)); err != nil {
+	if _, err := AssertSymbol(Eval(args[0], env)); err != nil {
 		return Nil
 	}
 
@@ -37,7 +37,7 @@ func listpForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	if _, err := AssertList(args[0].Eval(env)); err != nil {
+	if _, err := AssertList(Eval(args[0], env)); err != nil {
 		return Nil
 	}
 
@@ -49,7 +49,7 @@ func integerpForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	if _, err := AssertInteger(args[0].Eval(env)); err != nil {
+	if _, err := AssertInteger(Eval(args[0], env)); err != nil {
 		return Nil
 	}
 
@@ -61,7 +61,7 @@ func procedurepForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	if _, err := AssertProcedure(args[0].Eval(env)); err != nil {
+	if _, err := AssertProcedure(Eval(args[0], env)); err != nil {
 		return Nil
 	}
 

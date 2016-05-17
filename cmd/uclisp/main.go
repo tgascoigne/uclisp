@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/tgascoigne/uclisp"
 
@@ -58,7 +59,7 @@ func main() {
 func doLine(line string) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("Parse error: ", r)
+			log.Printf("%s%s\n", r.(error).Error(), debug.Stack())
 		}
 	}()
 
@@ -66,6 +67,6 @@ func doLine(line string) {
 	if prog == nil {
 		panic("parse returned nil")
 	}
-	result := prog.Eval(uclisp.Global)
+	result := uclisp.Eval(prog, uclisp.Global)
 	log.Println(dump(result))
 }

@@ -12,7 +12,7 @@ func notForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	val := args[0].Eval(env)
+	val := Eval(args[0], env)
 
 	if IsNil(val) {
 		return True
@@ -28,11 +28,11 @@ func condForm(env Env, args []Elem) Elem {
 				continue
 			}
 
-			cond := clause[0].Eval(env)
+			cond := Eval(clause[0], env)
 			if Equal(env, cond, True) {
 				if len(clause) > 1 {
 					body := append(List{Symbol("progn")}, clause[1:]...)
-					return body.Eval(env)
+					return Eval(body, env)
 				}
 
 				return cond

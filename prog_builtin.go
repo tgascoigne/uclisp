@@ -9,7 +9,7 @@ func prognForm(env Env, args []Elem) Elem {
 	result = Nil
 
 	for _, form := range args {
-		result = form.Eval(env)
+		result = Eval(form, env)
 	}
 
 	return result

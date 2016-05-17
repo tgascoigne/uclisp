@@ -10,8 +10,8 @@ func eqForm(env Env, args []Elem) Elem {
 			continue
 		}
 
-		v1 := args[i-1].Eval(env)
-		v2 := args[i].Eval(env)
+		v1 := Eval(args[i-1], env)
+		v2 := Eval(args[i], env)
 
 		if !Equal(env, v1, v2) {
 			return Nil

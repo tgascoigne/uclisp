@@ -33,7 +33,7 @@ func (l List) Eval(env Env) Elem {
 		return Nil
 	}
 
-	procElem := l[0].Eval(env)
+	procElem := Eval(l[0], env)
 	proc, err := AssertProcedure(procElem)
 	if err != nil {
 		Raise(err, procElem)

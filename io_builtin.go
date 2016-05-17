@@ -32,7 +32,7 @@ func messageForm(env Env, args []Elem) Elem {
 	argsIface := make([]interface{}, len(args))
 	for i := range args {
 		// arguments are evaluated in the caller's environment
-		argsIface[i] = args[i].Eval(env)
+		argsIface[i] = Eval(args[i], env)
 	}
 
 	out := fmt.Sprintf(string(format), argsIface...)
@@ -45,7 +45,7 @@ func fileexistsForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	pathElem := args[0].Eval(env)
+	pathElem := Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
 		Raise(err, pathElem)
@@ -65,7 +65,7 @@ func loadfileForm(parentEnv Env, args []Elem) Elem {
 
 	env := NewBasicEnv(parentEnv)
 	prog := readfileForm(env, args)
-	return prog.Eval(env)
+	return Eval(prog, env)
 }
 
 func readfileForm(env Env, args []Elem) Elem {
@@ -73,7 +73,7 @@ func readfileForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args))
 	}
 
-	pathElem := args[0].Eval(env)
+	pathElem := Eval(args[0], env)
 	path, err := AssertString(pathElem)
 	if err != nil {
 		Raise(err, pathElem)

@@ -8,7 +8,6 @@ const (
 func init() {
 	Builtin.Define("quote", Procedure(quoteForm))
 	Builtin.Define("backquote", Procedure(backquoteForm))
-	Builtin.Define("eval", Procedure(evalForm))
 }
 
 func quoteForm(env Env, args []Elem) Elem {
@@ -42,7 +41,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 						Raise(ErrArgCount, len(form), 2)
 					}
 
-					el = form[1].Eval(env)
+					el = Eval(form[1], env)
 
 					quoted = append(quoted, el)
 					continue
@@ -52,7 +51,7 @@ func backquoteForm(env Env, args []Elem) Elem {
 						Raise(ErrArgCount, len(form), 2)
 					}
 
-					el = form[1].Eval(env)
+					el = Eval(form[1], env)
 
 					list, err := AssertList(el)
 					if err != nil {
@@ -75,12 +74,4 @@ func backquoteForm(env Env, args []Elem) Elem {
 	}
 
 	return unquote(args[0])
-}
-
-func evalForm(env Env, args []Elem) Elem {
-	if len(args) != 1 {
-		Raise(ErrArgCount, len(args), 1)
-	}
-
-	return args[0].Eval(env).Eval(env)
 }

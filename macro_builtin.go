@@ -41,12 +41,12 @@ func macroForm(env Env, args []Elem) Elem {
 		// Finally, this expanded macro is evaluated in the caller's environment.
 
 		bound := bindings.Bind(callerEnv, args)
-		expanded := body.Eval(bound)
+		expanded := Eval(body, bound)
 
 		if Global.Defined(Symbol("*macro-debug*")) {
 			fmt.Printf("expanded to %v\n", expanded)
 		}
 
-		return expanded.Eval(callerEnv)
+		return Eval(expanded, callerEnv)
 	})
 }

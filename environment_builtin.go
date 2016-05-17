@@ -40,9 +40,9 @@ func genLetForms(starform bool) Procedure {
 
 				if starform {
 					// let* can reference earlier bindings
-					bound.Define(sym, initial.Eval(bound))
+					bound.Define(sym, Eval(initial, bound))
 				} else {
-					bound.Define(sym, initial.Eval(env))
+					bound.Define(sym, Eval(initial, env))
 				}
 
 				continue
@@ -56,7 +56,7 @@ func genLetForms(starform bool) Procedure {
 		}
 
 		body := append(List{Symbol("progn")}, args[1:]...)
-		return body.Eval(bound)
+		return Eval(body, bound)
 	})
 }
 
@@ -70,7 +70,7 @@ func defineForm(env Env, args []Elem) Elem {
 		Raise(err, args[0])
 	}
 
-	value := args[1].Eval(env)
+	value := Eval(args[1], env)
 
 	Global.Define(symbol, value)
 	return symbol
@@ -97,13 +97,13 @@ func setForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	symbolElem := args[0].Eval(env)
+	symbolElem := Eval(args[0], env)
 	symbol, err := AssertSymbol(symbolElem)
 	if err != nil {
 		Raise(err, symbolElem)
 	}
 
-	value := args[1].Eval(env)
+	value := Eval(args[1], env)
 
 	env.Set(symbol, value)
 	return symbol

@@ -16,8 +16,8 @@ func consForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	car := args[0].Eval(env)
-	cdr := args[1].Eval(env)
+	car := Eval(args[0], env)
+	cdr := Eval(args[1], env)
 	list := List{car}
 	if cdrList, err := AssertList(cdr); err == nil {
 		list = append(list, cdrList...)
@@ -31,7 +31,7 @@ func consForm(env Env, args []Elem) Elem {
 func listForm(env Env, args []Elem) Elem {
 	list := make(List, len(args))
 	for i := range args {
-		list[i] = args[i].Eval(env)
+		list[i] = Eval(args[i], env)
 	}
 
 	return list
@@ -42,7 +42,7 @@ func carForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := args[0].Eval(env)
+	listElem := Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -60,7 +60,7 @@ func cdrForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := args[0].Eval(env)
+	listElem := Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -78,7 +78,7 @@ func lastForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := args[0].Eval(env)
+	listElem := Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -96,7 +96,7 @@ func butlastForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 1)
 	}
 
-	listElem := args[0].Eval(env)
+	listElem := Eval(args[0], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
@@ -112,7 +112,7 @@ func butlastForm(env Env, args []Elem) Elem {
 func appendForm(env Env, args []Elem) Elem {
 	result := List{}
 	for _, list := range args {
-		listElem := list.Eval(env)
+		listElem := Eval(list, env)
 		if list, err := AssertList(listElem); err == nil {
 			result = append(result, list...)
 		} else {
@@ -128,13 +128,13 @@ func nthForm(env Env, args []Elem) Elem {
 		Raise(ErrArgCount, len(args), 2)
 	}
 
-	nElem := args[0].Eval(env)
+	nElem := Eval(args[0], env)
 	n, err := AssertInteger(nElem)
 	if err != nil {
 		Raise(err, nElem)
 	}
 
-	listElem := args[1].Eval(env)
+	listElem := Eval(args[1], env)
 	list, err := AssertList(listElem)
 	if err != nil {
 		Raise(err, listElem)
