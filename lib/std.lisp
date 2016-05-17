@@ -12,3 +12,8 @@
 ;; Now we can begin loading packages..
 (require "hooks")
 (require "docstring")
+
+(add-to-list 'load-path "examples")
+;(require "cartesian")
+
+(message "bah")

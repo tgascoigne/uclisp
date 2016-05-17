@@ -1,6 +1,7 @@
 package uclisp
 
 func init() {
+	Builtin.Define("cons", Procedure(consForm))
 	Builtin.Define("list", Procedure(listForm))
 	Builtin.Define("car", Procedure(carForm))
 	Builtin.Define("cdr", Procedure(cdrForm))
@@ -8,6 +9,23 @@ func init() {
 	Builtin.Define("butlast", Procedure(butlastForm))
 	Builtin.Define("append", Procedure(appendForm))
 	Builtin.Define("nth", Procedure(nthForm))
+}
+
+func consForm(env Env, args []Elem) Elem {
+	if len(args) != 2 {
+		Raise(ErrArgCount, len(args), 2)
+	}
+
+	car := args[0].Eval(env)
+	cdr := args[1].Eval(env)
+	list := List{car}
+	if cdrList, err := AssertList(cdr); err == nil {
+		list = append(list, cdrList...)
+	} else {
+		list = append(list, cdr)
+	}
+
+	return list
 }
 
 func listForm(env Env, args []Elem) Elem {
