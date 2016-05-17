@@ -4,7 +4,7 @@
 
 (defun documentation (symbol)
   "Returns the documentation string for the symbol `symbol'"
-  (let (docstring)
+  (catch 'docstring
     (dolist (doc docstring-alist docstring)
       (when (eq (nth 0 doc) symbol)
-        (setq docstring (nth 1 doc))))))
+        (throw 'docstring (nth 1 doc))))))

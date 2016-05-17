@@ -15,11 +15,11 @@
 Returns nil if the package is not found"
   (let (result)
     (setq package (concat package ".lisp"))
-    (dolist (base load-path result)
-      (unless result ; todo: we can't break out of dolist yet
+    (catch 'result
+      (dolist (base load-path result)
         (let ((this-path (path-concat base package)))
           (when (file-exists-p this-path)
-            (setq result this-path)))))))
+            (throw 'result this-path)))))))
 
 (defun package-loaded-p (package)
   "Evaluates to non-nil if `package' has been loaded"
