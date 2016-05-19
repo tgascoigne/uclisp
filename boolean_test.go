@@ -9,6 +9,8 @@ import (
 var boolTests = BasicTests{
 	{"(not nil)", uclisp.True},
 	{"(not t)", uclisp.Nil},
+	{"(cond)", uclisp.Nil},
+	{"(cond () (t 1))", uclisp.Integer(1)},
 	{"(cond (t))", uclisp.True},
 	{"(cond (t (+ 1 1)))", uclisp.Integer(2)},
 	{"(cond ((= 1 1) (+ 1 1)) ((= 1 2) (+ 2 2)))", uclisp.Integer(2)},
@@ -26,6 +28,13 @@ var boolTests = BasicTests{
 	{"(eq t ())", uclisp.Nil},
 }
 
+var boolExceptionTests = ExceptionTests{
+	{"(eq t)", uclisp.ErrArgCount},
+	{"(not t t)", uclisp.ErrArgCount},
+	{"(cond t)", uclisp.ErrNotAList},
+}
+
 func TestBoolean(t *testing.T) {
 	boolTests.Do(t)
+	boolExceptionTests.Do(t)
 }
