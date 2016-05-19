@@ -1,6 +1,7 @@
 package uclisp
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -23,9 +24,10 @@ func messageForm(ctx *Context, env Env, args []Elem) Elem {
 		ctx.Raise(ErrArgCount, len(args))
 	}
 
-	format, err := AssertString(args[0])
+	formatEl := ctx.Eval(args[0], env)
+	format, err := AssertString(formatEl)
 	if err != nil {
-		ctx.Raise(err, args[0])
+		ctx.Raise(err, formatEl)
 	}
 
 	args = args[1:]
@@ -68,6 +70,8 @@ func loadfileForm(ctx *Context, parentEnv Env, args []Elem) Elem {
 	return ctx.Eval(prog, env)
 }
 
+var ErrIO = errors.New("io error: %v")
+
 func readfileForm(ctx *Context, env Env, args []Elem) Elem {
 	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args))
@@ -84,7 +88,7 @@ func readfileForm(ctx *Context, env Env, args []Elem) Elem {
 
 	data, err := ioutil.ReadFile(string(path))
 	if err != nil {
-		ctx.Raise(err, path)
+		ctx.Raise(ErrIO, err)
 	}
 
 	env.Define(SymLoadFileName, path)
