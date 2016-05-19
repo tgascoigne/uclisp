@@ -87,3 +87,28 @@ func DoLispTest(path string, t *testing.T) {
 		uclisp.True,
 	}.Do(t)
 }
+
+func ShouldThrow(t *testing.T, expectedError error, fn func()) (reterror error) {
+	defer func() {
+		if err, ok := reterror.(uclisp.Exception); ok {
+			if err.BaseError() != expectedError {
+				t.Errorf("Exception incorrect\n\tgot\t\t%v\n\texpected\t%v", err, expectedError)
+			}
+		} else {
+			t.Errorf("Missing exception\n\texpected\t%v", expectedError)
+		}
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if err, ok := err.(uclisp.Exception); ok {
+				reterror = err
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	fn()
+	return
+}
