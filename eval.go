@@ -41,7 +41,7 @@ type Trace struct {
 	stack []Elem
 }
 
-func (t *Trace) Depth() int {
+func (t *Trace) Size() int {
 	return len(t.stack)
 }
 
