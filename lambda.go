@@ -53,14 +53,6 @@ func parseArgSpec(ctx *Context, args []Symbol) argSpec {
 	return spec
 }
 
-func (spec argSpec) hasOptionalArgs() bool {
-	return len(spec.optional) > 0
-}
-
-func (spec argSpec) hasRestArg() bool {
-	return spec.rest != EmptySymbol
-}
-
 func (spec argSpec) Bind(ctx *Context, env Env, args []Elem) Env {
 	bound := NewBasicEnv(env)
 

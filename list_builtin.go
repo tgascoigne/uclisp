@@ -38,7 +38,7 @@ func listForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func carForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) == 0 {
+	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
@@ -56,7 +56,7 @@ func carForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func cdrForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) == 0 {
+	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
@@ -74,7 +74,7 @@ func cdrForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func lastForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) == 0 {
+	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
@@ -92,7 +92,7 @@ func lastForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func butlastForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) == 0 {
+	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
