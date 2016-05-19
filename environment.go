@@ -37,6 +37,18 @@ func (e *BasicEnv) Get(s Symbol) Elem {
 }
 
 func (e *BasicEnv) Defined(s Symbol) bool {
+	if e.DefinedHere(s) {
+		return true
+	}
+
+	if e.parent != nil {
+		return e.parent.Defined(s)
+	}
+
+	return false
+}
+
+func (e *BasicEnv) DefinedHere(s Symbol) bool {
 	if _, ok := e.m[s]; ok {
 		return true
 	}
@@ -49,7 +61,7 @@ func (e *BasicEnv) Define(s Symbol, v Elem) {
 }
 
 func (e *BasicEnv) Set(s Symbol, v Elem) {
-	if e.Defined(s) {
+	if e.DefinedHere(s) {
 		e.m[s] = v
 		return
 	}

@@ -61,7 +61,7 @@ func genLetForms(starform bool) Procedure {
 }
 
 func defineForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) < 2 {
+	if len(args) != 2 {
 		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
@@ -77,7 +77,7 @@ func defineForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func definedForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) < 1 {
+	if len(args) != 1 {
 		ctx.Raise(ErrArgCount, len(args), 1)
 	}
 
@@ -93,7 +93,7 @@ func definedForm(ctx *Context, env Env, args []Elem) Elem {
 }
 
 func setForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) < 2 {
+	if len(args) != 2 {
 		ctx.Raise(ErrArgCount, len(args), 2)
 	}
 
@@ -101,6 +101,10 @@ func setForm(ctx *Context, env Env, args []Elem) Elem {
 	symbol, err := AssertSymbol(symbolElem)
 	if err != nil {
 		ctx.Raise(err, symbolElem)
+	}
+
+	if !env.Defined(symbol) {
+		ctx.Raise(ErrSymbolNotDefined, symbol)
 	}
 
 	value := ctx.Eval(args[1], env)
