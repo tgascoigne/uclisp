@@ -18,6 +18,12 @@ var boolTests = BasicTests{
 	{"(cond (nil (+ 1 1) (+ 2 2)) ((> 3 1) (+ 4 4)))", uclisp.Integer(8)},
 	{"(cond ((eq '(1 1) '(1 2)) \"hello\") ((eq '(1 1) '(1 1))))", uclisp.String("hello")},
 	{"(cond ((eq \"a\" \"a\") \"a\"))", uclisp.String("a")},
+	{"(eq t 1)", uclisp.True},
+	{"(eq t \"\")", uclisp.True},
+	{"(eq t \"foo\")", uclisp.True},
+	{"(eq t 'x))", uclisp.True},
+	{"(eq t nil)", uclisp.Nil},
+	{"(eq t ())", uclisp.Nil},
 }
 
 func TestBoolean(t *testing.T) {

@@ -5,6 +5,10 @@ func init() {
 }
 
 func eqForm(ctx *Context, env Env, args []Elem) Elem {
+	if len(args) < 2 {
+		ctx.Raise(ErrArgCount, len(args))
+	}
+
 	for i := range args {
 		if i == 0 {
 			continue
