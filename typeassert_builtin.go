@@ -1,11 +1,11 @@
 package uclisp
 
 func init() {
-	Builtin.Define("stringp", Procedure(stringpForm))
-	Builtin.Define("symbolp", Procedure(symbolpForm))
-	Builtin.Define("listp", Procedure(listpForm))
-	Builtin.Define("integerp", Procedure(integerpForm))
-	Builtin.Define("procedurep", Procedure(procedurepForm))
+	Builtin.Define("stringp", NewProcedure(stringpForm))
+	Builtin.Define("symbolp", NewProcedure(symbolpForm))
+	Builtin.Define("listp", NewProcedure(listpForm))
+	Builtin.Define("integerp", NewProcedure(integerpForm))
+	Builtin.Define("procedurep", NewProcedure(procedurepForm))
 }
 
 func stringpForm(ctx *Context, env Env, args []Elem) Elem {

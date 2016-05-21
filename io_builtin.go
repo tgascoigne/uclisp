@@ -13,10 +13,10 @@ const (
 )
 
 func init() {
-	Builtin.Define("file-exists-p", Procedure(fileexistsForm))
-	Builtin.Define("load-file", Procedure(loadfileForm))
-	Builtin.Define("read-file", Procedure(readfileForm))
-	Builtin.Define("message", Procedure(messageForm))
+	Builtin.Define("file-exists-p", NewProcedure(fileexistsForm))
+	Builtin.Define("load-file", NewProcedure(loadfileForm))
+	Builtin.Define("read-file", NewProcedure(readfileForm))
+	Builtin.Define("message", NewProcedure(messageForm))
 }
 
 func messageForm(ctx *Context, env Env, args []Elem) Elem {

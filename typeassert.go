@@ -62,5 +62,5 @@ func AssertProcedure(e Elem) (Procedure, error) {
 		return proc, nil
 	}
 
-	return nil, ErrNotAProcedure
+	return Procedure{}, ErrNotAProcedure
 }

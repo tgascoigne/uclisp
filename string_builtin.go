@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	Builtin.Define("concat", Procedure(concatForm))
+	Builtin.Define("concat", NewProcedure(concatForm))
 }
 
 func concatForm(ctx *Context, env Env, args []Elem) Elem {

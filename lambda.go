@@ -3,7 +3,7 @@ package uclisp
 import "errors"
 
 func init() {
-	Builtin.Define("lambda", Procedure(lambdaForm))
+	Builtin.Define("lambda", NewProcedure(lambdaForm))
 }
 
 var ErrInvalidArgSpec = errors.New("invalid argument specification")
@@ -111,7 +111,7 @@ func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return Procedure(func(ctx *Context, callerEnv Env, _args []Elem) Elem {
+	return NewProcedure(func(ctx *Context, callerEnv Env, _args []Elem) (Elem) {
 		args := make([]Elem, len(_args))
 		copy(args, _args)
 		for i := range args {

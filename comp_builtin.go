@@ -1,7 +1,7 @@
 package uclisp
 
 func init() {
-	Builtin.Define("eq", Procedure(eqForm))
+	Builtin.Define("eq", NewProcedure(eqForm))
 }
 
 func eqForm(ctx *Context, env Env, args []Elem) Elem {

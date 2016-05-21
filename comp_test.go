@@ -25,12 +25,28 @@ func TestTypeEqualsExceptions(t *testing.T) {
 		uclisp.Symbol("foo").Equals(ctx, uclisp.Global, uclisp.Integer(4))
 	})
 
-	proc := uclisp.Procedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
+	ShouldThrow(t, uclisp.ErrIncomparable, func() {
+		uclisp.Throw{}.Equals(ctx, uclisp.Global, uclisp.Throw{})
+	})
+}
+
+func TestProcEquals(t *testing.T) {
+	ctx := uclisp.NewContext()
+
+	proc1 := uclisp.NewProcedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
 		return uclisp.Nil
 	})
 
-	if proc.Equals(ctx, uclisp.Global, proc) {
-		t.Errorf("proc should not equal anything")
+	proc2 := uclisp.NewProcedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
+		return uclisp.True
+	})
+
+	if proc1.Equals(ctx, uclisp.Global, proc2) {
+		t.Errorf("proc1 == proc2")
+	}
+
+	if !proc1.Equals(ctx, uclisp.Global, proc1) {
+		t.Errorf("proc1 != proc1")
 	}
 }
 
@@ -48,6 +64,16 @@ func TestTruthEquals(t *testing.T) {
 
 func TestSelfEval(t *testing.T) {
 	ctx := uclisp.NewContext()
+
+	proc := uclisp.NewProcedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
+		return uclisp.Nil
+	})
+
+	proc2 := proc.Eval(ctx, uclisp.Global)
+
+	if !proc2.Equals(ctx, uclisp.Global, proc) {
+		t.Errorf("proc didn't evaluate to proc. got %v and %v", proc, proc2)
+	}
 
 	if !uclisp.Nil.Eval(ctx, uclisp.Global).Equals(ctx, uclisp.Global, uclisp.Nil) {
 		t.Errorf("Nil didn't evaluate to Nil")
@@ -75,7 +101,7 @@ func TestTypeOf(t *testing.T) {
 		t.Errorf("TypeOf Symbol != SymbolType")
 	}
 
-	proc := uclisp.Procedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
+	proc := uclisp.NewProcedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
 		return uclisp.Nil
 	})
 

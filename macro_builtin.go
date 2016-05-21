@@ -3,7 +3,7 @@ package uclisp
 import "fmt"
 
 func init() {
-	Builtin.Define("macro", Procedure(macroForm))
+	Builtin.Define("macro", NewProcedure(macroForm))
 }
 
 // todo: macroexpand
@@ -30,7 +30,7 @@ func macroForm(ctx *Context, env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return Procedure(func(ctx *Context, callerEnv Env, args []Elem) Elem {
+	return NewProcedure(func(ctx *Context, callerEnv Env, args []Elem) Elem {
 		// Macros are implemented similarly to lambda.
 		// however, instead of evaluating arguments and then binding, we just
 		// bind exactly what's passed in.

@@ -5,15 +5,15 @@ import "errors"
 var ErrInvalidBindSpec = errors.New("invalid bind specification: %v")
 
 func init() {
-	Builtin.Define("define", Procedure(defineForm))
-	Builtin.Define("defined", Procedure(definedForm))
+	Builtin.Define("define", NewProcedure(defineForm))
+	Builtin.Define("defined", NewProcedure(definedForm))
 	Builtin.Define("let", genLetForms(false))
 	Builtin.Define("let*", genLetForms(true))
-	Builtin.Define("set", Procedure(setForm))
+	Builtin.Define("set", NewProcedure(setForm))
 }
 
 func genLetForms(starform bool) Procedure {
-	return Procedure(func(ctx *Context, env Env, args []Elem) Elem {
+	return NewProcedure(func(ctx *Context, env Env, args []Elem) (Elem) {
 		if len(args) < 1 {
 			ctx.Raise(ErrArgCount, len(args))
 		}

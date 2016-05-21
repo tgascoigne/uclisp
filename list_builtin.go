@@ -1,14 +1,14 @@
 package uclisp
 
 func init() {
-	Builtin.Define("cons", Procedure(consForm))
-	Builtin.Define("list", Procedure(listForm))
-	Builtin.Define("car", Procedure(carForm))
-	Builtin.Define("cdr", Procedure(cdrForm))
-	Builtin.Define("last", Procedure(lastForm))
-	Builtin.Define("butlast", Procedure(butlastForm))
-	Builtin.Define("append", Procedure(appendForm))
-	Builtin.Define("nth", Procedure(nthForm))
+	Builtin.Define("cons", NewProcedure(consForm))
+	Builtin.Define("list", NewProcedure(listForm))
+	Builtin.Define("car", NewProcedure(carForm))
+	Builtin.Define("cdr", NewProcedure(cdrForm))
+	Builtin.Define("last", NewProcedure(lastForm))
+	Builtin.Define("butlast", NewProcedure(butlastForm))
+	Builtin.Define("append", NewProcedure(appendForm))
+	Builtin.Define("nth", NewProcedure(nthForm))
 }
 
 func consForm(ctx *Context, env Env, args []Elem) Elem {

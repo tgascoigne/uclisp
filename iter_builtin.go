@@ -1,7 +1,7 @@
 package uclisp
 
 func init() {
-	Builtin.Define("while", Procedure(whileForm))
+	Builtin.Define("while", NewProcedure(whileForm))
 }
 
 func whileForm(ctx *Context, env Env, args []Elem) Elem {

@@ -1,16 +1,16 @@
 package uclisp
 
 func init() {
-	Builtin.Define("+", Procedure(addForm))
-	Builtin.Define("-", Procedure(subForm))
-	Builtin.Define("*", Procedure(mulForm))
-	Builtin.Define("/", Procedure(divForm))
-	Builtin.Define("=", Procedure(mathEqualForm))
-	Builtin.Define("/=", Procedure(mathNotEqualForm))
-	Builtin.Define("<", Procedure(compLessForm))
-	Builtin.Define("<=", Procedure(compLessEqForm))
-	Builtin.Define(">", Procedure(compGreaterForm))
-	Builtin.Define(">=", Procedure(compGreaterEqForm))
+	Builtin.Define("+", NewProcedure(addForm))
+	Builtin.Define("-", NewProcedure(subForm))
+	Builtin.Define("*", NewProcedure(mulForm))
+	Builtin.Define("/", NewProcedure(divForm))
+	Builtin.Define("=", NewProcedure(mathEqualForm))
+	Builtin.Define("/=", NewProcedure(mathNotEqualForm))
+	Builtin.Define("<", NewProcedure(compLessForm))
+	Builtin.Define("<=", NewProcedure(compLessEqForm))
+	Builtin.Define(">", NewProcedure(compGreaterForm))
+	Builtin.Define(">=", NewProcedure(compGreaterEqForm))
 }
 
 func addForm(ctx *Context, env Env, args []Elem) Elem {

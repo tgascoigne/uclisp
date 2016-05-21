@@ -3,8 +3,8 @@ package uclisp
 import "log"
 
 func init() {
-	Builtin.Define("backtrace", Procedure(backtraceForm))
-	Builtin.Define("eval", Procedure(evalForm))
+	Builtin.Define("backtrace", NewProcedure(backtraceForm))
+	Builtin.Define("eval", NewProcedure(evalForm))
 }
 
 func backtraceForm(ctx *Context, env Env, args []Elem) Elem {

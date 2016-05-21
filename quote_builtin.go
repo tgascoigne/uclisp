@@ -6,8 +6,8 @@ const (
 )
 
 func init() {
-	Builtin.Define("quote", Procedure(quoteForm))
-	Builtin.Define("backquote", Procedure(backquoteForm))
+	Builtin.Define("quote", NewProcedure(quoteForm))
+	Builtin.Define("backquote", NewProcedure(backquoteForm))
 }
 
 func quoteForm(ctx *Context, env Env, args []Elem) Elem {
