@@ -32,6 +32,29 @@ var mathTests = BasicTests{
 	{"(<= 1 2 2 3)", uclisp.True},
 }
 
+var mathExceptionTests = ExceptionTests{
+	{"(/=)", uclisp.ErrArgCount},
+	{"(/= 1)", uclisp.ErrArgCount},
+	{"(/= 1 2 3)", uclisp.ErrArgCount},
+	{"(+ 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(- 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(* 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(/ 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(= 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(= \"a\" 1)", uclisp.ErrNotAnInteger},
+	{"(/= 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(/= \"a\" 1)", uclisp.ErrNotAnInteger},
+	{"(< 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(< \"a\" 1)", uclisp.ErrNotAnInteger},
+	{"(> 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(> \"a\" 1)", uclisp.ErrNotAnInteger},
+	{"(<= 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(<= \"a\" 1)", uclisp.ErrNotAnInteger},
+	{"(>= 1 \"a\")", uclisp.ErrNotAnInteger},
+	{"(>= \"a\" 1)", uclisp.ErrNotAnInteger},
+}
+
 func TestMath(t *testing.T) {
 	mathTests.Do(t)
+	mathExceptionTests.Do(t)
 }

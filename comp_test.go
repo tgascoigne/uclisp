@@ -28,6 +28,14 @@ func TestTypeEqualsExceptions(t *testing.T) {
 	ShouldThrow(t, uclisp.ErrIncomparable, func() {
 		uclisp.Throw{}.Equals(ctx, uclisp.Global, uclisp.Throw{})
 	})
+
+	proc := uclisp.NewProcedure(func(ctx *uclisp.Context, env uclisp.Env, args []uclisp.Elem) uclisp.Elem {
+		return uclisp.Nil
+	})
+
+	ShouldThrow(t, uclisp.ErrNotAProcedure, func() {
+		proc.Equals(ctx, uclisp.Global, uclisp.Integer(4))
+	})
 }
 
 func TestProcEquals(t *testing.T) {
