@@ -1,6 +1,6 @@
 package uclisp
 
-import "fmt"
+import "log"
 
 func init() {
 	Builtin.Define("macro", NewProcedure(macroForm))
@@ -9,7 +9,7 @@ func init() {
 // todo: macroexpand
 
 func macroForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) < 1 {
+	if len(args) < 2 {
 		ctx.Raise(ErrArgCount, len(args))
 	}
 
@@ -44,7 +44,7 @@ func macroForm(ctx *Context, env Env, args []Elem) Elem {
 		expanded := ctx.Eval(body, bound)
 
 		if Global.Defined(Symbol("*macro-debug*")) {
-			fmt.Printf("expanded to %v\n", expanded)
+			log.Printf("expanded to %v\n", expanded)
 		}
 
 		return ctx.Eval(expanded, callerEnv)

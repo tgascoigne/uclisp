@@ -1,7 +1,10 @@
 package uclisp_test
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/tgascoigne/uclisp"
@@ -111,4 +114,12 @@ func ShouldThrow(t *testing.T, expectedError error, fn func()) (reterror error) 
 
 	fn()
 	return
+}
+
+func captureOutput(f func()) string {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	f()
+	log.SetOutput(os.Stderr)
+	return buf.String()
 }
