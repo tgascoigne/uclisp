@@ -1,5 +1,9 @@
 package uclisp
 
+import "errors"
+
+var ErrIncomparable = errors.New("value not comparable: %v")
+
 func Equal(ctx *Context, env Env, v1, v2 Elem) bool {
 	// are we comparing to t?
 	switch {
