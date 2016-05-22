@@ -61,6 +61,23 @@ func (spec argSpec) Bind(ctx *Context, env Env, args []Elem) Env {
 		return bound
 	}
 
+	if spec.rest == EmptySymbol {
+		if len(spec.optional) == 0 {
+			// no varargs, no optional args
+			if len(args) != len(spec.required) {
+				ctx.Raise(ErrArgCount, len(args), len(spec.required))
+				return bound
+			}
+		} else {
+			// no varargs, has optional args
+			if len(args) > len(spec.required)+len(spec.optional) {
+				ctx.Raise(ErrArgCount, len(args), len(spec.required)+len(spec.optional))
+				return bound
+			}
+		}
+
+	}
+
 	var sym Symbol
 OUTER:
 	for i, arg := range args {
@@ -90,7 +107,7 @@ OUTER:
 }
 
 func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
-	if len(args) < 1 {
+	if len(args) < 2 {
 		ctx.Raise(ErrArgCount, len(args))
 	}
 
@@ -111,7 +128,7 @@ func lambdaForm(ctx *Context, env Env, args []Elem) Elem {
 
 	body := append(List{Symbol("progn")}, args[1:]...)
 
-	return NewProcedure(func(ctx *Context, callerEnv Env, _args []Elem) (Elem) {
+	return NewProcedure(func(ctx *Context, callerEnv Env, _args []Elem) Elem {
 		args := make([]Elem, len(_args))
 		copy(args, _args)
 		for i := range args {

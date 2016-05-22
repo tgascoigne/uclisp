@@ -22,6 +22,18 @@ var lambdaTests = BasicTests{
 	{"((lambda (&rest z) z) 1 2 3 4 5)", uclisp.List{uclisp.Integer(1), uclisp.Integer(2), uclisp.Integer(3), uclisp.Integer(4), uclisp.Integer(5)}},
 }
 
+var lambdaExceptionTests = ExceptionTests{
+	{"(lambda)", uclisp.ErrArgCount},
+	{"(lambda (x y))", uclisp.ErrArgCount},
+	{"(lambda 1 (+ 1 1))", uclisp.ErrNotAList},
+	{"(lambda (1 2) (+ 1 1))", uclisp.ErrNotASymbol},
+	{"(lambda (x &rest y &rest z) (+ 1 1))", uclisp.ErrInvalidArgSpec},
+	{"((lambda (x y) (+ x y)) 1)", uclisp.ErrArgCount},
+	{"((lambda (x y) (+ x y)) 1 2 3)", uclisp.ErrArgCount},
+	{"((lambda (x y &optional z) (+ x y)) 1 2 3 4)", uclisp.ErrArgCount},
+}
+
 func TestLambda(t *testing.T) {
 	lambdaTests.Do(t)
+	lambdaExceptionTests.Do(t)
 }
