@@ -37,20 +37,14 @@ func backquoteForm(ctx *Context, env Env, args []Elem) Elem {
 			if form, err := AssertList(el); err == nil && len(form) > 0 {
 				switch {
 				case Equal(ctx, env, form[0], UnquoteSymbol):
-					if len(form) != 2 {
-						ctx.Raise(ErrArgCount, len(form), 2)
-					}
-
+					// len(form) is always 2, because the otherwise it wouldn't have parsed
 					el = ctx.Eval(form[1], env)
 
 					quoted = append(quoted, el)
 					continue
 
 				case Equal(ctx, env, form[0], SpliceSymbol):
-					if len(form) != 2 {
-						ctx.Raise(ErrArgCount, len(form), 2)
-					}
-
+					// len(form) is always 2, because the otherwise it wouldn't have parsed
 					el = ctx.Eval(form[1], env)
 
 					list, err := AssertList(el)
