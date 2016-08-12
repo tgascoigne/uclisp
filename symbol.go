@@ -19,7 +19,7 @@ func (s Symbol) Equals(ctx *Context, env Env, o Elem) bool {
 }
 
 func (s Symbol) Eval(ctx *Context, env Env) Elem {
-	e := env.Get(s)
+	e := env.Get(ctx, s)
 	if e == nil {
 		ctx.Raise(ErrSymbolNotDefined, s)
 	}

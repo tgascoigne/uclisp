@@ -43,7 +43,7 @@ func macroForm(ctx *Context, env Env, args []Elem) Elem {
 		bound := bindings.Bind(ctx, callerEnv, args)
 		expanded := ctx.Eval(body, bound)
 
-		if Global.Defined(Symbol("*macro-debug*")) {
+		if Global.Defined(ctx, Symbol("*macro-debug*")) {
 			log.Printf("expanded to %v\n", expanded)
 		}
 

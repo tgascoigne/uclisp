@@ -5,6 +5,7 @@ import "errors"
 var ErrInvalidBindSpec = errors.New("invalid bind specification: %v")
 
 func init() {
+	Builtin.Define("with", NewProcedure(withForm))
 	Builtin.Define("define", NewProcedure(defineForm))
 	Builtin.Define("defined", NewProcedure(definedForm))
 	Builtin.Define("let", genLetForms(false))
@@ -12,8 +13,31 @@ func init() {
 	Builtin.Define("set", NewProcedure(setForm))
 }
 
+func withForm(ctx *Context, parentenv Env, args []Elem) Elem {
+	if len(args) < 2 {
+		ctx.Raise(ErrArgCount, len(args))
+	}
+
+	arg0val := args[0].Eval(ctx, parentenv)
+
+	goValue, err := AssertGoValue(arg0val)
+	if err != nil {
+		ctx.Raise(err, arg0val)
+	}
+
+	env := goValue.With(parentenv)
+
+	var result Elem
+	result = Nil
+	for _, f := range args[1:] {
+		result = f.Eval(ctx, env)
+	}
+
+	return result
+}
+
 func genLetForms(starform bool) Procedure {
-	return NewProcedure(func(ctx *Context, env Env, args []Elem) (Elem) {
+	return NewProcedure(func(ctx *Context, env Env, args []Elem) Elem {
 		if len(args) < 1 {
 			ctx.Raise(ErrArgCount, len(args))
 		}
@@ -86,7 +110,7 @@ func definedForm(ctx *Context, env Env, args []Elem) Elem {
 		ctx.Raise(err, args[0])
 	}
 
-	if Global.Defined(symbol) {
+	if env.Defined(ctx, symbol) {
 		return True
 	}
 	return Nil
@@ -103,12 +127,12 @@ func setForm(ctx *Context, env Env, args []Elem) Elem {
 		ctx.Raise(err, symbolElem)
 	}
 
-	if !env.Defined(symbol) {
+	if !env.Defined(ctx, symbol) {
 		ctx.Raise(ErrSymbolNotDefined, symbol)
 	}
 
 	value := ctx.Eval(args[1], env)
 
-	env.Set(symbol, value)
+	env.Set(ctx, symbol, value)
 	return symbol
 }

@@ -98,7 +98,7 @@ OUTER:
 
 	// all missing optionals are defined to Nil
 	for _, sym := range append(spec.optional, spec.rest) {
-		if !bound.Defined(sym) {
+		if !bound.Defined(ctx, sym) {
 			bound.Define(sym, Nil)
 		}
 	}

@@ -16,18 +16,24 @@ type BasicTest struct {
 }
 
 func (tc BasicTest) Do(t *testing.T) {
+	// Create a new global env for each test case for isolation
+	env := uclisp.NewBasicEnv(uclisp.Builtin)
+	tc.DoWithEnvironment(t, env)
+}
+
+func (tc BasicTest) DoWithEnvironment(t *testing.T, env uclisp.Env) {
 	t.Logf("Testing\t%v\n\texpecting\t%v", tc.Expression, tc.Result)
 
 	expr := uclisp.Parse("test", tc.Expression)
 
-	// Create a new global env for each test case for isolation
-	uclisp.Global = uclisp.NewBasicEnv(uclisp.Builtin)
+	uclisp.Global = env
 
 	ctx := uclisp.NewContext()
 	result := ctx.Begin(expr)
 	if !uclisp.Equal(ctx, uclisp.Global, result, tc.Result) {
 		t.Errorf("Value incorrect:\n\tgot\t\t%v\n\texpected\t%v", result, tc.Result)
 	}
+
 }
 
 type BasicTests []BasicTest
@@ -35,6 +41,12 @@ type BasicTests []BasicTest
 func (tcs BasicTests) Do(t *testing.T) {
 	for _, tc := range tcs {
 		tc.Do(t)
+	}
+}
+
+func (tcs BasicTests) DoWithEnvironment(t *testing.T, env uclisp.Env) {
+	for _, tc := range tcs {
+		tc.DoWithEnvironment(t, env)
 	}
 }
 

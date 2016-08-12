@@ -64,3 +64,14 @@ func AssertProcedure(e Elem) (Procedure, error) {
 
 	return Procedure{}, ErrNotAProcedure
 }
+
+var ErrNotAGoValue = errors.New("not a go value: %v")
+
+// AssertGoValue returns an error if e is not an GoValue. Returns the concrete type on success.
+func AssertGoValue(e Elem) (*GoValue, error) {
+	if proc, ok := e.(*GoValue); ok {
+		return proc, nil
+	}
+
+	return &GoValue{}, ErrNotAGoValue
+}
