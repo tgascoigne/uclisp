@@ -1,5 +1,10 @@
 package uclisp
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Elem is any value which can be passed to and from lisp
 type Elem interface {
 	Equal(Elem) bool
@@ -11,7 +16,10 @@ type cellInternal struct {
 }
 
 // Nil is the empty list
-var Nil Cell = Cell{nil}
+var Nil = Cell{nil}
+
+// True is a unique truth value
+var True = Cell{new(cellInternal)}
 
 // Cell is a pointer to a lisp cell
 type Cell struct {
@@ -35,9 +43,39 @@ func (c Cell) Equal(other Elem) bool {
 	return false
 }
 
+func (c Cell) String() string {
+	if c.Equal(Nil) {
+		return "()"
+	}
+
+	if _, ok := c.cdr.(Cell); !ok {
+		// cdr is not another cell, so it's a plain old cons
+		return fmt.Sprintf("(%v . %v)", c.car, c.cdr)
+	}
+
+	strs := make([]string, 0)
+
+	c.forEach(func(el Elem) bool {
+		strs = append(strs, fmt.Sprintf("%v", el))
+		return false
+	})
+
+	return fmt.Sprintf("(%v)", strings.Join(strs, " "))
+}
+
 // Expand returns both car and cdr
 func (c Cell) Expand() (car, cdr Elem) {
 	return c.car, c.cdr
+}
+
+// ExpandList flattens and returns all elements of a list
+func (c Cell) ExpandList() []Elem {
+	list := make([]Elem, 0)
+	c.forEach(func(el Elem) bool {
+		list = append(list, el)
+		return false
+	})
+	return list
 }
 
 // SetCar sets the car
@@ -52,12 +90,27 @@ func (c Cell) SetCdr(cdr Elem) {
 
 // Car returns car
 func (c Cell) Car() Elem {
+	if c.Equal(Nil) {
+		return Nil
+	}
 	return c.car
 }
 
 // Cdr returns cdr
 func (c Cell) Cdr() Elem {
+	if c.Equal(Nil) {
+		return Nil
+	}
 	return c.cdr
+}
+
+// AssertCell throws a type error if e is not a Cell
+func AssertCell(e Elem) Cell {
+	if c, ok := e.(Cell); ok {
+		return c
+	}
+	typeError("consp", e)
+	return Nil
 }
 
 // Cons creates a new cell
@@ -68,11 +121,44 @@ func Cons(car, cdr Elem) Cell {
 	}}
 }
 
+// Bool converts a boolean to a Cell
+func Bool(b bool) Cell {
+	if b {
+		return True
+	}
+	return Nil
+}
+
 // List creates a new list
 func List(elems ...Elem) Cell {
 	list := Nil
-	for i := len(elems) - 1; i > 0; i-- {
+	for i := len(elems) - 1; i >= 0; i-- {
 		list = Cons(elems[i], list)
 	}
 	return list
+}
+
+type forFunc func(Elem) bool
+
+func (c Cell) forEach(fn forFunc) bool {
+	iter := c
+	for {
+		if fn(iter.Car()) {
+			return true
+		}
+		if iter.Cdr().Equal(Nil) {
+			break
+		}
+		iter = AssertCell(iter.Cdr())
+	}
+	return false
+}
+
+func (c Cell) reverse() Cell {
+	result := Nil
+	c.forEach(func(e Elem) bool {
+		result = Cons(e, result)
+		return false
+	})
+	return result
 }

@@ -43,3 +43,15 @@ func TestCellCopy(t *testing.T) {
 	assert.Equal(t, Int(2), a.Car(), "Cell copied incorrectly")
 	assert.Equal(t, Int(2), b.Car(), "Cell copied incorrectly")
 }
+
+func TestList(t *testing.T) {
+	a := List(Int(1), Int(2), Int(3))
+	b := Cons(Int(1), Cons(Int(2), Cons(Int(3), Nil)))
+	assert.Equal(t, b, a, "List constructed incorrectly")
+}
+
+func TestPairList(t *testing.T) {
+	a := List(Symbol("a"), Symbol("b"), Symbol("c"))
+	b := List(Int(1), Int(2), Int(3))
+	assert.Equal(t, List(Cons(Symbol("a"), Int(1)), Cons(Symbol("b"), Int(2)), Cons(Symbol("c"), Int(3))), pairlis(a, b), "List constructed incorrectly")
+}
