@@ -44,23 +44,37 @@ func (c Cell) Equal(other Elem) bool {
 }
 
 func (c Cell) String() string {
-	if c.Equal(Nil) {
-		return "()"
+	var formatCell func(el Elem, depth int) string
+	formatCell = func(el Elem, depth int) string {
+		if c, ok := el.(Cell); ok {
+
+			if c.Equal(Nil) {
+				return "()"
+			}
+
+			if depth > 4 {
+				return "..."
+			}
+
+			if _, ok := c.cdr.(Cell); !ok {
+				// cdr is not another cell, so it's a plain old cons
+				return fmt.Sprintf("(%v . %v)", formatCell(c.car, depth+1), formatCell(c.cdr, depth+1))
+			}
+
+			strs := make([]string, 0)
+
+			c.forEach(func(el Elem) bool {
+				strs = append(strs, formatCell(el, depth+1))
+				return false
+			})
+
+			return fmt.Sprintf("(%v)", strings.Join(strs, " "))
+		} else {
+			return fmt.Sprintf("%v", el)
+		}
 	}
 
-	if _, ok := c.cdr.(Cell); !ok {
-		// cdr is not another cell, so it's a plain old cons
-		return fmt.Sprintf("(%v . %v)", c.car, c.cdr)
-	}
-
-	strs := make([]string, 0)
-
-	c.forEach(func(el Elem) bool {
-		strs = append(strs, fmt.Sprintf("%v", el))
-		return false
-	})
-
-	return fmt.Sprintf("(%v)", strings.Join(strs, " "))
+	return formatCell(c, 0)
 }
 
 // Expand returns both car and cdr

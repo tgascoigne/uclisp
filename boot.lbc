@@ -1,0 +1,42 @@
+<LOAD %env LOOKUP
+ CAR
+ CAR
+
+ LOAD <LOAD %env LOOKUP
+       CAR
+       CDR
+       CAR
+
+       LOAD value LOOKUP
+       LOAD symbol LOOKUP
+       CONS
+
+       CONS
+       LOAD %env LOOKUP
+       CAR
+       CDR
+       SETCAR
+       LOAD symbol LOOKUP LOOKUP
+       RETURN>
+ LOAD (symbol value)
+ CONS
+ LOAD define
+ CONS
+ CONS
+
+ LOAD %env LOOKUP
+ CAR
+ SETCAR>
+
+<LOAD ()
+ LOAD <LOAD body LOOKUP
+       LOAD argspec LOOKUP
+       CONS
+       RETURN>
+ LOAD (argspec body)
+ CONS
+ CONS
+ LOAD lambda
+ CONS
+
+ LOAD define LOOKUP APPLY>

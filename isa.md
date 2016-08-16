@@ -12,8 +12,8 @@
 | CONS    | car.cdr.s, e, CONS.c, d                  | C.s, e, c, d                                  | Construct the cell C (car . cdr)                                                      |
 | CAR     | C.s, e, CAR.c, d                         | car.s, e, c, d                                |                                                                                       |
 | CDR     | C.s, e, CDR.c, d                         | cdr.s, e, c, d                                |                                                                                       |
-| SETCAR  | C.V.s, e, SETCAR.c, d                    | C.s, e, c, d                                  | Set car of C to V                                                                     |
-| SETCDR  | C.V.s, e, SETCDR.c, d                    | C.s, e, c, d                                  | Set cdr of C to V                                                                     |
+| SETCAR  | C.V.s, e, SETCAR.c, d                    | s, e, c, d                                    | Set car of C to V                                                                     |
+| SETCDR  | C.V.s, e, SETCDR.c, d                    | s, e, c, d                                    | Set cdr of C to V                                                                     |
 | APPLY   | (argspec . body).(args).s, e, APPLY.c, d | (), (pairlis argspec args).e, body, (s e c).d | Binds args to argspec and transfers control to body. Pushes the current state to dump |
 | RETURN  | s, e, RETURN.c, (s' e' c').d             | (car s).s', e', c', d                         | Restores s', e', c' from dump, and pushes the value on top of the current stack to s' |
 | SELECT  | cond.s, e, SELECT.c1.c2.c, d             | s, e, c1 or c2, c.d                           | If cond is nil execute c2, otherwise execute c1.                                      |

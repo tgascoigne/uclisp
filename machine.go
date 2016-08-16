@@ -2,48 +2,65 @@ package uclisp
 
 import "fmt"
 
-// Op is an instruction's opcode
-type Op int
-
-//go:generate stringer -type=Op
-
-// Bytecode is the compiled executable code
-type Bytecode struct {
-	// Code is the list of instructions and operands
-	Code []Elem
-	// Source is what the bytecode was compiled from
-	Source Elem
+// VM is an instance of the virtual machine
+type VM struct {
+	trace      bool
+	s, e, c, d Cell
 }
 
-const (
-	OpNOP Op = iota
-	OpLOAD
-	OpLOOKUP
-	OpLOOKUPC
-	OpCONS
-	OpCAR
-	OpCDR
-	OpSETCAR
-	OpSETCDR
-	OpAPPLY
-	OpRETURN
-	OpSELECT
-	OpJOIN
-	OpEQUAL
-	OpADD
-	OpSUB
-	OpMUL
-	OpDIV
-	OpMOD
-)
-
-// Equal returns true if the argument is equal in value
-func (i Op) Equal(other Elem) bool {
-	if o, ok := other.(Op); ok {
-		return i == o
+// NewVM constructs a VM
+func NewVM(trace bool) *VM {
+	vm := &VM{
+		trace: trace,
+		s:     Cons(Nil, Nil),
+		e:     Cons(Nil, Nil),
+		c:     Cons(Nil, Nil),
+		d:     Cons(Nil, Nil),
 	}
 
-	return false
+	e := List(List(),
+		mapToAlist(map[Elem]Elem{
+			Symbol("%stack"):   vm.s,
+			Symbol("%env"):     vm.e,
+			Symbol("%control"): vm.c,
+			Symbol("%dump"):    vm.d,
+		}))
+	vm.e.SetCar(e)
+
+	return vm
+}
+
+// Execute processes until the control register is empty
+func (vm *VM) Execute() {
+	s, e, c, d :=
+		AssertCell(vm.s.Car()),
+		AssertCell(vm.e.Car()),
+		AssertCell(vm.c.Car()),
+		AssertCell(vm.d.Car())
+
+	for !c.Equal(Nil) {
+		if vm.trace {
+			fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
+		}
+		s, e, c, d = step(s, e, c, d)
+
+		vm.s.SetCar(s)
+		vm.e.SetCar(e)
+		vm.c.SetCar(c)
+		vm.d.SetCar(d)
+	}
+}
+
+// Registers returns the set of SECD registers
+func (vm *VM) Registers() (Cell, Cell, Cell, Cell) {
+	return vm.s, vm.e, vm.c, vm.d
+}
+
+func step(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	var op Op
+	op, c = popOp(c)
+
+	return opTable[op](s, e, c, d)
 }
 
 type stepFunc func(s, e, c, d Cell) (Cell, Cell, Cell, Cell)
@@ -68,75 +85,6 @@ var opTable = map[Op]stepFunc{
 	OpMUL:     instMUL,
 	OpDIV:     instDIV,
 	OpMOD:     instMOD,
-}
-
-// AssertOp throws a type error if e is not a Op
-func AssertOp(e Elem) Op {
-	if c, ok := e.(Op); ok {
-		return c
-	}
-	typeError("opcodep", e)
-	return OpNOP
-}
-
-// VM is an instance of the virtual machine
-type VM struct {
-	trace      bool
-	s, e, c, d Cell
-}
-
-// NewVM constructs a VM
-func NewVM(trace bool) *VM {
-	vm := &VM{
-		trace: trace,
-		s:     Cons(Nil, Nil),
-		e:     Cons(Nil, Nil),
-		c:     Cons(Nil, Nil),
-		d:     Cons(Nil, Nil),
-	}
-
-	e := List(mapToAlist(map[Elem]Elem{
-		Symbol("%stack"):   vm.s,
-		Symbol("%env"):     vm.e,
-		Symbol("%control"): vm.c,
-		Symbol("%dump"):    vm.d,
-	}))
-	vm.e.SetCar(e)
-
-	return vm
-}
-
-// Execute processes until the control register is empty
-func (vm *VM) Execute() {
-	s, e, c, d :=
-		AssertCell(vm.s.Car()),
-		AssertCell(vm.e.Car()),
-		AssertCell(vm.c.Car()),
-		AssertCell(vm.d.Car())
-
-	for !c.Equal(Nil) {
-		if vm.trace {
-			fmt.Printf("s: %v\ne: %V\nc: %v\nd: %v\n\n", s, e, c, d)
-		}
-		s, e, c, d = step(s, e, c, d)
-
-		vm.s.SetCar(s)
-		vm.e.SetCar(e)
-		vm.c.SetCar(c)
-		vm.d.SetCar(d)
-	}
-}
-
-// Registers returns the set of SECD registers
-func (vm *VM) Registers() (Cell, Cell, Cell, Cell) {
-	return vm.s, vm.e, vm.c, vm.d
-}
-
-func step(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
-	var op Op
-	op, c = popOp(c)
-
-	return opTable[op](s, e, c, d)
 }
 
 func instNOP(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
@@ -192,14 +140,12 @@ func instCDR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 func instSETCAR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	cell.car, s = pop(s)
-	s = push(cell, s)
 	return s, e, c, d
 }
 
 func instSETCDR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	cell.cdr, s = pop(s)
-	s = push(cell, s)
 	return s, e, c, d
 }
 
