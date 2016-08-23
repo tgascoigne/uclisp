@@ -135,6 +135,10 @@ func Cons(car, cdr Elem) Cell {
 	}}
 }
 
+func Nilp(c Elem) bool {
+	return c.Equal(Nil)
+}
+
 // Bool converts a boolean to a Cell
 func Bool(b bool) Cell {
 	if b {

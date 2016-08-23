@@ -25,7 +25,7 @@ func testSequenceWithEnv(t *testing.T, control, env Cell, expected Elem, descrip
 		e.SetCar(realEnv)
 	}
 
-	vm.Execute()
+	vm.execute()
 
 	result, _ := pop(AssertCell(s.Car()))
 	assert.Equal(t, expected, result)
@@ -119,7 +119,7 @@ func TestArithmetic(t *testing.T) {
 }
 
 func TestLambda(t *testing.T) {
-	fn := Cons(List(Symbol("a"), Symbol("b")), List(OpLOAD, Symbol("a"), OpLOOKUP, OpLOAD, Symbol("b"), OpLOOKUP, OpLOAD, Symbol("c"), OpLOOKUP, OpADD, OpADD, OpRETURN))
+	fn := Cons(List(Symbol("a"), Symbol("b")), List(BytecodeSymbol, List(OpLOAD, Symbol("a"), OpLOOKUP, OpLOAD, Symbol("b"), OpLOOKUP, OpLOAD, Symbol("c"), OpLOOKUP, OpADD, OpADD, OpRETURN)))
 
 	// Build the closure
 	e := List(

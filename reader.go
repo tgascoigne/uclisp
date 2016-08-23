@@ -35,6 +35,10 @@ func Read(input string) ([]Elem, error) {
 
 func readElement(scanner *bufio.Scanner) Elem {
 	switch scanner.Text() {
+	// TODO insert reader macros
+	case "'":
+		scanner.Scan()
+		return List(QuoteSymbol, readElement(scanner))
 	case "<":
 		return readBytecode(scanner)
 	case "(":
@@ -60,7 +64,7 @@ func readBytecode(scanner *bufio.Scanner) Elem {
 		}
 	}
 
-	return List(code...)
+	return Bytecode(List(code...))
 }
 
 func readSexpr(scanner *bufio.Scanner) Elem {

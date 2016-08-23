@@ -47,6 +47,7 @@ func AssertOp(e Elem) Op {
 	return OpNOP
 }
 
+/*
 // Bytecode is the compiled executable code
 type Bytecode Cell
 
@@ -58,3 +59,4 @@ func (b Bytecode) Equal(other Elem) bool {
 
 	return false
 }
+*/

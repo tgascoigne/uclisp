@@ -17,10 +17,8 @@ func bootVM(t *testing.T) *VM {
 	assert.NoError(t, err, "Error reading boot code")
 
 	vm := NewVM(true)
-	_, _, c, _ := vm.Registers()
 	for _, instrs := range control {
-		c.SetCar(instrs)
-		vm.Execute()
+		vm.Eval(AssertCell(instrs))
 	}
 
 	return vm
@@ -28,15 +26,28 @@ func bootVM(t *testing.T) *VM {
 
 func TestDefine(t *testing.T) {
 	vm := bootVM(t)
-	s, _, c, _ := vm.Registers()
 
-	control, err := Read("<LOAD (foo 1) LOAD define LOOKUP APPLY LOAD foo LOOKUP>")
+	control, err := Read("(define 'foo 1) foo")
 	assert.NoError(t, err, "Error reading bytecode")
 
-	c.SetCar(control[0])
+	var result Elem
+	for _, expr := range control {
+		result = vm.Eval(expr)
+	}
 
-	vm.Execute()
-
-	result, _ := pop(AssertCell(s.Car()))
 	assert.Equal(t, Int(1), result)
+}
+
+func TestLambda2(t *testing.T) {
+	vm := bootVM(t)
+
+	control, err := Read("(define 'foo (lambda '(x y) '(+ x y))) (foo 3 4)")
+	assert.NoError(t, err, "Error reading bytecode")
+
+	var result Elem
+	for _, expr := range control {
+		result = vm.Eval(expr)
+	}
+
+	assert.Equal(t, Int(7), result)
 }

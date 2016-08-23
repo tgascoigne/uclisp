@@ -18,20 +18,55 @@ func NewVM(trace bool) *VM {
 		d:     Cons(Nil, Nil),
 	}
 
-	e := List(List(),
-		mapToAlist(map[Elem]Elem{
-			Symbol("%stack"):   vm.s,
-			Symbol("%env"):     vm.e,
-			Symbol("%control"): vm.c,
-			Symbol("%dump"):    vm.d,
-		}))
+	e := List(mapToAlist(map[Elem]Elem{
+		Symbol("%stack"):   vm.s,
+		Symbol("%env"):     vm.e,
+		Symbol("%control"): vm.c,
+		Symbol("%dump"):    vm.d,
+	}))
 	vm.e.SetCar(e)
 
 	return vm
 }
 
+func (vm *VM) Eval(expr Elem) Elem {
+	instrs := Compile(expr)
+
+	s, e, c, d :=
+		AssertCell(vm.s.Car()),
+		AssertCell(vm.e.Car()),
+		AssertCell(vm.c.Car()),
+		AssertCell(vm.d.Car())
+
+	// Store the current s,e,c to d
+	d = push(List(s, e, c), d)
+
+	// Create a new frame
+	//e = push(Nil, e)
+	vm.s.SetCar(Nil)
+	vm.e.SetCar(e)
+	vm.c.SetCar(instrs)
+
+	vm.execute()
+	result, _ := pop(AssertCell(vm.s.Car()))
+
+	// Restore the old s,e,c from d
+	sec, d := pop(d)
+	regs := AssertCell(sec).ExpandList()
+	s, e, c = AssertCell(regs[0]),
+		AssertCell(regs[1]),
+		AssertCell(regs[2])
+
+	vm.s.SetCar(s)
+	//vm.e.SetCar(e)
+	vm.c.SetCar(c)
+	vm.d.SetCar(d)
+
+	return result
+}
+
 // Execute processes until the control register is empty
-func (vm *VM) Execute() {
+func (vm *VM) execute() {
 	s, e, c, d :=
 		AssertCell(vm.s.Car()),
 		AssertCell(vm.e.Car()),
@@ -155,7 +190,9 @@ func instAPPLY(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	d = push(List(s, e, c), d)
 	s = Nil
 	e = push(pairlis(AssertCell(fn.Car()), args), e)
-	c = AssertCell(fn.Cdr())
+
+	// todo: compile instruction
+	c = Compile(AssertCell(fn.Cdr()))
 	return s, e, c, d
 }
 

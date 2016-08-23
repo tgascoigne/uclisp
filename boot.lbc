@@ -40,3 +40,27 @@
  CONS
 
  LOAD define LOOKUP APPLY>
+
+(define 'cons
+  (lambda '(car cdr)
+    '<LOAD cdr LOOKUP LOAD car LOOKUP CONS RETURN>))
+
+(define '+
+  (lambda '(a b)
+    '<LOAD a LOOKUP LOAD b LOOKUP ADD RETURN>))
+
+(define '-
+  (lambda '(a b)
+    '<LOAD a LOOKUP LOAD b LOOKUP SUB RETURN>))
+
+(define '*
+  (lambda '(a b)
+    '<LOAD a LOOKUP LOAD b LOOKUP MUL RETURN>))
+
+(define '/
+  (lambda '(a b)
+    '<LOAD a LOOKUP LOAD b LOOKUP DIV RETURN>))
+
+(define '%
+  (lambda '(a b)
+    '<LOAD a LOOKUP LOAD b LOOKUP MOD RETURN>))
