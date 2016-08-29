@@ -17,8 +17,8 @@ func bootVM(t *testing.T) *VM {
 	assert.NoError(t, err, "Error reading boot code")
 
 	vm := NewVM(true)
-	for _, instrs := range control {
-		vm.Eval(AssertCell(instrs))
+	for _, sexpr := range control {
+		vm.Eval(vm.Compile(sexpr))
 	}
 
 	return vm
@@ -27,12 +27,12 @@ func bootVM(t *testing.T) *VM {
 func TestDefine(t *testing.T) {
 	vm := bootVM(t)
 
-	control, err := Read("(define 'foo 1) foo")
+	control, err := Read("(define foo 1) foo")
 	assert.NoError(t, err, "Error reading bytecode")
 
 	var result Elem
-	for _, expr := range control {
-		result = vm.Eval(expr)
+	for _, sexpr := range control {
+		result = vm.Eval(vm.Compile(sexpr))
 	}
 
 	assert.Equal(t, Int(1), result)
@@ -41,12 +41,12 @@ func TestDefine(t *testing.T) {
 func TestLambda2(t *testing.T) {
 	vm := bootVM(t)
 
-	control, err := Read("(define 'foo (lambda '(x y) '(+ x y))) (foo 3 4)")
+	control, err := Read("(define foo (lambda (x y) (+ x y))) (foo 3 4)")
 	assert.NoError(t, err, "Error reading bytecode")
 
 	var result Elem
-	for _, expr := range control {
-		result = vm.Eval(expr)
+	for _, sexpr := range control {
+		result = vm.Eval(vm.Compile(sexpr))
 	}
 
 	assert.Equal(t, Int(7), result)

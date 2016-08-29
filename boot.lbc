@@ -2,23 +2,45 @@
  CAR
  CAR
 
- LOAD <LOAD %env LOOKUP
-       CAR
-       CDR
-       CAR
+ LOAD ()
+ LOAD
+  <LOAD ()
 
-       LOAD value LOOKUP
-       LOAD symbol LOOKUP
-       CONS
+   LOAD ()
+   LOAD LOOKUP        CONS
+   LOAD symbol LOOKUP CONS
+   LOAD LOAD          CONS
+   LOAD SETCAR        CONS
 
-       CONS
-       LOAD %env LOOKUP
-       CAR
-       CDR
-       SETCAR
-       LOAD symbol LOOKUP LOOKUP
-       RETURN>
+   LOAD CAR           CONS
+   LOAD LOOKUP        CONS
+   LOAD %env          CONS
+   LOAD LOAD          CONS
+   LOAD CONS          CONS
+   LOAD CONS          CONS
+
+   LOAD symbol LOOKUP CONS
+   LOAD LOAD          CONS
+   LOAD EVAL          CONS
+   LOAD COMPILE       CONS
+   LOAD value LOOKUP  CONS
+   LOAD LOAD          CONS
+   LOAD CAR           CONS
+
+   LOAD CAR           CONS
+   LOAD LOOKUP        CONS
+   LOAD %env          CONS
+   LOAD LOAD          CONS
+
+   CONS
+   LOAD bytecode CONS
+
+   RETURN>
+ COMPILE
+ CONS
  LOAD (symbol value)
+ CONS
+ LOAD macro
  CONS
  LOAD define
  CONS
@@ -28,39 +50,67 @@
  CAR
  SETCAR>
 
-<LOAD ()
- LOAD <LOAD body LOOKUP
-       LOAD argspec LOOKUP
-       CONS
-       RETURN>
- LOAD (argspec body)
- CONS
- CONS
- LOAD lambda
- CONS
+(define cons
+  <LOAD ()
+   LOAD
+    <LOAD cdr LOOKUP
+     LOAD car LOOKUP
+     CONS
+     RETURN>
+   COMPILE
+   CONS
+   LOAD (car cdr)
+   CONS
+   LOAD lambda
+   CONS>)
 
- LOAD define LOOKUP APPLY>
+(define lambda
+  <LOAD ()
+   LOAD
+    <LOAD ()
 
-(define 'cons
-  (lambda '(car cdr)
-    '<LOAD cdr LOOKUP LOAD car LOOKUP CONS RETURN>))
+     LOAD ()
+     LOAD CONS           CONS
+     LOAD lambda         CONS
+     LOAD LOAD           CONS
+     LOAD CONS           CONS
+     LOAD argspec LOOKUP CONS
+     LOAD LOAD           CONS
+     LOAD CONS           CONS
+     LOAD body LOOKUP COMPILE CONS
+     LOAD LOAD           CONS
+     LOAD ()             CONS
+     LOAD LOAD           CONS
 
-(define '+
-  (lambda '(a b)
-    '<LOAD a LOOKUP LOAD b LOOKUP ADD RETURN>))
+     CONS
+     LOAD bytecode CONS
 
-(define '-
-  (lambda '(a b)
-    '<LOAD a LOOKUP LOAD b LOOKUP SUB RETURN>))
+     RETURN>
+   COMPILE
+   CONS
+   LOAD (argspec body)
+   CONS
+   LOAD macro
+   CONS>)
 
-(define '*
-  (lambda '(a b)
-    '<LOAD a LOOKUP LOAD b LOOKUP MUL RETURN>))
+(define +
+  (lambda (a b)
+     <LOAD a LOOKUP
+      LOAD b LOOKUP
+      ADD
+      RETURN>))
 
-(define '/
-  (lambda '(a b)
-    '<LOAD a LOOKUP LOAD b LOOKUP DIV RETURN>))
+(define eq
+  (lambda (a b)
+    <LOAD a LOOKUP
+     LOAD b LOOKUP
+     EQUAL
+     RETURN>))
 
-(define '%
-  (lambda '(a b)
-    '<LOAD a LOOKUP LOAD b LOOKUP MOD RETURN>))
+(define nilp
+  '(macro (el)
+          '(eq el '())))
+
+(define list
+  (lambda (elems)
+    (cons (car elems) (list (cdr elems)))))

@@ -2,22 +2,11 @@ package uclisp
 
 import (
 	"bufio"
-	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 )
-
-var opCodeMap = map[string]Op{}
-
-func init() {
-	for i := OpNOP; i < OpEND; i++ {
-		opStr := fmt.Sprintf("%v", i)
-		opStr = opStr[2:] // trim off 'Op' prefix
-		opCodeMap[opStr] = i
-	}
-}
 
 func Read(input string) ([]Elem, error) {
 	scanner := bufio.NewScanner(strings.NewReader(input))
@@ -51,20 +40,20 @@ func readElement(scanner *bufio.Scanner) Elem {
 }
 
 func readBytecode(scanner *bufio.Scanner) Elem {
-	code := make([]Elem, 0)
+	elems := make([]Elem, 0)
 
 	scanner.Scan()
 	for {
 		if scanner.Text() != ">" {
-			instruction := readOpcode(scanner)
-			code = append(code, instruction...)
+			elem := readElement(scanner)
+			elems = append(elems, elem)
 			scanner.Scan()
 		} else {
 			break
 		}
 	}
 
-	return Bytecode(List(code...))
+	return Bytecode(List(elems...))
 }
 
 func readSexpr(scanner *bufio.Scanner) Elem {
@@ -90,33 +79,6 @@ func readConstant(scanner *bufio.Scanner) Elem {
 		return Symbol(scanner.Text())
 	}
 	return Int(i)
-}
-
-func readOpcode(scanner *bufio.Scanner) []Elem {
-	op, ok := opCodeMap[scanner.Text()]
-	if !ok {
-		panic(fmt.Sprintf("invalid opcode: %v", scanner.Text()))
-	}
-
-	result := make([]Elem, 0)
-	result = append(result, op)
-
-	switch op {
-	case OpLOAD:
-		scanner.Scan()
-		result = append(result, readElement(scanner))
-
-	case OpSELECT:
-		scanner.Scan()
-		result = append(result, readElement(scanner))
-
-		scanner.Scan()
-		result = append(result, readElement(scanner))
-
-	default:
-
-	}
-	return result
 }
 
 func isPunctuation(r rune) bool {

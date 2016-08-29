@@ -29,9 +29,7 @@ func NewVM(trace bool) *VM {
 	return vm
 }
 
-func (vm *VM) Eval(expr Elem) Elem {
-	instrs := Compile(expr)
-
+func (vm *VM) Eval(instrs Cell) Elem {
 	s, e, c, d :=
 		AssertCell(vm.s.Car()),
 		AssertCell(vm.e.Car()),
@@ -77,7 +75,7 @@ func (vm *VM) execute() {
 		if vm.trace {
 			fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
 		}
-		s, e, c, d = step(s, e, c, d)
+		s, e, c, d = vm.step(s, e, c, d)
 
 		vm.s.SetCar(s)
 		vm.e.SetCar(e)
@@ -91,54 +89,60 @@ func (vm *VM) Registers() (Cell, Cell, Cell, Cell) {
 	return vm.s, vm.e, vm.c, vm.d
 }
 
-func step(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func (vm *VM) step(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	var op Op
 	op, c = popOp(c)
 
-	return opTable[op](s, e, c, d)
+	return opTable[op](vm, s, e, c, d)
 }
 
-type stepFunc func(s, e, c, d Cell) (Cell, Cell, Cell, Cell)
+type stepFunc func(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell)
 
-var opTable = map[Op]stepFunc{
-	OpNOP:     instNOP,
-	OpLOAD:    instLOAD,
-	OpLOOKUP:  instLOOKUP,
-	OpLOOKUPC: instLOOKUPC,
-	OpCONS:    instCONS,
-	OpCAR:     instCAR,
-	OpCDR:     instCDR,
-	OpSETCAR:  instSETCAR,
-	OpSETCDR:  instSETCDR,
-	OpAPPLY:   instAPPLY,
-	OpRETURN:  instRETURN,
-	OpSELECT:  instSELECT,
-	OpJOIN:    instJOIN,
-	OpEQUAL:   instEQUAL,
-	OpADD:     instADD,
-	OpSUB:     instSUB,
-	OpMUL:     instMUL,
-	OpDIV:     instDIV,
-	OpMOD:     instMOD,
+var opTable map[Op]stepFunc
+
+func init() {
+	opTable = map[Op]stepFunc{
+		OpNOP:     instNOP,
+		OpLOAD:    instLOAD,
+		OpLOOKUP:  instLOOKUP,
+		OpLOOKUPC: instLOOKUPC,
+		OpCONS:    instCONS,
+		OpCAR:     instCAR,
+		OpCDR:     instCDR,
+		OpSETCAR:  instSETCAR,
+		OpSETCDR:  instSETCDR,
+		OpAPPLY:   instAPPLY,
+		OpRETURN:  instRETURN,
+		OpEVAL:    instEVAL,
+		OpCOMPILE: instCOMPILE,
+		OpSELECT:  instSELECT,
+		OpJOIN:    instJOIN,
+		OpEQUAL:   instEQUAL,
+		OpADD:     instADD,
+		OpSUB:     instSUB,
+		OpMUL:     instMUL,
+		OpDIV:     instDIV,
+		OpMOD:     instMOD,
+	}
 }
 
-func instNOP(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instNOP(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instLOAD(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instLOAD(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	v, c := pop(c)
 	s = push(v, s)
 	return s, e, c, d
 }
 
-func instLOOKUP(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instLOOKUP(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	c = push(OpCDR, c)
 	c = push(OpLOOKUPC, c)
 	return s, e, c, d
 }
 
-func instLOOKUPC(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instLOOKUPC(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	sym, s := popSymbol(s)
 	if !e.forEach(func(el Elem) bool {
 		pair := assoc(sym, AssertCell(el))
@@ -153,50 +157,55 @@ func instLOOKUPC(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instCONS(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instCONS(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	car, s := pop(s)
 	cdr, s := pop(s)
 	s = push(Cons(car, cdr), s)
 	return s, e, c, d
 }
 
-func instCAR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instCAR(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	s = push(cell.Car(), s)
 	return s, e, c, d
 }
 
-func instCDR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instCDR(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	s = push(cell.Cdr(), s)
 	return s, e, c, d
 }
 
-func instSETCAR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instSETCAR(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	cell.car, s = pop(s)
 	return s, e, c, d
 }
 
-func instSETCDR(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instSETCDR(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	cell, s := popCell(s)
 	cell.cdr, s = pop(s)
 	return s, e, c, d
 }
 
-func instAPPLY(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instAPPLY(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	fn, s := popCell(s)
 	args, s := popCell(s)
+	fnElems := fn.ExpandList()
+	fmt.Printf("fn is %v\n", fn)
+	argSpec := AssertCell(fnElems[1])
+	body := AssertCell(fnElems[2])
+	fmt.Printf("argspec is %v\n", argSpec)
+	fmt.Printf("body is %v\n", body)
+
 	d = push(List(s, e, c), d)
 	s = Nil
-	e = push(pairlis(AssertCell(fn.Car()), args), e)
-
-	// todo: compile instruction
-	c = Compile(AssertCell(fn.Cdr()))
+	e = push(pairlis(argSpec, args), e)
+	c = body
 	return s, e, c, d
 }
 
-func instRETURN(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instRETURN(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	retFrame, d := popCell(d)
 	result, s := pop(s)
 	list := retFrame.ExpandList()
@@ -205,7 +214,21 @@ func instRETURN(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instSELECT(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instEVAL(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	code, s := pop(s)
+	result := vm.Eval(AssertCell(code))
+	s = push(result, s)
+	return s, e, c, d
+}
+
+func instCOMPILE(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	sexpr, s := pop(s)
+	result := vm.Compile(sexpr)
+	s = push(result, s)
+	return s, e, c, d
+}
+
+func instSELECT(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	p1, c := popCell(c)
 	p2, c := popCell(c)
 	cond, s := pop(s)
@@ -220,12 +243,12 @@ func instSELECT(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, path, d
 }
 
-func instJOIN(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instJOIN(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	c, d = popCell(d)
 	return s, e, c, d
 }
 
-func instEQUAL(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instEQUAL(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := pop(s)
 	b, s := pop(s)
 	result := a.Equal(b)
@@ -233,7 +256,7 @@ func instEQUAL(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instADD(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instADD(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := popInt(s)
 	b, s := popInt(s)
 	result := Int(a + b)
@@ -241,7 +264,7 @@ func instADD(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instSUB(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instSUB(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := popInt(s)
 	b, s := popInt(s)
 	result := Int(a - b)
@@ -249,7 +272,7 @@ func instSUB(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instMUL(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instMUL(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := popInt(s)
 	b, s := popInt(s)
 	result := Int(a * b)
@@ -257,7 +280,7 @@ func instMUL(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instDIV(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instDIV(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := popInt(s)
 	b, s := popInt(s)
 	result := Int(a / b)
@@ -265,7 +288,7 @@ func instDIV(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instMOD(s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+func instMOD(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	a, s := popInt(s)
 	b, s := popInt(s)
 	result := Int(a % b)

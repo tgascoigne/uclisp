@@ -1,5 +1,7 @@
 package uclisp
 
+import "fmt"
+
 // Op is an instruction's opcode
 type Op int
 
@@ -17,6 +19,8 @@ const (
 	OpSETCDR
 	OpAPPLY
 	OpRETURN
+	OpEVAL
+	OpCOMPILE
 	OpSELECT
 	OpJOIN
 	OpEQUAL
@@ -47,16 +51,12 @@ func AssertOp(e Elem) Op {
 	return OpNOP
 }
 
-/*
-// Bytecode is the compiled executable code
-type Bytecode Cell
+var opCodeMap = map[string]Op{}
 
-// Equal returns true if the argument is equal in value
-func (b Bytecode) Equal(other Elem) bool {
-	if o, ok := other.(Bytecode); ok {
-		return Cell(b).Equal(Cell(o))
+func init() {
+	for i := OpNOP; i < OpEND; i++ {
+		opStr := fmt.Sprintf("%v", i)
+		opStr = opStr[2:] // trim off 'Op' prefix
+		opCodeMap[opStr] = i
 	}
-
-	return false
 }
-*/

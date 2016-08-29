@@ -119,9 +119,10 @@ func TestArithmetic(t *testing.T) {
 }
 
 func TestLambda(t *testing.T) {
-	fn := Cons(List(Symbol("a"), Symbol("b")), List(BytecodeSymbol, List(OpLOAD, Symbol("a"), OpLOOKUP, OpLOAD, Symbol("b"), OpLOOKUP, OpLOAD, Symbol("c"), OpLOOKUP, OpADD, OpADD, OpRETURN)))
+	argspec := List(Symbol("a"), Symbol("b"))
+	body := List(OpLOAD, Symbol("a"), OpLOOKUP, OpLOAD, Symbol("b"), OpLOOKUP, OpLOAD, Symbol("c"), OpLOOKUP, OpADD, OpADD, OpRETURN)
+	fn := List(LambdaSymbol, argspec, body)
 
-	// Build the closure
 	e := List(
 		List(Cons(Symbol("c"), Int(1))),
 	)
