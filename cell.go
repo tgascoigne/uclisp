@@ -8,6 +8,7 @@ import (
 // Elem is any value which can be passed to and from lisp
 type Elem interface {
 	Equal(Elem) bool
+	Type() Symbol
 }
 
 // cellInternal is the internal representation of a cell
@@ -41,6 +42,13 @@ func (c Cell) Equal(other Elem) bool {
 		return c.cdr.Equal(o.cdr)
 	}
 	return false
+}
+
+func (c Cell) Type() Symbol {
+	if c.Equal(Nil) {
+		return Symbol("nil")
+	}
+	return Symbol("cons")
 }
 
 func (c Cell) String() string {

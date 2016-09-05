@@ -4,6 +4,14 @@ func push(e Elem, c Cell) Cell {
 	return Cons(e, c)
 }
 
+func pushAll(c1, c2 Cell) Cell {
+	c1.reverse().forEach(func(el Elem) bool {
+		c2 = push(el, c2)
+		return false
+	})
+	return c2
+}
+
 func pop(stack Cell) (Elem, Cell) {
 	return stack.Car(), AssertCell(stack.Cdr())
 }

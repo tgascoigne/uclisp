@@ -2,29 +2,41 @@ package uclisp
 
 import "fmt"
 
+const TraceVar = Symbol("*trace*")
+
 // VM is an instance of the virtual machine
 type VM struct {
-	trace      bool
 	s, e, c, d Cell
+	traceCell  Cell
 }
 
 // NewVM constructs a VM
-func NewVM(trace bool) *VM {
+func NewVM() *VM {
 	vm := &VM{
-		trace: trace,
-		s:     Cons(Nil, Nil),
-		e:     Cons(Nil, Nil),
-		c:     Cons(Nil, Nil),
-		d:     Cons(Nil, Nil),
+		s: Cons(Nil, Nil),
+		e: Cons(Nil, Nil),
+		c: Cons(Nil, Nil),
+		d: Cons(Nil, Nil),
 	}
 
-	e := List(mapToAlist(map[Elem]Elem{
+	baseEnv := map[Elem]Elem{
 		Symbol("%stack"):   vm.s,
 		Symbol("%env"):     vm.e,
 		Symbol("%control"): vm.c,
 		Symbol("%dump"):    vm.d,
-	}))
+		TraceVar:           Nil,
+	}
+
+	for str, op := range opCodeMap {
+		sym := Symbol("$" + str)
+		baseEnv[sym] = op
+	}
+
+	e := List(mapToAlist(baseEnv))
+
 	vm.e.SetCar(e)
+
+	vm.traceCell = AssertCell(vm.Eval(List(OpLOAD, TraceVar, OpLOOKUPC)))
 
 	return vm
 }
@@ -63,6 +75,16 @@ func (vm *VM) Eval(instrs Cell) Elem {
 	return result
 }
 
+func (vm *VM) Dump() {
+	s, e, c, d :=
+		AssertCell(vm.s.Car()),
+		AssertCell(vm.e.Car()),
+		AssertCell(vm.c.Car()),
+		AssertCell(vm.d.Car())
+	fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
+	//	fmt.Printf("s: %v\ne: %v\nc: %v\n\n", s, e, c)
+}
+
 // Execute processes until the control register is empty
 func (vm *VM) execute() {
 	s, e, c, d :=
@@ -72,8 +94,8 @@ func (vm *VM) execute() {
 		AssertCell(vm.d.Car())
 
 	for !c.Equal(Nil) {
-		if vm.trace {
-			fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
+		if !vm.traceCell.Cdr().Equal(Nil) {
+			vm.Dump()
 		}
 		s, e, c, d = vm.step(s, e, c, d)
 
@@ -111,9 +133,12 @@ func init() {
 		OpCDR:     instCDR,
 		OpSETCAR:  instSETCAR,
 		OpSETCDR:  instSETCDR,
+		OpTYPE:    instTYPE,
 		OpAPPLY:   instAPPLY,
 		OpRETURN:  instRETURN,
 		OpEVAL:    instEVAL,
+		OpDROP:    instDROP,
+		OpDUP:     instDUP,
 		OpCOMPILE: instCOMPILE,
 		OpSELECT:  instSELECT,
 		OpJOIN:    instJOIN,
@@ -188,15 +213,21 @@ func instSETCDR(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
+func instTYPE(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	elem, s := pop(s)
+	s = push(elem.Type(), s)
+	return s, e, c, d
+}
+
 func instAPPLY(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	fn, s := popCell(s)
 	args, s := popCell(s)
 	fnElems := fn.ExpandList()
-	fmt.Printf("fn is %v\n", fn)
+	//	fmt.Printf("fn is %v\n", fn)
 	argSpec := AssertCell(fnElems[1])
 	body := AssertCell(fnElems[2])
-	fmt.Printf("argspec is %v\n", argSpec)
-	fmt.Printf("body is %v\n", body)
+	// fmt.Printf("argspec is %v\n", argSpec)
+	//	fmt.Printf("body is %v\n", body)
 
 	d = push(List(s, e, c), d)
 	s = Nil
@@ -211,6 +242,18 @@ func instRETURN(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	list := retFrame.ExpandList()
 	s, e, c = AssertCell(list[0]), AssertCell(list[1]), AssertCell(list[2])
 	s = push(result, s)
+	return s, e, c, d
+}
+
+func instDROP(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	_, s = pop(s)
+	return s, e, c, d
+}
+
+func instDUP(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	v, s := pop(s)
+	s = push(v, s)
+	s = push(v, s)
 	return s, e, c, d
 }
 
@@ -229,8 +272,8 @@ func instCOMPILE(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 }
 
 func instSELECT(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
-	p1, c := popCell(c)
-	p2, c := popCell(c)
+	p2, s := popCell(s)
+	p1, s := popCell(s)
 	cond, s := pop(s)
 	var path Cell
 	if cond.Equal(Nil) {

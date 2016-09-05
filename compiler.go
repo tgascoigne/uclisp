@@ -3,10 +3,12 @@ package uclisp
 import "fmt"
 
 const (
-	QuoteSymbol    = Symbol("quote")
-	BytecodeSymbol = Symbol("bytecode")
-	MacroSymbol    = Symbol("macro")
-	LambdaSymbol   = Symbol("lambda")
+	QuoteSymbol     = Symbol("quote")
+	BackquoteSymbol = Symbol("backquote")
+	UnquoteSymbol   = Symbol("unquote")
+	BytecodeSymbol  = Symbol("bytecode")
+	MacroSymbol     = Symbol("macro")
+	LambdaSymbol    = Symbol("lambda")
 )
 
 func Quote(elem Elem) Elem {
@@ -18,9 +20,9 @@ func Bytecode(elem Elem) Elem {
 }
 
 func (vm *VM) Compile(elem Elem) Cell {
-	fmt.Printf("Compiling %v\n", elem)
+	//	fmt.Printf("Compiling %v\n", elem)
 	result := vm.compile(elem)
-	fmt.Printf("Compile %v -> %v\n", elem, result)
+	// fmt.Printf("Compile %v -> %v\n", elem, result)
 	return List(result...)
 }
 
@@ -51,12 +53,13 @@ func (vm *VM) compileExpr(expr Cell) []Elem {
 		// Check if the symbol is a macro
 		result := vm.Eval(vm.Compile(fn))
 		if fn, ok := result.(Cell); ok {
-			fmt.Printf("fn %v is a %v\n", expr.Car(), fn.Car())
+			//			fmt.Printf("fn %v is a %v\n", expr.Car(), fn.Car())
 			if fn.Car().Equal(MacroSymbol) {
-				fmt.Printf("expanding macro %v\n", expr.Car())
+				// fmt.Printf("expanding macro %v\n", expr.Car())
 				args := expr.Cdr()
-				expansion := AssertCell(vm.Eval(List(OpLOAD, args, OpLOAD, fn, OpAPPLY)))
-				return vm.Compile(expansion).ExpandList()
+				expansion := vm.Eval(List(OpLOAD, args, OpLOAD, fn, OpAPPLY))
+				//fmt.Printf("expanded macro %v to %v\n", expr.Car(), expansion)
+				return vm.Compile(AssertCell(expansion)).ExpandList()
 			}
 		}
 	}
@@ -93,13 +96,6 @@ func (vm *VM) compileBytecode(instr Cell) []Elem {
 
 		switch opcode {
 		case OpLOAD:
-			elem, instr = pop(instr)
-			result = append(result, elem)
-
-		case OpSELECT:
-			elem, instr = pop(instr)
-			result = append(result, elem)
-
 			elem, instr = pop(instr)
 			result = append(result, elem)
 

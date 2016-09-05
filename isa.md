@@ -1,7 +1,3 @@
-
-
-
-
 |---------+-----------------------------------------------+-----------------------------------------------+---------------------------------------------------------------------------------------|
 | Opcode  | s1                                            | s2                                            | Notes                                                                                 |
 |---------+-----------------------------------------------+-----------------------------------------------+---------------------------------------------------------------------------------------|
@@ -14,11 +10,14 @@
 | CDR     | C.s, e, CDR.c, d                              | cdr.s, e, c, d                                |                                                                                       |
 | SETCAR  | C.V.s, e, SETCAR.c, d                         | s, e, c, d                                    | Set car of C to V                                                                     |
 | SETCDR  | C.V.s, e, SETCDR.c, d                         | s, e, c, d                                    | Set cdr of C to V                                                                     |
+| TYPE    | V.s, e, TYPE.c, d                             | T.s, e, c, d                                  | Pops a value from s and pushes a symbol representing its type back to s               |
 | APPLY   | (lambda argspec body).(args).s, e, APPLY.c, d | (), (pairlis argspec args).e, body, (s e c).d | Binds args to argspec and transfers control to body. Pushes the current state to dump |
 | RETURN  | s, e, RETURN.c, (s' e' c').d                  | (car s).s', e', c', d                         | Restores s', e', c' from dump, and pushes the value on top of the current stack to s' |
+| DROP    | V.s, e, DROP.c, d                             | s, e, c, d                                    | Removes the value on top of s                                                         |
+| DUP     | V.s, e, DUP.c, d                              | V.V.s, e, c, d                                | Duplicates the value on top of s                                                      |
 | EVAL    | code.s, e, EVAL.c, d                          | V.s, e, c, d                                  | Evaluates the bytecode on s, and pushes the result back to s                          |
 | COMPILE | sexpr.s, e, COMPILE.c, d                      | code.s, e, c, d                               | Compiles the sexpr on s and pushes the bytecode back to s                             |
-| SELECT  | cond.s, e, SELECT.c1.c2.c, d                  | s, e, c1 or c2, c.d                           | If cond is nil execute c2, otherwise execute c1.                                      |
+| SELECT  | c2.c1.cond.s, e, SELECT.c, d                  | s, e, c1 or c2, c.d                           | If cond is nil execute c2, otherwise execute c1.                                      |
 | JOIN    | s, e, JOIN.c, c'.d                            | s, e, c', d                                   | Breaks from a SELECT condition, restoring c' from d                                   |
 | EQUAL   | A.B.s, e, EQUAL.c, d                          | V.s, e, c, d                                  | Compares A and B by value and pushes nil or t to s                                    |
 | ADD     | A.B.s, e. ADD.c, d                            | V.s, e, c, d                                  | Pushes the result of A+B to the stack                                                 |

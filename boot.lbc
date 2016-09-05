@@ -53,10 +53,10 @@
 (define cons
   <LOAD ()
    LOAD
-    <LOAD cdr LOOKUP
-     LOAD car LOOKUP
-     CONS
-     RETURN>
+   <LOAD cdr LOOKUP
+    LOAD car LOOKUP
+    CONS
+    RETURN>
    COMPILE
    CONS
    LOAD (car cdr)
@@ -64,28 +64,28 @@
    LOAD lambda
    CONS>)
 
-(define lambda
+(define macro
   <LOAD ()
    LOAD
-    <LOAD ()
+   <LOAD ()
 
-     LOAD ()
-     LOAD CONS           CONS
-     LOAD lambda         CONS
-     LOAD LOAD           CONS
-     LOAD CONS           CONS
-     LOAD argspec LOOKUP CONS
-     LOAD LOAD           CONS
-     LOAD CONS           CONS
-     LOAD body LOOKUP COMPILE CONS
-     LOAD LOAD           CONS
-     LOAD ()             CONS
-     LOAD LOAD           CONS
+    LOAD ()
+    LOAD CONS           CONS
+    LOAD macro          CONS
+    LOAD LOAD           CONS
+    LOAD CONS           CONS
+    LOAD argspec LOOKUP CONS
+    LOAD LOAD           CONS
+    LOAD CONS           CONS
+    LOAD body LOOKUP COMPILE CONS
+    LOAD LOAD           CONS
+    LOAD ()             CONS
+    LOAD LOAD           CONS
 
-     CONS
-     LOAD bytecode CONS
+    CONS
+    LOAD bytecode CONS
 
-     RETURN>
+    RETURN>
    COMPILE
    CONS
    LOAD (argspec body)
@@ -93,24 +93,180 @@
    LOAD macro
    CONS>)
 
+(define append
+  <LOAD ()
+   LOAD
+    <LOAD list LOOKUP CDR
+
+     LOAD
+     <LOAD ()
+      LOAD value LOOKUP CONS
+      LOAD list LOOKUP CDR CONS
+      LOAD append LOOKUP
+      APPLY
+      DROP
+      JOIN>
+     COMPILE
+
+     LOAD
+     <LOAD ()
+      LOAD value LOOKUP
+      CONS
+      LOAD list LOOKUP
+      SETCDR
+      JOIN>
+     COMPILE
+
+     SELECT
+     LOAD list LOOKUP
+     RETURN>
+    COMPILE
+    CONS
+    LOAD (list value)
+    CONS
+    LOAD lambda
+    CONS>)
+
+(define lambda
+  (macro (argspec body)
+         <LOAD ()
+
+          LOAD ()
+          LOAD CONS           CONS
+          LOAD lambda         CONS
+          LOAD LOAD           CONS
+          LOAD CONS           CONS
+          LOAD argspec LOOKUP CONS
+          LOAD LOAD           CONS
+          LOAD CONS           CONS
+
+          LOAD ()
+          LOAD <RETURN> COMPILE CAR
+          CONS
+          LOAD body LOOKUP COMPILE
+          CONS
+          LOAD append LOOKUP APPLY
+          CONS
+
+          LOAD LOAD           CONS
+          LOAD ()             CONS
+          LOAD LOAD           CONS
+
+          CONS
+          LOAD bytecode CONS
+
+          RETURN>))
+
 (define +
   (lambda (a b)
-     <LOAD a LOOKUP
-      LOAD b LOOKUP
-      ADD
-      RETURN>))
+    <LOAD a LOOKUP
+     LOAD b LOOKUP
+     ADD>))
 
 (define eq
   (lambda (a b)
     <LOAD a LOOKUP
      LOAD b LOOKUP
-     EQUAL
-     RETURN>))
+     EQUAL>))
+
+(define set
+  (lambda (sym value)
+    <LOAD value LOOKUP
+     LOAD sym LOOKUP LOOKUPC
+     SETCDR>))
+
+(define quote
+  (macro (el)
+         <LOAD ()
+          LOAD ()
+          LOAD el LOOKUP CONS
+          LOAD LOAD CONS
+          CONS
+          LOAD bytecode CONS
+          RETURN>))
 
 (define nilp
-  '(macro (el)
-          '(eq el '())))
+  (macro (el)
+         '(eq el '())))
 
-(define list
-  (lambda (elems)
-    (cons (car elems) (list (cdr elems)))))
+(define cons
+  (lambda (car cdr)
+    <LOAD cdr LOOKUP
+     LOAD car LOOKUP
+     CONS>))
+
+(define car
+  (lambda (cons)
+    <LOAD cons LOOKUP
+     CAR>))
+
+(define cdr
+  (lambda (cons)
+    <LOAD cons LOOKUP
+     CDR>))
+
+(define compile
+  (lambda (expr)
+    <LOAD expr LOOKUP
+     COMPILE>))
+
+(define eval
+  (lambda (expr)
+    <LOAD expr LOOKUP
+     COMPILE EVAL>))
+
+(define if
+  (macro (cond then else)
+    <LOAD (set 'else (compile else)) COMPILE EVAL
+     LOAD (set 'then (compile then)) COMPILE EVAL
+
+     LOAD ()
+
+     LOAD ()
+     LOAD SELECT CONS
+     LOAD (append else $JOIN) COMPILE EVAL
+     CONS
+     LOAD LOAD CONS
+     LOAD (append then $JOIN) COMPILE EVAL
+     CONS
+     LOAD LOAD CONS
+     LOAD EVAL CONS
+     LOAD cond LOOKUP COMPILE CONS
+     LOAD LOAD CONS
+     CONS
+
+     LOAD bytecode
+     CONS
+
+     RETURN>))
+
+(define map
+  (lambda (list body)
+    (if list
+        (cons (body (car list)) (map (cdr list) body))
+      '())))
+
+(define typeof
+  (lambda (value)
+    <LOAD value LOOKUP
+     TYPE>))
+
+(define progn
+  (lambda (p1 p2)
+    (cdr (cons p1 p2))))
+
+(define consp
+  (lambda (el)
+         (eq (typeof el) 'cons)))
+
+(define backquote
+  (macro (el)
+         (cons 'quote (cons (backquote--expand el) ()))))
+
+(define backquote--expand
+  (lambda (el)
+    (if (consp el)
+        (if (eq (car el) 'unquote)
+            (eval (car (cdr el)))
+          (cons (backquote--expand (car el)) (backquote--expand (cdr el))))
+      el)))

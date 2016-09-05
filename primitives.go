@@ -12,6 +12,10 @@ func (i Int) Equal(other Elem) bool {
 	return false
 }
 
+func (i Int) Type() Symbol {
+	return Symbol("integer")
+}
+
 // AssertInt throws a type error if e is not a Int
 func AssertInt(e Elem) Int {
 	if c, ok := e.(Int); ok {
@@ -31,6 +35,10 @@ func (s Symbol) Equal(other Elem) bool {
 	}
 
 	return false
+}
+
+func (s Symbol) Type() Symbol {
+	return Symbol("symbol")
 }
 
 // AssertSymbol throws a type error if e is not a Symbol

@@ -28,6 +28,12 @@ func readElement(scanner *bufio.Scanner) Elem {
 	case "'":
 		scanner.Scan()
 		return List(QuoteSymbol, readElement(scanner))
+	case "`":
+		scanner.Scan()
+		return List(BackquoteSymbol, readElement(scanner))
+	case ",":
+		scanner.Scan()
+		return List(UnquoteSymbol, readElement(scanner))
 	case "<":
 		return readBytecode(scanner)
 	case "(":
@@ -82,7 +88,7 @@ func readConstant(scanner *bufio.Scanner) Elem {
 }
 
 func isPunctuation(r rune) bool {
-	return strings.ContainsRune("<>()'", r)
+	return strings.ContainsRune("<>()'`,", r)
 }
 
 func isSymbolCharacter(r rune) bool {
@@ -138,6 +144,10 @@ func lispSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err erro
 	start := advance
 	for {
 		r, i := peekChar()
+		if r == utf8.RuneError && !atEOF {
+			// Out of characters, ask for more
+			return 0, nil, nil
+		}
 		if r != utf8.RuneError && isSymbolCharacter(r) {
 			advance += i
 		} else {

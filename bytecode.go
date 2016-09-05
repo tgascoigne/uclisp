@@ -17,9 +17,12 @@ const (
 	OpCDR
 	OpSETCAR
 	OpSETCDR
+	OpTYPE
 	OpAPPLY
 	OpRETURN
 	OpEVAL
+	OpDROP
+	OpDUP
 	OpCOMPILE
 	OpSELECT
 	OpJOIN
@@ -40,6 +43,10 @@ func (i Op) Equal(other Elem) bool {
 	}
 
 	return false
+}
+
+func (i Op) Type() Symbol {
+	return Symbol("op")
 }
 
 // AssertOp throws a type error if e is not a Op

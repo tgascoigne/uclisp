@@ -13,7 +13,7 @@ func testSequence(t *testing.T, control Cell, expected Elem, description string)
 func testSequenceWithEnv(t *testing.T, control, env Cell, expected Elem, description string) {
 	t.Logf("Test sequence: %v", description)
 
-	vm := NewVM(false)
+	vm := NewVM()
 	s, e, c, _ := vm.Registers()
 	c.SetCar(control)
 	if !env.Equal(Nil) {
@@ -106,8 +106,8 @@ func TestEQ(t *testing.T) {
 }
 
 func TestSELECTJOIN(t *testing.T) {
-	testSequence(t, List(OpLOAD, True, OpSELECT, List(OpLOAD, Int(1), OpJOIN), List(OpLOAD, Int(2), OpJOIN)), Int(1), "sel then")
-	testSequence(t, List(OpLOAD, Nil, OpSELECT, List(OpLOAD, Int(1), OpJOIN), List(OpLOAD, Int(2), OpJOIN)), Int(2), "sel else")
+	testSequence(t, List(OpLOAD, True, OpLOAD, List(OpLOAD, Int(1), OpJOIN), OpLOAD, List(OpLOAD, Int(2), OpJOIN), OpSELECT), Int(1), "sel then")
+	testSequence(t, List(OpLOAD, Nil, OpLOAD, List(OpLOAD, Int(1), OpJOIN), OpLOAD, List(OpLOAD, Int(2), OpJOIN), OpSELECT), Int(2), "sel else")
 }
 
 func TestArithmetic(t *testing.T) {
