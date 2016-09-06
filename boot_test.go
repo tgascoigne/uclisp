@@ -151,3 +151,17 @@ func TestBackquote(t *testing.T) {
 
 	assert.Equal(t, List(Symbol("foo"), Int(2)), result)
 }
+
+func TestBackquote2(t *testing.T) {
+	vm := bootVM(t)
+
+	control, err := Read("(define elems '(1 2)) `(+ @elems)")
+	assert.NoError(t, err, "Error reading bytecode")
+
+	var result Elem
+	for _, sexpr := range control {
+		result = vm.Eval(vm.Compile(sexpr))
+	}
+
+	assert.Equal(t, List(Symbol("+"), Int(1), Int(2)), result)
+}

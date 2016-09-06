@@ -6,6 +6,7 @@ const (
 	QuoteSymbol     = Symbol("quote")
 	BackquoteSymbol = Symbol("backquote")
 	UnquoteSymbol   = Symbol("unquote")
+	SpliceSymbol    = Symbol("splice")
 	BytecodeSymbol  = Symbol("bytecode")
 	MacroSymbol     = Symbol("macro")
 	LambdaSymbol    = Symbol("lambda")
@@ -22,7 +23,7 @@ func Bytecode(elem Elem) Elem {
 func (vm *VM) Compile(elem Elem) Cell {
 	//	fmt.Printf("Compiling %v\n", elem)
 	result := vm.compile(elem)
-	// fmt.Printf("Compile %v -> %v\n", elem, result)
+	//  fmt.Printf("Compile %v -> %v\n", elem, result)
 	return List(result...)
 }
 

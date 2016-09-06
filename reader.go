@@ -34,6 +34,9 @@ func readElement(scanner *bufio.Scanner) Elem {
 	case ",":
 		scanner.Scan()
 		return List(UnquoteSymbol, readElement(scanner))
+	case "@":
+		scanner.Scan()
+		return List(SpliceSymbol, readElement(scanner))
 	case "<":
 		return readBytecode(scanner)
 	case "(":
@@ -88,7 +91,7 @@ func readConstant(scanner *bufio.Scanner) Elem {
 }
 
 func isPunctuation(r rune) bool {
-	return strings.ContainsRune("<>()'`,", r)
+	return strings.ContainsRune("<>()'`,@", r)
 }
 
 func isSymbolCharacter(r rune) bool {

@@ -50,6 +50,9 @@
  CAR
  SETCAR>
 
+(define nil '())
+(define t 1)
+
 (define cons
   <LOAD ()
    LOAD
@@ -186,8 +189,8 @@
           RETURN>))
 
 (define nilp
-  (macro (el)
-         '(eq el '())))
+  (lambda (el)
+         (eq el nil)))
 
 (define cons
   (lambda (car cdr)
@@ -244,16 +247,12 @@
   (lambda (list body)
     (if list
         (cons (body (car list)) (map (cdr list) body))
-      '())))
+      nil)))
 
 (define typeof
   (lambda (value)
     <LOAD value LOOKUP
      TYPE>))
-
-(define progn
-  (lambda (p1 p2)
-    (cdr (cons p1 p2))))
 
 (define consp
   (lambda (el)
@@ -261,12 +260,28 @@
 
 (define backquote
   (macro (el)
-         (cons 'quote (cons (backquote--expand el) ()))))
+         (cons 'quote (cons (backquote--expand el) '()))))
+
+(define concat
+  (lambda (a b)
+    (if (nilp a)
+        b
+      (cons (car a) (concat (cdr a) b)))))
 
 (define backquote--expand
   (lambda (el)
     (if (consp el)
         (if (eq (car el) 'unquote)
             (eval (car (cdr el)))
-          (cons (backquote--expand (car el)) (backquote--expand (cdr el))))
+          (if (if (consp (car el))
+                  (if (eq (car (car el)) 'splice)
+                      1
+                    '())
+                '())
+
+              (concat <LOAD (cdr (car el)) COMPILE EVAL CAR COMPILE EVAL>
+                      (backquote--expand (cdr el)))
+
+            (cons (backquote--expand (car el))
+                  (backquote--expand (cdr el)))))
       el)))
