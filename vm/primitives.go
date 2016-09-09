@@ -1,4 +1,4 @@
-package uclisp
+package vm
 
 // Int is an integer Elem
 type Int int

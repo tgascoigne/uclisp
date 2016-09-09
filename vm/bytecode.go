@@ -1,4 +1,4 @@
-package uclisp
+package vm
 
 import "fmt"
 

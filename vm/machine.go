@@ -1,8 +1,16 @@
-package uclisp
+package vm
 
 import "fmt"
 
 const TraceVar = Symbol("*trace*")
+
+const (
+	StackReg     = Symbol("%stack")
+	EnvReg       = Symbol("%env")
+	ControlReg   = Symbol("%control")
+	DumpReg      = Symbol("%dump")
+	LambdaSymbol = Symbol("lambda")
+)
 
 // VM is an instance of the virtual machine
 type VM struct {
@@ -20,11 +28,11 @@ func NewVM() *VM {
 	}
 
 	baseEnv := map[Elem]Elem{
-		Symbol("%stack"):   vm.s,
-		Symbol("%env"):     vm.e,
-		Symbol("%control"): vm.c,
-		Symbol("%dump"):    vm.d,
-		TraceVar:           Nil,
+		StackReg:   vm.s,
+		EnvReg:     vm.e,
+		ControlReg: vm.c,
+		DumpReg:    vm.d,
+		TraceVar:   Nil,
 	}
 
 	for str, op := range opCodeMap {
@@ -265,9 +273,7 @@ func instEVAL(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 }
 
 func instCOMPILE(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
-	sexpr, s := pop(s)
-	result := vm.Compile(sexpr)
-	s = push(result, s)
+	panic("not implemented")
 	return s, e, c, d
 }
 

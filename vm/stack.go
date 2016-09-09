@@ -1,4 +1,4 @@
-package uclisp
+package vm
 
 func push(e Elem, c Cell) Cell {
 	return Cons(e, c)
