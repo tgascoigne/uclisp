@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"io"
 	"strings"
 	"testing"
 
@@ -51,6 +52,49 @@ func TestTokenizer(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.Expected, tokens)
+
+			_, err = tokenizer.Next()
+			assert.Equal(t, io.EOF, err, "expected EOF")
 		})
 	}
+}
+
+func TestTokenizerPeekUnread(t *testing.T) {
+	var tok Token
+	var err error
+	tokenizer := NewTokenizer(strings.NewReader("(foo 1 2)"))
+
+	tokens := []Token{
+		Token{"(", LParenTok},
+		Token{"foo", SymTok},
+		Token{"1", IntTok},
+		Token{"2", IntTok},
+		Token{")", RParenTok},
+	}
+
+	tok, err = tokenizer.Next()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[0], tok, "unexpected token")
+
+	tok, err = tokenizer.Peek()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[1], tok, "unexpected token")
+
+	tok, err = tokenizer.Peek()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[1], tok, "unexpected token")
+
+	tokenizer.Prev()
+
+	tok, err = tokenizer.Peek()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[0], tok, "unexpected token")
+
+	tok, err = tokenizer.Next()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[0], tok, "unexpected token")
+
+	tok, err = tokenizer.Next()
+	assert.NoError(t, err, "error getting token")
+	assert.Equal(t, tokens[1], tok, "unexpected token")
 }

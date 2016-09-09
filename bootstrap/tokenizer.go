@@ -105,6 +105,7 @@ func (t *Tokenizer) fill() (err error) {
 		}
 
 		if unicode.IsSpace(chr) {
+			// TODO track line number and associate with token
 			if currentTok == "" {
 				// We haven't found a token yet, just whitespace. Consume it...
 				continue
