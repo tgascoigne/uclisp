@@ -19,8 +19,9 @@ const (
 )
 
 type Token struct {
-	Value string
-	Type  TokenType
+	Value      string
+	Type       TokenType
+	start, end int
 }
 
 func (t Token) String() string {
@@ -32,28 +33,61 @@ func (t Token) Int() (int, error) {
 }
 
 type Tokenizer struct {
-	reader *bufio.Reader
-	tokens []Token
-	caret  int
+	reader   *bufio.Reader
+	tokens   []Token
+	filename string
+	// lineMap maps character offsets to line numbers
+	lineMap     []int
+	tokenOffset int
+	charOffset  int
 }
 
-func NewTokenizer(reader io.Reader) *Tokenizer {
+func NewTokenizer(filename string, reader io.Reader) *Tokenizer {
 	return &Tokenizer{
-		reader: bufio.NewReader(reader),
-		tokens: make([]Token, 0),
+		reader:   bufio.NewReader(reader),
+		tokens:   make([]Token, 0),
+		filename: filename,
+		lineMap:  []int{0},
 	}
 }
 
-func isSpecial(r rune) bool {
-	if strings.ContainsAny(string(r), "()'`,@") {
-		return true
+func (t *Tokenizer) TokenPosition(tok Token) (line, start, end int) {
+	for l, offset := range t.lineMap {
+		if offset <= tok.start {
+			line = l
+		}
 	}
-	return false
+
+	lineOffset := t.lineMap[line]
+	return line + 1, tok.start - lineOffset, tok.end - lineOffset
 }
 
-func (t *Tokenizer) pushTok(s string) {
+func (t *Tokenizer) readRune() (rune, error) {
+	chr, _, err := t.reader.ReadRune()
+	t.charOffset++
+
+	if chr == '\n' {
+		t.lineMap = append(t.lineMap, t.charOffset)
+	}
+
+	return chr, err
+}
+
+func (t *Tokenizer) unreadRune() error {
+	err := t.reader.UnreadRune()
+	if err != nil {
+		return err
+	}
+
+	t.charOffset--
+	return nil
+}
+
+func (t *Tokenizer) pushTok(s string, start, end int) {
 	tok := Token{
 		Value: s,
+		start: start,
+		end:   end,
 	}
 
 	_, atoiErr := strconv.Atoi(s)
@@ -73,11 +107,11 @@ func (t *Tokenizer) pushTok(s string) {
 }
 
 func (t *Tokenizer) fill() (err error) {
-	r := t.reader
-
 	var currentTok string
+	var tokStart int
+
 	for {
-		chr, _, err := r.ReadRune()
+		chr, err := t.readRune()
 
 		if err != nil {
 			if err == io.EOF {
@@ -86,36 +120,51 @@ func (t *Tokenizer) fill() (err error) {
 				}
 
 				// EOF, but we have a token
-				t.pushTok(currentTok)
+				t.pushTok(currentTok, tokStart, t.charOffset)
 				return nil
 			}
 		}
 
 		if isSpecial(chr) {
 			if currentTok == "" {
-				// First char and only is a paren
-				t.pushTok(string(chr))
+				// First and only char is a paren
+				tokStart = t.charOffset - 1
+				t.pushTok(string(chr), tokStart, t.charOffset)
 			} else {
 				// Found a paren in the middle of a symbol,
 				// ignore it and return the symbol
-				r.UnreadRune()
-				t.pushTok(currentTok)
+				err := t.unreadRune()
+				if err != nil {
+					// Shouldn't happen, because we definitely read a rune in this loop
+					panic(err)
+				}
+
+				t.pushTok(currentTok, tokStart, t.charOffset)
 			}
 			return nil
 		}
 
 		if unicode.IsSpace(chr) {
-			// TODO track line number and associate with token
 			if currentTok == "" {
 				// We haven't found a token yet, just whitespace. Consume it...
 				continue
 			} else {
 				// Whitespace in the middle of a token, return the token
-				t.pushTok(currentTok)
+				err := t.unreadRune()
+				if err != nil {
+					// Shouldn't happen, because we definitely read a rune in this loop
+					panic(err)
+				}
+
+				t.pushTok(currentTok, tokStart, t.charOffset)
 				return nil
 			}
 		}
 
+		if currentTok == "" {
+			// first character of a token
+			tokStart = t.charOffset - 1
+		}
 		currentTok = currentTok + string(chr)
 	}
 
@@ -123,7 +172,7 @@ func (t *Tokenizer) fill() (err error) {
 }
 
 func (t *Tokenizer) ensureNext() (err error) {
-	if t.caret > len(t.tokens)-1 {
+	if t.tokenOffset > len(t.tokens)-1 {
 		return t.fill()
 	}
 	return nil
@@ -135,7 +184,7 @@ func (t *Tokenizer) Peek() (Token, error) {
 		return Token{}, err
 	}
 
-	return t.tokens[t.caret], nil
+	return t.tokens[t.tokenOffset], nil
 }
 
 func (t *Tokenizer) Next() (Token, error) {
@@ -144,18 +193,18 @@ func (t *Tokenizer) Next() (Token, error) {
 		return Token{}, err
 	}
 
-	tok := t.tokens[t.caret]
-	t.caret++
+	tok := t.tokens[t.tokenOffset]
+	t.tokenOffset++
 
 	return tok, nil
 }
 
 func (t *Tokenizer) Prev() error {
-	if t.caret == 0 {
+	if t.tokenOffset == 0 {
 		return errors.New("at the start of input")
 	}
 
-	t.caret--
+	t.tokenOffset--
 	return nil
 }
 
@@ -176,4 +225,11 @@ func (t *Tokenizer) ReadAll() ([]Token, error) {
 	}
 
 	return tokens, nil
+}
+
+func isSpecial(r rune) bool {
+	if strings.ContainsAny(string(r), "()'`,@") {
+		return true
+	}
+	return false
 }

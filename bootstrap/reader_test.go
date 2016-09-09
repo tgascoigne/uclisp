@@ -29,7 +29,7 @@ func TestReader(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc // capture range variable
 		t.Run(tc.Name, func(t *testing.T) {
-			reader := NewReader(strings.NewReader(tc.Input))
+			reader := NewReader("<test>", strings.NewReader(tc.Input))
 			elem, err := reader.ReadElem()
 
 			assert.Equal(t, tc.Expected, elem)
@@ -41,13 +41,13 @@ func TestReader(t *testing.T) {
 }
 
 func TestReaderEOF(t *testing.T) {
-	reader := NewReader(strings.NewReader("(invalid-expr 1 2"))
+	reader := NewReader("<test>", strings.NewReader("(invalid-expr 1 2"))
 	_, err := reader.ReadElem()
 	assert.Equal(t, ErrUnexpectedEOF, err, "expected EOF")
 }
 
 func TestReaderUnexpectedRParn(t *testing.T) {
-	reader := NewReader(strings.NewReader(")"))
+	reader := NewReader("<test>", strings.NewReader(")"))
 	_, err := reader.ReadElem()
 	assert.Equal(t, ErrUnexpectedRParen, err, "expected ErrUnexpectedRParen")
 }

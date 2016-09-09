@@ -14,9 +14,9 @@ type Reader struct {
 	t *Tokenizer
 }
 
-func NewReader(reader io.Reader) *Reader {
+func NewReader(filename string, reader io.Reader) *Reader {
 	return &Reader{
-		t: NewTokenizer(reader),
+		t: NewTokenizer(filename, reader),
 	}
 }
 
