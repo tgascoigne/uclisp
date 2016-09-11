@@ -18,7 +18,7 @@ func testSequenceWithEnv(t *testing.T, control, env Cell, expected Elem, descrip
 	c.SetCar(control)
 	if !env.Equal(Nil) {
 		realEnv := AssertCell(e.Car())
-		env.reverse().forEach(func(el Elem) bool {
+		env.Reverse().ForEach(func(el Elem) bool {
 			realEnv = push(el, realEnv)
 			return false
 		})

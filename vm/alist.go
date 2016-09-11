@@ -4,7 +4,7 @@ import "fmt"
 
 func assoc(e Elem, c Cell) Cell {
 	result := Nil
-	c.forEach(func(el Elem) bool {
+	c.ForEach(func(el Elem) bool {
 		c := AssertCell(el)
 		if c.Car().Equal(e) {
 			result = c
@@ -39,5 +39,5 @@ func pairlis(a, b Cell) Cell {
 		a = AssertCell(a.Cdr())
 		b = AssertCell(b.Cdr())
 	}
-	return list.reverse()
+	return list.Reverse()
 }

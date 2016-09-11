@@ -71,7 +71,7 @@ func (c Cell) String() string {
 
 			strs := make([]string, 0)
 
-			c.forEach(func(el Elem) bool {
+			c.ForEach(func(el Elem) bool {
 				strs = append(strs, formatCell(el, depth+1))
 				return false
 			})
@@ -93,7 +93,7 @@ func (c Cell) Expand() (car, cdr Elem) {
 // ExpandList flattens and returns all elements of a list
 func (c Cell) ExpandList() []Elem {
 	list := make([]Elem, 0)
-	c.forEach(func(el Elem) bool {
+	c.ForEach(func(el Elem) bool {
 		list = append(list, el)
 		return false
 	})
@@ -164,9 +164,9 @@ func List(elems ...Elem) Cell {
 	return list
 }
 
-type forFunc func(Elem) bool
+type ForFunc func(Elem) bool
 
-func (c Cell) forEach(fn forFunc) bool {
+func (c Cell) ForEach(fn ForFunc) bool {
 	iter := c
 	for {
 		if fn(iter.Car()) {
@@ -180,9 +180,9 @@ func (c Cell) forEach(fn forFunc) bool {
 	return false
 }
 
-func (c Cell) reverse() Cell {
+func (c Cell) Reverse() Cell {
 	result := Nil
-	c.forEach(func(e Elem) bool {
+	c.ForEach(func(e Elem) bool {
 		result = Cons(e, result)
 		return false
 	})

@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"io"
 	"strings"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestReader(t *testing.T) {
 			assert.Equal(t, tc.Expected, elem)
 
 			_, err = reader.ReadElem()
-			assert.Equal(t, ErrUnexpectedEOF, err, "expected EOF")
+			assert.Equal(t, io.EOF, err, "expected EOF")
 		})
 	}
 }
@@ -44,6 +45,14 @@ func TestReaderEOF(t *testing.T) {
 	reader := NewReader("<test>", strings.NewReader("(invalid-expr 1 2"))
 	_, err := reader.ReadElem()
 	assert.Equal(t, ErrUnexpectedEOF, err, "expected EOF")
+
+	reader = NewReader("<test>", strings.NewReader("(foo 1 2) (bar 3 4)"))
+	_, err = reader.ReadElem()
+	assert.NoError(t, err)
+	_, err = reader.ReadElem()
+	assert.NoError(t, err)
+	_, err = reader.ReadElem()
+	assert.Equal(t, io.EOF, err, "expected EOF")
 }
 
 func TestReaderUnexpectedRParn(t *testing.T) {

@@ -30,7 +30,7 @@ func (r *Reader) wrapError(err error) error {
 func (r *Reader) ReadElem() (vm.Elem, error) {
 	nextTok, err := r.t.Peek()
 	if err != nil {
-		return nil, r.wrapError(err)
+		return nil, err
 	}
 
 	switch nextTok.Type {

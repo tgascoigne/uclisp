@@ -5,7 +5,7 @@ func push(e Elem, c Cell) Cell {
 }
 
 func pushAll(c1, c2 Cell) Cell {
-	c1.reverse().forEach(func(el Elem) bool {
+	c1.Reverse().ForEach(func(el Elem) bool {
 		c2 = push(el, c2)
 		return false
 	})

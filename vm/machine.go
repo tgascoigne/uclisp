@@ -177,7 +177,7 @@ func instLOOKUP(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 
 func instLOOKUPC(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	sym, s := popSymbol(s)
-	if !e.forEach(func(el Elem) bool {
+	if !e.ForEach(func(el Elem) bool {
 		pair := assoc(sym, AssertCell(el))
 		if !pair.Equal(Nil) {
 			s = push(pair, s)
