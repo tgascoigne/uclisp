@@ -37,3 +37,86 @@ func TestCompilerQuoted(t *testing.T) {
 		})
 	}
 }
+
+func TestCompilerDefine(t *testing.T) {
+	// define foo
+	test := "(define foo 200)"
+
+	reader := NewReader("<test>", strings.NewReader(test))
+	el, err := reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	mach := vm.NewVM()
+
+	code := Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result := mach.Eval(code)
+	assert.Equal(t, vm.Int(200), result)
+
+	// lookup foo
+	test = "foo"
+
+	reader = NewReader("<test>", strings.NewReader(test))
+	el, err = reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	code = Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result = mach.Eval(code)
+	assert.Equal(t, vm.Int(200), result)
+}
+
+func TestCompilerSet(t *testing.T) {
+	// define foo
+	test := "(define foo 200)"
+
+	reader := NewReader("<test>", strings.NewReader(test))
+	el, err := reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	mach := vm.NewVM()
+
+	code := Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result := mach.Eval(code)
+	assert.Equal(t, vm.Int(200), result)
+
+	// set foo
+	test = "(set foo 201)"
+
+	reader = NewReader("<test>", strings.NewReader(test))
+	el, err = reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	code = Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result = mach.Eval(code)
+	assert.Equal(t, vm.Int(201), result)
+
+	// lookup foo
+	test = "foo"
+
+	reader = NewReader("<test>", strings.NewReader(test))
+	el, err = reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	code = Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result = mach.Eval(code)
+	assert.Equal(t, vm.Int(201), result)
+}

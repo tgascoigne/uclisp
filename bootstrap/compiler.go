@@ -59,7 +59,7 @@ func (c *Compiler) compileConstant(elem vm.Elem) []vm.Elem {
 }
 
 func (c *Compiler) compileLookup(elem vm.Elem) []vm.Elem {
-	return c.interpolate(c.compile(elem), vm.OpLOOKUP)
+	return c.interpolate(c.compileConstant(elem), vm.OpLOOKUP)
 }
 
 func (c *Compiler) isMacro(elem vm.Elem) macroFunc {
