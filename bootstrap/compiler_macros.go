@@ -13,6 +13,7 @@ func init() {
 	macros[vm.Symbol("progn")] = (*Compiler).macroProgn
 	macros[vm.Symbol("bytecode")] = (*Compiler).macroBytecode
 	macros[vm.Symbol("lambda")] = (*Compiler).macroLambda
+	macros[vm.Symbol("if")] = (*Compiler).macroIf
 }
 
 func (c *Compiler) macroQuote(elem vm.Elem) []vm.Elem {
@@ -115,4 +116,23 @@ func (c *Compiler) macroLambda(elem vm.Elem) []vm.Elem {
 	return c.compile(vm.List(vm.Symbol("quote"),
 		vm.List(vm.Symbol("lambda"), argSpec,
 			bodyInstrs)))
+}
+
+func (c *Compiler) macroIf(elem vm.Elem) []vm.Elem {
+	args := vm.AssertCell(elem).ExpandList()
+
+	pred := args[0]
+	then := args[1]
+	els := vm.Elem(vm.Nil)
+	if len(args) == 3 {
+		els = args[2]
+	}
+
+	result := make([]interface{}, 0)
+
+	result = append(result, c.compile(pred))
+	result = append(result, vm.OpLOAD, vm.List(append(c.compile(then), vm.OpJOIN)...))
+	result = append(result, vm.OpLOAD, vm.List(append(c.compile(els), vm.OpJOIN)...))
+	result = append(result, vm.OpSELECT)
+	return c.interpolate(result)
 }

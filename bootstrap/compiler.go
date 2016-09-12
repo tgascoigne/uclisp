@@ -84,6 +84,10 @@ func (c *Compiler) compileExpr(list vm.Cell) []vm.Elem {
 		return c.expandMacro(macro, vm.AssertCell(list.Cdr()))
 	}
 
+	if list == vm.Nil {
+		return c.compileConstant(vm.Nil)
+	}
+
 	result := make([]interface{}, 0)
 	// Compile the args
 	result = append(result, c.compileList(vm.AssertCell(list.Cdr())))
@@ -98,6 +102,7 @@ func (c *Compiler) compileList(list vm.Cell) []vm.Elem {
 	fmt.Printf("compileList %v\n", list)
 	result := make([]interface{}, 0)
 	result = append(result, vm.OpLOAD, vm.Nil)
+
 	if list == vm.Nil {
 		return c.interpolate(result)
 	}
@@ -114,6 +119,11 @@ func (c *Compiler) compileList(list vm.Cell) []vm.Elem {
 func (c *Compiler) compileQuotedList(list vm.Cell) []vm.Elem {
 	result := make([]interface{}, 0)
 	result = append(result, vm.OpLOAD, vm.Nil)
+
+	if list == vm.Nil {
+		return c.interpolate(result)
+	}
+
 	list.Reverse().ForEach(func(el vm.Elem) bool {
 		result = append(result, c.compileQuoted(el))
 		result = append(result, vm.OpCONS)

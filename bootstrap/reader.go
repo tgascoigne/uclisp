@@ -90,6 +90,10 @@ func (r *Reader) readList() (vm.Elem, error) {
 		elems = append(elems, elem)
 	}
 
+	if len(elems) == 0 {
+		return vm.Nil, nil
+	}
+
 	return vm.List(elems...), nil
 }
 

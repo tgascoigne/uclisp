@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,11 +19,21 @@ var (
 	machine    = vm.NewVM()
 )
 
+var (
+	loadFilePath = flag.String("load", "", "evaluate a file on startup")
+)
+
 func dump(val interface{}) string {
 	return fmt.Sprintf("%v", val)
 }
 
 func main() {
+	flag.Parse()
+
+	if *loadFilePath != "" {
+		loadFile(*loadFilePath)
+	}
+
 	line := liner.NewLiner()
 	defer line.Close()
 
@@ -67,4 +79,26 @@ func doLine(line string) {
 	log.Printf("compiled %v -> %v\n", line, code)
 	result := machine.Eval(code)
 	log.Println(dump(result))
+}
+
+func loadFile(path string) {
+	fd, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+
+	defer fd.Close()
+
+	reader := bootstrap.NewReader(path, fd)
+	for {
+		el, err := reader.ReadElem()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Println(err)
+		}
+		code := bootstrap.Compile(machine, el)
+		machine.Eval(code)
+	}
 }
