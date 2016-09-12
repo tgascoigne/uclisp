@@ -49,6 +49,13 @@ func (i Op) Type() Symbol {
 	return Symbol("op")
 }
 
+func ParseOp(sym Symbol) (result Op, ok bool) {
+	if op, ok := opCodeMap[string(sym)]; ok {
+		return op, true
+	}
+	return OpNOP, false
+}
+
 // AssertOp throws a type error if e is not a Op
 func AssertOp(e Elem) Op {
 	if c, ok := e.(Op); ok {

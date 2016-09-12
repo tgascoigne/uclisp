@@ -27,6 +27,7 @@ func (c *Compiler) Compile(elem vm.Elem) vm.Cell {
 }
 
 func (c *Compiler) compile(elem vm.Elem) []vm.Elem {
+	fmt.Printf("compiling %v\n", elem)
 	switch elem := elem.(type) {
 	case vm.Cell:
 		return c.compileExpr(elem)
@@ -34,8 +35,10 @@ func (c *Compiler) compile(elem vm.Elem) []vm.Elem {
 		return c.compileLookup(elem)
 	case vm.Int:
 		return c.compileConstant(elem)
+	case vm.Op:
+		return c.compileConstant(elem)
 	default:
-		panic("unknown compile element")
+		panic(fmt.Sprintf("unknown compile element: %v\n", elem))
 	}
 	panic("unreachable")
 }
@@ -48,8 +51,10 @@ func (c *Compiler) compileQuoted(elem vm.Elem) []vm.Elem {
 		return c.compileConstant(elem)
 	case vm.Int:
 		return c.compileConstant(elem)
+	case vm.Op:
+		return c.compileConstant(elem)
 	default:
-		panic("unknown compile element")
+		panic(fmt.Sprintf("unknown compile element: %v\n", elem))
 	}
 	panic("unreachable")
 }
@@ -74,6 +79,7 @@ func (c *Compiler) expandMacro(fn macroFunc, list vm.Cell) []vm.Elem {
 }
 
 func (c *Compiler) compileExpr(list vm.Cell) []vm.Elem {
+	fmt.Printf("compileExpr %v\n", list)
 	if macro := c.isMacro(list.Car()); macro != nil {
 		return c.expandMacro(macro, vm.AssertCell(list.Cdr()))
 	}
@@ -89,8 +95,13 @@ func (c *Compiler) compileExpr(list vm.Cell) []vm.Elem {
 }
 
 func (c *Compiler) compileList(list vm.Cell) []vm.Elem {
+	fmt.Printf("compileList %v\n", list)
 	result := make([]interface{}, 0)
 	result = append(result, vm.OpLOAD, vm.Nil)
+	if list == vm.Nil {
+		return c.interpolate(result)
+	}
+
 	list.Reverse().ForEach(func(el vm.Elem) bool {
 		result = append(result, c.compile(el))
 		result = append(result, vm.OpCONS)

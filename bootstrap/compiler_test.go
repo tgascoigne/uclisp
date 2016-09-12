@@ -120,3 +120,22 @@ func TestCompilerSet(t *testing.T) {
 	result = mach.Eval(code)
 	assert.Equal(t, vm.Int(201), result)
 }
+
+func TestCompilerProgn(t *testing.T) {
+	// define foo
+	test := "(progn (define foo 2) (define bar 4) foo)"
+
+	reader := NewReader("<test>", strings.NewReader(test))
+	el, err := reader.ReadElem()
+	if err != nil {
+		t.Error(err)
+	}
+
+	mach := vm.NewVM()
+
+	code := Compile(mach, el)
+	t.Logf("compiled %v -> %v", test, code)
+
+	result := mach.Eval(code)
+	assert.Equal(t, vm.Int(2), result)
+}
