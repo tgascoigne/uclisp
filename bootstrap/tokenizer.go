@@ -144,7 +144,17 @@ func (t *Tokenizer) fill() (err error) {
 			return nil
 		}
 
-		if unicode.IsSpace(chr) {
+		if unicode.IsSpace(chr) || isCommentChar(chr) {
+			if isCommentChar(chr) {
+				// Comment; consume until EOL
+				for {
+					next, err := t.readRune()
+					if next == '\n' || err != nil {
+						break
+					}
+				}
+			}
+
 			if currentTok == "" {
 				// We haven't found a token yet, just whitespace. Consume it...
 				continue
@@ -225,6 +235,13 @@ func (t *Tokenizer) ReadAll() ([]Token, error) {
 	}
 
 	return tokens, nil
+}
+
+func isCommentChar(r rune) bool {
+	if strings.ContainsAny(string(r), ";") {
+		return true
+	}
+	return false
 }
 
 func isSpecial(r rune) bool {

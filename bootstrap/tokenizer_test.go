@@ -40,6 +40,24 @@ func TestTokenizer(t *testing.T) {
 				Token{Value: ")", Type: RParenTok, start: 13, end: 14},
 			},
 		},
+		{
+			Name: "Tok3",
+			Input: `(foo 1 2) ; this is a comment
+;; and so is this
+(bar 3 4) ;; one more`,
+			Expected: []Token{
+				Token{Value: "(", Type: LParenTok, start: 0, end: 1},
+				Token{Value: "foo", Type: SymTok, start: 1, end: 4},
+				Token{Value: "1", Type: IntTok, start: 5, end: 6},
+				Token{Value: "2", Type: IntTok, start: 7, end: 8},
+				Token{Value: ")", Type: RParenTok, start: 8, end: 9},
+				Token{Value: "(", Type: 0, start: 48, end: 49},
+				Token{Value: "bar", Type: 3, start: 49, end: 52},
+				Token{Value: "3", Type: 2, start: 53, end: 54},
+				Token{Value: "4", Type: 2, start: 55, end: 56},
+				Token{Value: ")", Type: 1, start: 56, end: 57},
+			},
+		},
 	}
 
 	for _, tc := range tests {
