@@ -10,6 +10,10 @@ import (
 var ErrUnexpectedRParen = errors.New("Unexpected ')'")
 var ErrUnexpectedEOF = errors.New("Unexpected EOF")
 
+type readMacroFunc func(*Reader) (vm.Elem, error)
+
+var readMacros = map[vm.Symbol]readMacroFunc{}
+
 type Reader struct {
 	t *Tokenizer
 }
@@ -119,5 +123,10 @@ func (r *Reader) readSymbol() (vm.Elem, error) {
 
 	sval := tok.String()
 
-	return vm.Symbol(sval), nil
+	sym := vm.Symbol(sval)
+	if macroFn, ok := readMacros[sym]; ok {
+		return macroFn(r)
+	}
+
+	return sym, nil
 }

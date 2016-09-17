@@ -129,7 +129,21 @@ func (t *Tokenizer) fill() (err error) {
 			if currentTok == "" {
 				// First and only char is a paren
 				tokStart = t.charOffset - 1
-				t.pushTok(string(chr), tokStart, t.charOffset)
+				specialTok := string(chr)
+
+				if chr == ',' {
+					nextChr, err := t.readRune()
+					if err != nil {
+						panic(err)
+					}
+					if nextChr == '@' {
+						specialTok += string(nextChr)
+					} else {
+						t.unreadRune()
+					}
+				}
+
+				t.pushTok(specialTok, tokStart, t.charOffset)
 			} else {
 				// Found a paren in the middle of a symbol,
 				// ignore it and return the symbol

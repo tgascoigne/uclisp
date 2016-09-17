@@ -60,7 +60,7 @@ func (c Cell) String() string {
 				return "()"
 			}
 
-			if depth > 4 {
+			if depth > 6 {
 				return "..."
 			}
 
@@ -126,44 +126,6 @@ func (c Cell) Cdr() Elem {
 	return c.cdr
 }
 
-// AssertCell throws a type error if e is not a Cell
-func AssertCell(e Elem) Cell {
-	if c, ok := e.(Cell); ok {
-		return c
-	}
-	typeError("consp", e)
-	return Nil
-}
-
-// Cons creates a new cell
-func Cons(car, cdr Elem) Cell {
-	return Cell{&cellInternal{
-		car: car,
-		cdr: cdr,
-	}}
-}
-
-func Nilp(c Elem) bool {
-	return c.Equal(Nil)
-}
-
-// Bool converts a boolean to a Cell
-func Bool(b bool) Cell {
-	if b {
-		return True
-	}
-	return Nil
-}
-
-// List creates a new list
-func List(elems ...Elem) Cell {
-	list := Nil
-	for i := len(elems) - 1; i >= 0; i-- {
-		list = Cons(elems[i], list)
-	}
-	return list
-}
-
 type ForFunc func(Elem) bool
 
 func (c Cell) ForEach(fn ForFunc) bool {
@@ -187,4 +149,62 @@ func (c Cell) Reverse() Cell {
 		return false
 	})
 	return result
+}
+
+// AssertCell throws a type error if e is not a Cell
+func AssertCell(e Elem) Cell {
+	if c, ok := e.(Cell); ok {
+		return c
+	}
+	typeError("consp", e)
+	return Nil
+}
+
+// Cons creates a new cell
+func Cons(car, cdr Elem) Cell {
+	return Cell{&cellInternal{
+		car: car,
+		cdr: cdr,
+	}}
+}
+
+func Consp(c Elem) bool {
+	return c.Type() == Symbol("cons")
+}
+
+func Nilp(c Elem) bool {
+	return c.Equal(Nil)
+}
+
+// Bool converts a boolean to a Cell
+func Bool(b bool) Cell {
+	if b {
+		return True
+	}
+	return Nil
+}
+
+// List creates a new list
+func List(elems ...Elem) Cell {
+	list := Nil
+	for i := len(elems) - 1; i >= 0; i-- {
+		list = Cons(elems[i], list)
+	}
+	return list
+}
+
+func Car(e Elem) Elem {
+	return AssertCell(e).Car()
+}
+
+func Cdr(e Elem) Elem {
+	return AssertCell(e).Cdr()
+}
+
+func Cadr(e Elem) Elem {
+	return AssertCell(Cdr(e)).Car()
+}
+
+func Cdar(e Elem) Elem {
+	return AssertCell(Car(e)).Cdr()
 }

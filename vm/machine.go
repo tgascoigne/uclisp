@@ -185,6 +185,7 @@ func instLOOKUPC(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 		}
 		return false
 	}) {
+		fmt.Printf("lookup of %v failed\n", sym)
 		s = push(Nil, s)
 	}
 	return s, e, c, d

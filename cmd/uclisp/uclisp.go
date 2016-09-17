@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	"github.com/tgascoigne/uclisp"
 )
 
 func main() {
@@ -32,7 +30,7 @@ func main() {
 	fmt.Printf("> ")
 	for scanner.Scan() {
 		line := scanner.Text()
-		expr, err := uclisp.Read(line)
+		expr, err := vm.Read(line)
 		if err != nil {
 			fmt.Printf("read error: %v\n", err)
 			continue

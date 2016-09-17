@@ -14,6 +14,8 @@ func init() {
 	macros[vm.Symbol("bytecode")] = (*Compiler).macroBytecode
 	macros[vm.Symbol("lambda")] = (*Compiler).macroLambda
 	macros[vm.Symbol("if")] = (*Compiler).macroIf
+	macros[vm.Symbol("let")] = (*Compiler).macroLet
+	macros[vm.Symbol("backquote")] = (*Compiler).compileBackquoted
 }
 
 func (c *Compiler) macroQuote(elem vm.Elem) []vm.Elem {
@@ -58,7 +60,7 @@ func (c *Compiler) macroSet(elem vm.Elem) []vm.Elem {
 	// Compile the new value
 	result = append(result, c.compile(value))
 	// Load the cell containing the var binding
-	result = append(result, c.compileQuoted(symbol), vm.OpLOOKUPC)
+	result = append(result, c.compile(symbol), vm.OpLOOKUPC)
 	// Set the new value
 	result = append(result, vm.OpSETCDR)
 	// Lookup the new var for the return value
@@ -135,4 +137,76 @@ func (c *Compiler) macroIf(elem vm.Elem) []vm.Elem {
 	result = append(result, vm.OpLOAD, vm.List(append(c.compile(els), vm.OpJOIN)...))
 	result = append(result, vm.OpSELECT)
 	return c.interpolate(result)
+}
+
+func (c *Compiler) macroLet(elem vm.Elem) []vm.Elem {
+	args := vm.AssertCell(elem)
+	bindings := vm.AssertCell(args.Car())
+	body := vm.AssertCell(args.Cdr())
+
+	argSpec, args := vm.Nil, vm.Nil
+	for _, bind := range bindings.ExpandList() {
+		bindCell := vm.AssertCell(bind)
+		argSpec = vm.Cons(bindCell.Car(), argSpec)
+		args = vm.Cons(vm.Cadr(bindCell), args)
+	}
+
+	result := make([]interface{}, 0)
+	result = append(result, c.compileList(args))
+	result = append(result, c.macroLambda(vm.Cons(argSpec, body)))
+	result = append(result, vm.OpAPPLY)
+
+	return c.interpolate(result)
+}
+
+func (c *Compiler) compileBackquotedList(list vm.Cell) []vm.Elem {
+	result := make([]interface{}, 0)
+	result = append(result, vm.OpLOAD, vm.Nil)
+
+	fmt.Printf("compiling backquoted list %v\n", list)
+
+	if list == vm.Nil {
+		return c.interpolate(result)
+	}
+
+	list.Reverse().ForEach(func(el vm.Elem) bool {
+		if vm.Consp(el) {
+			el := vm.AssertCell(el)
+			if el.Car().Equal(vm.Symbol("splice")) {
+				/*				instrs := vm.List(c.compile(vm.Cadr(el))...)
+								fmt.Printf("evaling %v to splice\n", instrs)
+								cell := vm.AssertCell(c.VM.Eval(instrs))
+								fmt.Printf("splicing %v in\n", cell)
+								return cell.Reverse().ForEach(func(el vm.Elem) bool {
+									result = append(result, c.compile(el))
+									result = append(result, vm.OpCONS)
+									return false
+								})*/
+
+				result = append(result, c.compile(vm.Cadr(el)))
+				return false
+			}
+		}
+		result = append(result, c.compileBackquoted(vm.List(el)))
+		result = append(result, vm.OpCONS)
+		return false
+	})
+
+	return c.interpolate(result)
+}
+
+func (c *Compiler) compileBackquoted(elem vm.Elem) []vm.Elem {
+	args := vm.AssertCell(elem)
+	elem = args.Car()
+
+	if vm.Consp(elem) {
+		elem := vm.AssertCell(elem)
+		if elem.Car().Equal(vm.Symbol("unquote")) {
+			return c.compile(vm.Cadr(elem))
+		} else {
+			return c.compileBackquotedList(elem)
+		}
+	} else {
+		return c.compileQuoted(elem)
+	}
 }

@@ -58,6 +58,19 @@ func TestTokenizer(t *testing.T) {
 				Token{Value: ")", Type: 1, start: 56, end: 57},
 			},
 		},
+		{
+			Name:  "Tok4",
+			Input: "`(foo ,@bar 2)",
+			Expected: []Token{
+				Token{Value: "`", Type: 3, start: 0, end: 1},
+				Token{Value: "(", Type: 0, start: 1, end: 2},
+				Token{Value: "foo", Type: 3, start: 2, end: 5},
+				Token{Value: ",@", Type: 3, start: 6, end: 8},
+				Token{Value: "bar", Type: 3, start: 8, end: 11},
+				Token{Value: "2", Type: 2, start: 12, end: 13},
+				Token{Value: ")", Type: 1, start: 13, end: 14},
+			},
+		},
 	}
 
 	for _, tc := range tests {
