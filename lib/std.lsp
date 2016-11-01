@@ -52,6 +52,18 @@
       1)))
 
 ;;
+;; I/O
+;;
+
+(define read
+  (lambda ()
+    (bytecode (READ))))
+
+(define print
+  (lambda (el)
+    (bytecode (LOAD el LOOKUP PRINT))))
+
+;;
 ;; List manipulation
 ;;
 
@@ -229,6 +241,8 @@
 ;; Macros
 ;;
 
+(define *macros* '())
+
 (define compile-lambda
   (lambda (func)
     `(lambda ,(car (cdr func)) ,(append (compile (car (cdr (cdr func)))) $RETURN))))
@@ -245,8 +259,18 @@
         (let ((macro-func (cons 'lambda (cdr macro-decl))))
           (eval (prepend macro-func (map genquote macro-args))))))))
 
-(define *macros* '())
-
 (add-to-alist '*macros* 'cadr
               '(macro (el)
                       `(car (cdr ,el))))
+
+;;
+;; REPL
+;;
+
+(define repl
+  (lambda ()
+    (progn
+      (print (eval (read)))
+      (repl))))
+
+(repl)

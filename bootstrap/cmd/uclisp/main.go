@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -17,10 +18,7 @@ import (
 var (
 	history_fn = filepath.Join(os.TempDir(), ".uclisp")
 	machine    = vm.NewVM()
-)
-
-var (
-	loadFilePath = flag.String("load", "", "evaluate a file on startup")
+	line       = liner.NewLiner()
 )
 
 func dump(val interface{}) string {
@@ -30,55 +28,61 @@ func dump(val interface{}) string {
 func main() {
 	flag.Parse()
 
-	if *loadFilePath != "" {
-		loadFile(*loadFilePath)
-	}
-
-	line := liner.NewLiner()
 	defer line.Close()
 
 	line.SetCtrlCAborts(true)
+
+	log.SetPrefix("")
+	log.SetFlags(0)
 
 	if f, err := os.Open(history_fn); err == nil {
 		line.ReadHistory(f)
 		f.Close()
 	}
 
-	log.SetPrefix("")
-	log.SetFlags(0)
-
-	for {
-		if expr, err := line.Prompt("> "); err == nil {
-			doLine(expr)
-			line.AppendHistory(expr)
-		} else if err == liner.ErrPromptAborted {
-			log.Print("Aborted")
-			break
-		} else {
-			log.Print("Error reading line: ", err)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for _ = range c {
+			if f, err := os.Create(history_fn); err != nil {
+				log.Print("Error writing history file: ", err)
+			} else {
+				line.WriteHistory(f)
+				f.Close()
+			}
 		}
+	}()
+
+	machine.ReadFunc = promptLine
+	machine.PrintFunc = func(el vm.Elem) {
+		log.Print(dump(el))
 	}
 
-	if f, err := os.Create(history_fn); err != nil {
-		log.Print("Error writing history file: ", err)
-	} else {
-		line.WriteHistory(f)
-		f.Close()
-	}
+	loadFile(flag.Arg(0))
 }
 
-func doLine(line string) {
+func promptLine() vm.Elem {
+	if expr, err := line.Prompt("> "); err == nil {
+		line.AppendHistory(expr)
+		return readLine(expr)
+	} else if err == liner.ErrPromptAborted || err == io.EOF {
+		log.Print("Aborted")
+		os.Exit(1)
+	} else {
+		log.Print("Error reading line: ", err)
+	}
+	return vm.Nil
+}
+
+func readLine(line string) vm.Elem {
 	reader := bootstrap.NewReader("<repl>", strings.NewReader(line))
 	el, err := reader.ReadElem()
 	if err != nil {
 		log.Printf("read: %v", err)
-		return
+		return nil
 	}
 
-	code := bootstrap.Compile(machine, el)
-	log.Printf("compiled %v -> %v\n", line, code)
-	result := machine.Eval(code)
-	log.Println(dump(result))
+	return el
 }
 
 func loadFile(path string) {

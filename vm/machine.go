@@ -12,10 +12,15 @@ const (
 	LambdaSymbol = Symbol("lambda")
 )
 
+type ReadFunc func() Elem
+type PrintFunc func(Elem)
+
 // VM is an instance of the virtual machine
 type VM struct {
 	s, e, c, d Cell
 	traceCell  Cell
+	ReadFunc
+	PrintFunc
 }
 
 // NewVM constructs a VM
@@ -147,7 +152,6 @@ func init() {
 		OpEVAL:    instEVAL,
 		OpDROP:    instDROP,
 		OpDUP:     instDUP,
-		OpCOMPILE: instCOMPILE,
 		OpSELECT:  instSELECT,
 		OpJOIN:    instJOIN,
 		OpEQUAL:   instEQUAL,
@@ -156,6 +160,8 @@ func init() {
 		OpMUL:     instMUL,
 		OpDIV:     instDIV,
 		OpMOD:     instMOD,
+		OpREAD:    instREAD,
+		OpPRINT:   instPRINT,
 	}
 }
 
@@ -273,11 +279,6 @@ func instEVAL(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	return s, e, c, d
 }
 
-func instCOMPILE(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
-	panic("not implemented")
-	return s, e, c, d
-}
-
 func instSELECT(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	p2, s := popCell(s)
 	p1, s := popCell(s)
@@ -343,5 +344,17 @@ func instMOD(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	b, s := popInt(s)
 	result := Int(a % b)
 	s = push(result, s)
+	return s, e, c, d
+}
+
+func instREAD(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	expr := vm.ReadFunc()
+	s = push(expr, s)
+	return s, e, c, d
+}
+
+func instPRINT(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	expr, s := pop(s)
+	vm.PrintFunc(expr)
 	return s, e, c, d
 }

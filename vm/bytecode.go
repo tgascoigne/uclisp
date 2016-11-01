@@ -23,7 +23,6 @@ const (
 	OpEVAL
 	OpDROP
 	OpDUP
-	OpCOMPILE
 	OpSELECT
 	OpJOIN
 	OpEQUAL
@@ -32,6 +31,8 @@ const (
 	OpMUL
 	OpDIV
 	OpMOD
+	OpREAD
+	OpPRINT
 
 	OpEND // marker, invalid opcode
 )

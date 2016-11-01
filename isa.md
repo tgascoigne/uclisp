@@ -16,7 +16,6 @@
 | DROP    | V.s, e, DROP.c, d                             | s, e, c, d                                    | Removes the value on top of s                                                         |
 | DUP     | V.s, e, DUP.c, d                              | V.V.s, e, c, d                                | Duplicates the value on top of s                                                      |
 | EVAL    | code.s, e, EVAL.c, d                          | V.s, e, c, d                                  | Evaluates the bytecode on s, and pushes the result back to s                          |
-| COMPILE | sexpr.s, e, COMPILE.c, d                      | code.s, e, c, d                               | Compiles the sexpr on s and pushes the bytecode back to s                             |
 | SELECT  | c2.c1.cond.s, e, SELECT.c, d                  | s, e, c1 or c2, c.d                           | If cond is nil execute c2, otherwise execute c1.                                      |
 | JOIN    | s, e, JOIN.c, c'.d                            | s, e, c', d                                   | Breaks from a SELECT condition, restoring c' from d                                   |
 | EQUAL   | A.B.s, e, EQUAL.c, d                          | V.s, e, c, d                                  | Compares A and B by value and pushes nil or t to s                                    |
@@ -25,4 +24,6 @@
 | MUL     | A.B.s, e. MUL.c, d                            | V.s, e, c, d                                  | Pushes the result of A*B to the stack                                                 |
 | DIV     | A.B.s, e. DIV.c, d                            | V.s, e, c, d                                  | Pushes the result of A/B to the stack                                                 |
 | MOD     | A.B.s, e. MOD.c, d                            | V.s, e, c, d                                  | Pushes the result of A%B to the stack                                                 |
+| READ    | s, e, READ.c, d                               | V.s, e, c, d                                  | Reads a complete expression from the input stream                                     |
+| PRINT   | V.s, e, PRINT.c, d                            | s, e, c, d                                    | Prints an expression to the output stream                                             |
 |---------+-----------------------------------------------+-----------------------------------------------+---------------------------------------------------------------------------------------|
