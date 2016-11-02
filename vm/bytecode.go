@@ -51,6 +51,10 @@ func (i Op) Type() Symbol {
 }
 
 func ParseOp(sym Symbol) (result Op, ok bool) {
+	if sym[0] == '$' {
+		sym = sym[1:]
+	}
+
 	if op, ok := opCodeMap[string(sym)]; ok {
 		return op, true
 	}

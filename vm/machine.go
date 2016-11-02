@@ -3,6 +3,7 @@ package vm
 import "fmt"
 
 const TraceVar = Symbol("*trace*")
+const HaltVar = Symbol("*halt*")
 
 const (
 	StackReg     = Symbol("%stack")
@@ -19,6 +20,7 @@ type PrintFunc func(Elem)
 type VM struct {
 	s, e, c, d Cell
 	traceCell  Cell
+	haltCell   Cell
 	ReadFunc
 	PrintFunc
 }
@@ -38,6 +40,7 @@ func NewVM() *VM {
 		ControlReg: vm.c,
 		DumpReg:    vm.d,
 		TraceVar:   Nil,
+		HaltVar:    Nil,
 	}
 
 	for str, op := range opCodeMap {
@@ -50,6 +53,7 @@ func NewVM() *VM {
 	vm.e.SetCar(e)
 
 	vm.traceCell = AssertCell(vm.Eval(List(OpLOAD, TraceVar, OpLOOKUPC)))
+	vm.haltCell = AssertCell(vm.Eval(List(OpLOAD, HaltVar, OpLOOKUPC)))
 
 	return vm
 }
@@ -106,7 +110,7 @@ func (vm *VM) execute() {
 		AssertCell(vm.c.Car()),
 		AssertCell(vm.d.Car())
 
-	for !c.Equal(Nil) {
+	for !c.Equal(Nil) && vm.haltCell.Cdr().Equal(Nil) {
 		if !vm.traceCell.Cdr().Equal(Nil) {
 			vm.Dump()
 		}
@@ -117,6 +121,11 @@ func (vm *VM) execute() {
 		vm.c.SetCar(c)
 		vm.d.SetCar(d)
 	}
+}
+
+// Halt sets *halt* to t, causing the vm to immediately terminate
+func (vm *VM) Halt() {
+	vm.haltCell.SetCdr(True)
 }
 
 // Registers returns the set of SECD registers

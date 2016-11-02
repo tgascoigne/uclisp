@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -31,6 +30,7 @@ func main() {
 	defer line.Close()
 
 	line.SetCtrlCAborts(true)
+	line.SetCompleter(liner.Completer)
 
 	log.SetPrefix("")
 	log.SetFlags(0)
@@ -40,16 +40,12 @@ func main() {
 		f.Close()
 	}
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for _ = range c {
-			if f, err := os.Create(history_fn); err != nil {
-				log.Print("Error writing history file: ", err)
-			} else {
-				line.WriteHistory(f)
-				f.Close()
-			}
+	defer func() {
+		if f, err := os.Create(history_fn); err != nil {
+			log.Print("Error writing history file: ", err)
+		} else {
+			line.WriteHistory(f)
+			f.Close()
 		}
 	}()
 
@@ -62,27 +58,43 @@ func main() {
 }
 
 func promptLine() vm.Elem {
-	if expr, err := line.Prompt("> "); err == nil {
-		line.AppendHistory(expr)
-		return readLine(expr)
-	} else if err == liner.ErrPromptAborted || err == io.EOF {
+	var err error
+	var el vm.Elem
+	var expr string
+	if expr, err = line.Prompt("> "); err == nil {
+		if strings.TrimSpace(expr) != "" {
+			line.AppendHistory(expr)
+		}
+
+		el, err = readLine(expr)
+		if err == nil {
+			return el
+		}
+	}
+
+	if err == liner.ErrPromptAborted || err == io.EOF {
+		machine.Halt()
 		log.Print("Aborted")
-		os.Exit(1)
 	} else {
-		log.Print("Error reading line: ", err)
+		log.Printf("Error reading line: %T\n", err)
 	}
 	return vm.Nil
 }
 
-func readLine(line string) vm.Elem {
+func readLine(line string) (vm.Elem, error) {
 	reader := bootstrap.NewReader("<repl>", strings.NewReader(line))
 	el, err := reader.ReadElem()
 	if err != nil {
+		if err == io.EOF {
+			// empty strings aren't an error
+			return vm.Nil, nil
+		}
+
 		log.Printf("read: %v", err)
-		return nil
+		return vm.Nil, err
 	}
 
-	return el
+	return el, nil
 }
 
 func loadFile(path string) {

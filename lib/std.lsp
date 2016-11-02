@@ -181,7 +181,7 @@
 
 (define compile-quoted
   (lambda (expr tail)
-    (if (consp list)
+    (if (consp expr)
         (compile-quoted-list expr tail)
       (compile-quoted-const expr tail))))
 
@@ -224,6 +224,7 @@
             (concat (eval (car (cdr (car list))))
                     (compile-bq-list-expand (cdr list)))
           (if (eq (car list) 'unquote)
+              ;; If it's unquoted, pass through and let compile-quoted-list handle it
               list
             (cons (compile-bq-list-expand (car list)) (compile-bq-list-expand (cdr list)))))
       list)))
@@ -259,9 +260,15 @@
         (let ((macro-func (cons 'lambda (cdr macro-decl))))
           (eval (prepend macro-func (map genquote macro-args))))))))
 
-(add-to-alist '*macros* 'cadr
-              '(macro (el)
-                      `(car (cdr ,el))))
+(add-to-alist '*macros* 'foo '(macro (x) `(+ ,x ,x)))
+
+(add-to-alist '*macros* 'defmacro
+              '(macro (name args body)
+                      `(add-to-alist '*macros* ',name
+                                     '(macro ,args ,body))))
+
+;(defmacro cadr (el)
+;  `(car (cdr ,el)))
 
 ;;
 ;; REPL
