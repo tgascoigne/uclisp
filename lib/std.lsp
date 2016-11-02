@@ -120,6 +120,7 @@
 
 ;;
 ;; Compiler (!!)
+;; This is a little messy; rewrite at some point
 ;;
 
 (define eval
@@ -188,11 +189,9 @@
 (define compile-quoted-list
   (lambda (list tail)
     (if (consp list)
-        (if (eq (car list) 'unquote)
-            (compile-internal (car (cdr list)) tail)
-          (compile-quoted-list (cdr list)
-                               (compile-quoted (car list)
-                                               (compile-instr $CONS tail))))
+        (compile-quoted-list (cdr list)
+                             (compile-quoted (car list)
+                                             (compile-instr $CONS tail)))
       (compile-quoted list tail))))
 
 (define compile-quoted-const
@@ -215,7 +214,7 @@
 
 (define compile-bq-list
   (lambda (list tail)
-    (compile-quoted-list (compile-bq-list-expand list) tail)))
+    (compile-bq-expanded-list (compile-bq-list-expand list) tail)))
 
 (define compile-bq-list-expand
   (lambda (list)
@@ -224,10 +223,20 @@
             (concat (eval (car (cdr (car list))))
                     (compile-bq-list-expand (cdr list)))
           (if (eq (car list) 'unquote)
-              ;; If it's unquoted, pass through and let compile-quoted-list handle it
+              ;; If it's unquoted, pass through and let compile-bq-expanded-list handle it
               list
             (cons (compile-bq-list-expand (car list)) (compile-bq-list-expand (cdr list)))))
       list)))
+
+(define compile-bq-expanded-list
+  (lambda (list tail)
+    (if (consp list)
+        (if (eq (car list) 'unquote)
+            (compile-internal (car (cdr list)) tail)
+          (compile-bq-expanded-list (cdr list)
+                                    (compile-bq-expanded-list (car list)
+                                                    (compile-instr $CONS tail))))
+      (compile-quoted list tail))))
 
 (define concat
   (lambda (a b)

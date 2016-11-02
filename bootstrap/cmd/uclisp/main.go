@@ -30,7 +30,6 @@ func main() {
 	defer line.Close()
 
 	line.SetCtrlCAborts(true)
-	line.SetCompleter(liner.Completer)
 
 	log.SetPrefix("")
 	log.SetFlags(0)
