@@ -109,7 +109,13 @@ func (vm *VM) execute() {
 		AssertCell(vm.e.Car()),
 		AssertCell(vm.c.Car()),
 		AssertCell(vm.d.Car())
-
+		/*
+			defer func() {
+				if r := recover(); r != nil {
+					vm.Dump()
+				}
+			}()
+		*/
 	for !c.Equal(Nil) && vm.haltCell.Cdr().Equal(Nil) {
 		if !vm.traceCell.Cdr().Equal(Nil) {
 			vm.Dump()
@@ -157,6 +163,7 @@ func init() {
 		OpSETCDR:  instSETCDR,
 		OpTYPE:    instTYPE,
 		OpAPPLY:   instAPPLY,
+		OpDAPPLY:  instDAPPLY,
 		OpRETURN:  instRETURN,
 		OpEVAL:    instEVAL,
 		OpDROP:    instDROP,
@@ -247,15 +254,31 @@ func instAPPLY(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	fn, s := popCell(s)
 	args, s := popCell(s)
 	fnElems := fn.ExpandList()
-	//	fmt.Printf("fn is %v\n", fn)
+	//fmt.Printf("fn is %v\n", fn)
 	argSpec := AssertCell(fnElems[1])
 	body := AssertCell(fnElems[2])
-	// fmt.Printf("argspec is %v\n", argSpec)
-	//	fmt.Printf("body is %v\n", body)
+	//fmt.Printf("argspec is %v\n", argSpec)
+	//fmt.Printf("args is %v\n", args)
+	//fmt.Printf("body is %v\n", body)
 
 	d = push(List(s, e, c), d)
 	s = Nil
 	e = push(pairlis(argSpec, args), e)
+	c = body
+	return s, e, c, d
+}
+
+func instDAPPLY(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
+	fn, s := popCell(s)
+	bindings, s := popCell(s)
+	fnElems := fn.ExpandList()
+	body := AssertCell(fnElems[2])
+
+	//fmt.Printf("bindings are %v\n", bindings)
+
+	d = push(List(s, e, c), d)
+	s = Nil
+	e = push(bindings, e)
 	c = body
 	return s, e, c, d
 }

@@ -19,6 +19,7 @@ const (
 	OpSETCDR
 	OpTYPE
 	OpAPPLY
+	OpDAPPLY
 	OpRETURN
 	OpEVAL
 	OpDROP

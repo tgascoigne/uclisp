@@ -27,7 +27,7 @@ func (c *Compiler) Compile(elem vm.Elem) vm.Cell {
 }
 
 func (c *Compiler) compile(elem vm.Elem) []vm.Elem {
-	fmt.Printf("compiling %v\n", elem)
+	//fmt.Printf("compiling %v\n", elem)
 	switch elem := elem.(type) {
 	case vm.Cell:
 		return c.compileExpr(elem)
@@ -79,7 +79,7 @@ func (c *Compiler) expandMacro(fn macroFunc, list vm.Cell) []vm.Elem {
 }
 
 func (c *Compiler) compileExpr(list vm.Cell) []vm.Elem {
-	fmt.Printf("compileExpr %v\n", list)
+	//fmt.Printf("compileExpr %v\n", list)
 	if macro := c.isMacro(list.Car()); macro != nil {
 		return c.expandMacro(macro, vm.AssertCell(list.Cdr()))
 	}
@@ -99,7 +99,7 @@ func (c *Compiler) compileExpr(list vm.Cell) []vm.Elem {
 }
 
 func (c *Compiler) compileList(list vm.Cell) []vm.Elem {
-	fmt.Printf("compileList %v\n", list)
+	//fmt.Printf("compileList %v\n", list)
 	result := make([]interface{}, 0)
 	result = append(result, vm.OpLOAD, vm.Nil)
 

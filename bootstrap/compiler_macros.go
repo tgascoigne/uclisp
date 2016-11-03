@@ -173,16 +173,6 @@ func (c *Compiler) compileBackquotedList(list vm.Cell) []vm.Elem {
 		if vm.Consp(el) {
 			el := vm.AssertCell(el)
 			if el.Car().Equal(vm.Symbol("splice")) {
-				/*				instrs := vm.List(c.compile(vm.Cadr(el))...)
-								fmt.Printf("evaling %v to splice\n", instrs)
-								cell := vm.AssertCell(c.VM.Eval(instrs))
-								fmt.Printf("splicing %v in\n", cell)
-								return cell.Reverse().ForEach(func(el vm.Elem) bool {
-									result = append(result, c.compile(el))
-									result = append(result, vm.OpCONS)
-									return false
-								})*/
-
 				result = append(result, c.compile(vm.Cadr(el)))
 				return false
 			}

@@ -54,6 +54,16 @@ func main() {
 	}
 
 	loadFile(flag.Arg(0))
+
+	for {
+		el := promptLine()
+		if el == vm.Nil {
+			break
+		}
+		code := bootstrap.Compile(machine, el)
+		result := machine.Eval(code)
+		fmt.Println(dump(result))
+	}
 }
 
 func promptLine() vm.Elem {

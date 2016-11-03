@@ -25,6 +25,18 @@
 ;; Predicates
 ;;
 
+(define t 1)
+
+(define nil '())
+
+(define and
+  (lambda (c1 c2)
+    (if c1
+        (if c2
+            t
+          nil)
+      nil)))
+
 (define typeof
   (lambda (obj)
     (bytecode (LOAD obj LOOKUP TYPE))))
@@ -61,7 +73,7 @@
 
 (define print
   (lambda (el)
-    (bytecode (LOAD el LOOKUP PRINT))))
+    (bytecode (LOAD el LOOKUP PRINT LOAD el LOOKUP))))
 
 ;;
 ;; List manipulation
@@ -78,6 +90,14 @@
 (define cdr
   (lambda (cons)
     (bytecode (LOAD cons LOOKUP CDR))))
+
+(define setcar
+  (lambda (cell value)
+    (bytecode (LOAD value LOOKUP LOAD cell LOOKUP SETCAR))))
+
+(define setcdr
+  (lambda (cell value)
+    (bytecode (LOAD value LOOKUP LOAD cell LOOKUP SETCDR))))
 
 (define pairlis
   (lambda (keys values)
@@ -102,6 +122,12 @@
   (lambda (el list)
     (cons el list)))
 
+(define concat
+  (lambda (a b)
+    (if (nilp a)
+        b
+      (cons (car a) (concat (cdr a) b)))))
+
 ;;
 ;; Association lists
 ;;
@@ -114,174 +140,193 @@
           (car list)
         (assoc key (cdr list))))))
 
+(define assoc-default
+  (lambda (key list)
+    (cdr (assoc key list))))
+
 (define add-to-alist
   (lambda (alist key value)
     (set alist (cons (cons key value) (eval alist)))))
 
 ;;
 ;; Compiler (!!)
-;; This is a little messy; rewrite at some point
 ;;
 
+(define apply
+  (lambda (fn args)
+    (let ((bindings (pairlis (car (cdr fn)) (car args))))
+      (dapply (print fn) (print bindings)))))
+
+(define dapply
+  (lambda (fn bindings)
+    (bytecode
+     ($LOAD bindings $LOOKUP
+            $LOAD fn $LOOKUP
+            $DAPPLY))))
+
+;; codebuf is the output stream of instructions
 (define eval
   (lambda (expr)
-    (eval-bytecode (compile expr))))
+    (let ((code (compile expr)))
+      (bytecode ($LOAD code $LOOKUP $EVAL)))))
 
-(define eval-bytecode
-  (lambda (code)
-    (bytecode (LOAD code LOOKUP EVAL))))
+(define codebuf-make
+  (lambda ()
+    (let ((buf (cons '() '())))
+      (cons (cons 'start buf) (cons (cons 'next buf) '())))))
+
+(define codebuf-start
+  (lambda (buf)
+    (cdr (assoc 'start buf))))
+
+(define codebuf-next
+  (lambda (buf)
+    (cdr (assoc 'next buf))))
+
+(define codebuf-append
+  (lambda (buf el)
+    (progn
+      (let ((next (codebuf-next buf)))
+        (setcar (codebuf-next buf) el)
+        (setcdr next (cons $NOP '()))
+        (setcdr (assoc 'next buf) (cdr next))))))
+
+;; (define codebuf-append
+;;   (lambda (buf el)
+;;     (if (nilp (car (car buf)))
+;;         (setcar buf el)
+;;       (if (nilp (cdr buf))
+;;           (setcdr buf (cons el ()))
+;;         (codebuf-append (cdr buf) el)))))
+
+(define *builtins* '())
 
 (define compile
   (lambda (expr)
-    (compile-internal expr ())))
+    (let ((buf (codebuf-make)))
+      (progn
+        (compile-internal buf expr)
+        (codebuf-start buf)))))
 
 (define compile-internal
-  (lambda (expr tail)
+  (lambda (buf expr)
     (if (consp expr)
-        (compile-sexpr expr tail)
-      (compile-const expr tail))))
+        (compile-expr buf expr)
+      (if (symbolp expr)
+          (compile-lookup buf expr)
+        (compile-const buf expr)))))
 
-(define compile-const
-  (lambda (expr tail)
-    (if (symbolp expr)
-        (cons $LOAD (cons expr (cons $LOOKUP tail)))
-      (cons $LOAD (cons expr tail)))))
+(define compile-emit codebuf-append)
 
-(define compile-sexpr
-  (lambda (expr tail)
-    (if (eq (car expr) 'quote)
-        ;; quote
-        (compile-quoted-list (car (cdr expr)) tail)
-      (if (eq (car expr) 'backquote)
-          ;; backquote
-          (compile-bq (car (cdr expr)) tail)
-        (if (eq (car expr) 'lambda)
-            ;; lambda
-            (compile-bq
-             `(lambda ,(car (cdr expr))
-                ,(compile (car (cdr (cdr expr)))))
-             tail)
-          (if (assoc (car expr) *macros*)
-              (compile-internal (macroexpand expr) tail)
-            ;; apply
-            (compile-list (cdr expr)
-                          (compile-internal (car expr)
-                                            (compile-instr $APPLY tail)))))))))
+(define compile-expr
+  (lambda (buf expr)
+    (if (compile-builtinp (car expr))
+        (compile-builtin buf expr)
+      (compile-raw-apply buf `(apply ,(car expr) ',(cdr expr))))))
+      ;;(compile-raw-apply buf expr))))
 
-(define compile-instr
-  (lambda (instr tail)
-    (cons instr tail)))
+(define compile-raw-apply
+  (lambda (buf expr)
+    (progn
+      (compile-list buf (cdr expr))
+      (compile-internal buf (car expr))
+      (compile-emit buf $APPLY))))
 
 (define compile-list
-  (lambda (list tail)
-    (if (consp list)
-        (compile-list (cdr list)
-                      (compile-internal (car list)
-                                        (compile-instr $CONS tail)))
-      (compile-internal list tail))))
+  (lambda (buf list)
+    (progn
+      (if (nilp list)
+          (compile-const buf '())
+        (progn
+          (compile-list buf (cdr list))
+          (compile-internal buf (car list))
+          (compile-emit buf $CONS))))))
 
-(define compile-quoted
-  (lambda (expr tail)
-    (if (consp expr)
-        (compile-quoted-list expr tail)
-      (compile-quoted-const expr tail))))
+(define compile-cons
+  (lambda (buf car cdr)
+    (progn
+      (compile-internal buf car)
+      (compile-emit buf $CONS))))
+
+(define compile-const
+  (lambda (buf const)
+    (progn
+      (compile-emit buf $LOAD)
+      (compile-emit buf const))))
+
+(define compile-lookup
+  (lambda (buf sym)
+    (progn
+      (compile-const buf sym)
+      (compile-emit buf $LOOKUP))))
+
+;; builtins
+(define compile-builtinp
+  (lambda (sym)
+    (not (nilp (assoc sym *builtins*)))))
+
+(define compile-builtin
+  (lambda (buf expr)
+    (let ((sym (car expr))
+          (args (cdr expr)))
+      ((assoc-default sym *builtins*) buf args))))
+
+;; quote
+(define builtin-quote
+  (lambda (buf quoted)
+    (compile-quote buf (car quoted))))
+
+(define compile-quote
+  (lambda (buf quoted)
+    (if (consp quoted)
+        (compile-quoted-list buf quoted)
+      (compile-const buf quoted))))
 
 (define compile-quoted-list
-  (lambda (list tail)
-    (if (consp list)
-        (compile-quoted-list (cdr list)
-                             (compile-quoted (car list)
-                                             (compile-instr $CONS tail)))
-      (compile-quoted list tail))))
+  (lambda (buf list)
+    (progn
+      (if (nilp list)
+          (compile-const buf '())
+        (progn
+          (compile-quoted-list buf (cdr list))
+          (compile-quote buf (car list))
+          (compile-emit buf $CONS))))))
 
-(define compile-quoted-const
-  (lambda (expr tail)
-    (cons $LOAD (cons expr tail))))
+(add-to-alist '*builtins* 'quote builtin-quote)
 
-(define compile-bq
-  (lambda (expr tail)
-    (if (consp expr)
-        (compile-bq-list expr tail)
-      (compile-quoted expr tail))))
+;; backquote/unquote/splice
+(define builtin-backquote
+  (lambda (buf quoted)
+    (compile-backquote buf (car quoted))))
 
-(define compile-bq-is-splice
-  (lambda (list)
-    (if (consp list)
-        (if (eq (car list) 'splice)
-            1
-          '())
-      '())))
+(define compile-backquote
+  (lambda (buf quoted)
+    (if (consp quoted)
+        (if (eq 'unquote (car quoted))
+            (compile-internal buf (car (cdr quoted)))
+          (compile-backquoted-list buf quoted))
+      (compile-quote buf quoted))))
 
-(define compile-bq-list
-  (lambda (list tail)
-    (compile-bq-expanded-list (compile-bq-list-expand list) tail)))
+(define compile-backquoted-list
+  (lambda (buf list)
+    (progn
+      (if (nilp list)
+          (compile-const buf '())
+        (if (and (consp list) (eq 'splice (car list)))
+            (compile-internal buf (car (cdr list)))
+          (progn
+            (compile-backquoted-list buf (car (cdr list)))
+            (compile-backquote buf (car list))
+            (compile-emit buf $CONS)))))))
 
-(define compile-bq-list-expand
-  (lambda (list)
-    (if (consp list)
-        (if (compile-bq-is-splice (car list))
-            (concat (eval (car (cdr (car list))))
-                    (compile-bq-list-expand (cdr list)))
-          (if (eq (car list) 'unquote)
-              ;; If it's unquoted, pass through and let compile-bq-expanded-list handle it
-              list
-            (cons (compile-bq-list-expand (car list)) (compile-bq-list-expand (cdr list)))))
-      list)))
-
-(define compile-bq-expanded-list
-  (lambda (list tail)
-    (if (consp list)
-        (if (eq (car list) 'unquote)
-            (compile-internal (car (cdr list)) tail)
-          (compile-bq-expanded-list (cdr list)
-                                    (compile-bq-expanded-list (car list)
-                                                    (compile-instr $CONS tail))))
-      (compile-quoted list tail))))
-
-(define concat
-  (lambda (a b)
-    (if (nilp a)
-        b
-      (cons (car a) (concat (cdr a) b)))))
-
-(define toggle-trace
-  (lambda () (set '*trace* (not *trace*))))
-
-;;
-;; Macros
-;;
-
-(define *macros* '())
-
-(define compile-lambda
-  (lambda (func)
-    `(lambda ,(car (cdr func)) ,(append (compile (car (cdr (cdr func)))) $RETURN))))
-
-(define genquote
-  (lambda (el)
-    (cons 'quote (cons el '()))))
-
-(define macroexpand
-  (lambda (expr)
-    (let ((macro-name (car expr))
-          (macro-args (cdr expr)))
-      (let ((macro-decl (cdr (assoc macro-name *macros*))))
-        (let ((macro-func (cons 'lambda (cdr macro-decl))))
-          (eval (prepend macro-func (map genquote macro-args))))))))
-
-(add-to-alist '*macros* 'foo '(macro (x) `(+ ,x ,x)))
-
-(add-to-alist '*macros* 'defmacro
-              '(macro (name args body)
-                      `(add-to-alist '*macros* ',name
-                                     '(macro ,args ,body))))
-
-;(defmacro cadr (el)
-;  `(car (cdr ,el)))
+(add-to-alist '*builtins* 'backquote builtin-backquote)
 
 ;;
 ;; REPL
 ;;
+
+(define toggle-trace
+  (lambda () (set '*trace* (not *trace*))))
 
 (define repl
   (lambda ()
@@ -289,4 +334,4 @@
       (print (eval (read)))
       (repl))))
 
-(repl)
+;(repl)
