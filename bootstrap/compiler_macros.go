@@ -7,7 +7,6 @@ import (
 )
 
 func init() {
-	macros[vm.Symbol("quote")] = (*Compiler).macroQuote
 	macros[vm.Symbol("define")] = (*Compiler).macroDefine
 	macros[vm.Symbol("set")] = (*Compiler).macroSet
 	macros[vm.Symbol("progn")] = (*Compiler).macroProgn
@@ -15,6 +14,8 @@ func init() {
 	macros[vm.Symbol("lambda")] = (*Compiler).macroLambda
 	macros[vm.Symbol("if")] = (*Compiler).macroIf
 	macros[vm.Symbol("let")] = (*Compiler).macroLet
+
+	macros[vm.Symbol("quote")] = (*Compiler).macroQuote
 	macros[vm.Symbol("backquote")] = (*Compiler).compileBackquoted
 }
 

@@ -165,11 +165,6 @@
             $DAPPLY))))
 
 ;; codebuf is the output stream of instructions
-(define eval
-  (lambda (expr)
-    (let ((code (compile expr)))
-      (bytecode ($LOAD code $LOOKUP $EVAL)))))
-
 (define codebuf-make
   (lambda ()
     (let ((buf (cons '() '())))
@@ -191,21 +186,19 @@
         (setcdr next (cons $NOP '()))
         (setcdr (assoc 'next buf) (cdr next))))))
 
-;; (define codebuf-append
-;;   (lambda (buf el)
-;;     (if (nilp (car (car buf)))
-;;         (setcar buf el)
-;;       (if (nilp (cdr buf))
-;;           (setcdr buf (cons el ()))
-;;         (codebuf-append (cdr buf) el)))))
-
 (define *builtins* '())
+
+;; the actual compiler
+(define eval
+  (lambda (expr)
+    (let ((code (compile expr)))
+      (bytecode ($LOAD code $LOOKUP $EVAL)))))
 
 (define compile
   (lambda (expr)
     (let ((buf (codebuf-make)))
       (progn
-        (compile-internal buf expr)
+        (compile-internal buf (print expr))
         (codebuf-start buf)))))
 
 (define compile-internal
@@ -228,8 +221,11 @@
 (define compile-raw-apply
   (lambda (buf expr)
     (progn
+      ;; compile arguments
       (compile-list buf (cdr expr))
+      ;; compile function
       (compile-internal buf (car expr))
+
       (compile-emit buf $APPLY))))
 
 (define compile-list
@@ -259,6 +255,12 @@
     (progn
       (compile-const buf sym)
       (compile-emit buf $LOOKUP))))
+
+(define compile-lookupc
+  (lambda (buf sym)
+    (progn
+      (compile-const buf sym)
+      (compile-emit buf $LOOKUPC))))
 
 ;; builtins
 (define compile-builtinp
@@ -321,6 +323,81 @@
 
 (add-to-alist '*builtins* 'backquote builtin-backquote)
 
+;; define
+(define builtin-define
+  (lambda (buf args)
+    (let ((symbol (car args))
+          (value (car (cdr args))))
+      (progn
+        ;; Load the env list
+        (compile-lookup buf '%env)
+        (compile-emit buf $CAR)
+        ;; Load the current env
+        (compile-emit buf $CAR)
+        ;; Create the new binding pair
+        (compile-internal buf value)
+        (compile-quote buf symbol)
+        (compile-emit buf $CONS)
+        ;; Cons it onto the current env
+        (compile-emit buf $CONS)
+        ;; Load the env list (again)
+        (compile-lookup buf '%env)
+        (compile-emit buf $CAR)
+        ;; Update the current env to the newly updated list
+        (compile-emit buf $SETCAR)
+        ;; Lookup the new var for the return value
+        (compile-internal buf symbol)))))
+
+(add-to-alist '*builtins* 'define builtin-define)
+
+;; set
+(define builtin-set
+  (lambda (buf args)
+    (let ((symbol (car args))
+          (value (car (cdr args))))
+      (progn
+        ;; Compile the new value
+        (compile-internal buf value)
+        ;; Load the cell containing the var binding
+        (compile-lookupc buf symbol)
+        ;; Set the new value
+        (compile-emit buf $SETCDR)
+        ;; Lookup the new var for the return value
+        (compile-internal buf symbol)))))
+
+(add-to-alist '*builtins* 'set builtin-set)
+
+;; progn
+(define builtin-progn
+  (lambda (buf args)
+    (progn
+      ;; Compile all but the final expr, ignoring the result
+      (builtin-progn-execn-1 buf args)
+      ;; Compile the final expr, and return the result
+      (compile-internal buf (builtin-progn-last-expr args)))))
+
+(define builtin-progn-last-expr
+  (lambda (exprs)
+    (if (nilp (cdr exprs))
+        (car exprs)
+      (builtin-progn-last-expr (cdr exprs)))))
+
+(define builtin-progn-execn-1
+  (lambda (buf exprs)
+    (if (not (nilp (cdr exprs))) ;; the last expression will have cdr = nil
+        (progn
+          (compile-internal buf (car exprs))
+          (compile-emit buf $DROP)
+          (builtin-progn-execn-1 buf (cdr exprs))))))
+
+(add-to-alist '*builtins* 'progn builtin-progn)
+
+;; let
+;; (define builtin-let
+;;   (lambda (buf args)
+;;     (let)))
+;; (add-to-alist '*builtins* 'let builtin-let)
+
 ;;
 ;; REPL
 ;;
@@ -334,4 +411,4 @@
       (print (eval (read)))
       (repl))))
 
-;(repl)
+(repl)
