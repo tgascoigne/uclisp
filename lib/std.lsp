@@ -99,12 +99,26 @@
   (lambda (cell value)
     (bytecode (LOAD value LOOKUP LOAD cell LOOKUP SETCDR))))
 
+(define list
+  (lambda (&rest list)
+    list))
+
 (define pairlis
   (lambda (keys values)
     (if (nilp keys)
         ()
       (cons (cons (car keys) (car values))
             (pairlis (cdr keys) (cdr values))))))
+
+(define pairargs
+  (lambda (keys values)
+    (if (nilp keys)
+        ()
+      (if (eq (car keys) '&rest)
+          (cons (cons (car (cdr keys)) values)
+                ())
+        (cons (cons (car keys) (car values))
+              (pairargs (cdr keys) (cdr values)))))))
 
 (define map
   (lambda (fn sequence)
@@ -153,9 +167,12 @@
 ;;
 
 (define apply
-  (lambda (fn args)
-    (let ((bindings (pairlis (car (cdr fn)) (car args))))
-      (dapply (print fn) (print bindings)))))
+  (lambda (fn &rest args)
+    (progn
+      (if *ltrace*
+          (print (list fn args)))
+      (let ((bindings (pairargs (car (cdr fn)) args)))
+        (dapply fn bindings)))))
 
 (define dapply
   (lambda (fn bindings)
@@ -198,7 +215,7 @@
   (lambda (expr)
     (let ((buf (codebuf-make)))
       (progn
-        (compile-internal buf (print expr))
+        (compile-internal buf expr)
         (codebuf-start buf)))))
 
 (define compile-internal
@@ -215,16 +232,16 @@
   (lambda (buf expr)
     (if (compile-builtinp (car expr))
         (compile-builtin buf expr)
-      (compile-raw-apply buf `(apply ,(car expr) ',(cdr expr))))))
+      (compile-raw-apply buf 'apply expr))))
       ;;(compile-raw-apply buf expr))))
 
 (define compile-raw-apply
-  (lambda (buf expr)
+  (lambda (buf fn args)
     (progn
       ;; compile arguments
-      (compile-list buf (cdr expr))
+      (compile-list buf args)
       ;; compile function
-      (compile-internal buf (car expr))
+      (compile-internal buf fn)
 
       (compile-emit buf $APPLY))))
 
@@ -404,6 +421,10 @@
 
 (define toggle-trace
   (lambda () (set '*trace* (not *trace*))))
+
+(define *ltrace* ())
+(define toggle-ltrace
+  (lambda () (set '*ltrace* (not *ltrace*))))
 
 (define repl
   (lambda ()
