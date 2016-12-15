@@ -58,3 +58,6 @@
 
 (uclisp-test '(let* ((foo 3) (bar (* foo 2))) (* bar 2))
              12)
+
+(uclisp-test '(bytecode ($LOAD 2 $LOAD 4 $MUL))
+             8)

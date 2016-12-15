@@ -253,12 +253,12 @@
 
 (defun let*-internal (bindings body)
   (if (null bindings)
-    body
-    (let ((this-binding (car bindings))
-		  (other-bindings (cdr bindings)))
-	  `((lambda (,(car this-binding))
-		  ,(let*-internal other-bindings body))
-		,(car (cdr this-binding))))))
+	  body
+	  (let ((this-binding (car bindings))
+			(other-bindings (cdr bindings)))
+		`((lambda (,(car this-binding))
+			,(let*-internal other-bindings body))
+		  ,(car (cdr this-binding))))))
 
 ;; (let* ((foo 1)
 ;;        (bar (* foo 2)))
@@ -267,6 +267,11 @@
 ;; ((lambda (foo)
 ;;    ((lambda (bar))
 ;;     (* bar 2)) (* foo 2))) 1
+
+;; bytecode
+(defun builtin-bytecode (buf args)
+  (let ((instrs (car args)))
+	(compile-emit-instrs buf instrs)))
 
 (add-to-alist '*builtins* 'quote #'builtin-quote)
 (add-to-alist '*builtins* 'backquote #'builtin-backquote)
@@ -279,3 +284,4 @@
 (add-to-alist '*builtins* 'let #'builtin-let)
 (add-to-alist '*builtins* 'let* #'builtin-let*)
 (add-to-alist '*builtins* 'if #'builtin-if)
+(add-to-alist '*builtins* 'bytecode #'builtin-bytecode)
