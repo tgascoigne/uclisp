@@ -92,11 +92,7 @@ func (c *Compiler) macroBytecode(elem vm.Elem) []vm.Elem {
 	result := make([]interface{}, 0)
 
 	for i := 0; i < len(instrs); i++ {
-		opSym := instrs[i]
-		op, ok := vm.ParseOp(vm.AssertSymbol(opSym))
-		if !ok {
-			panic(fmt.Sprintf("unsupported opcode: %v", opSym))
-		}
+		op := instrs[i]
 
 		result = append(result, op)
 

@@ -43,10 +43,10 @@ func NewVM() *VM {
 		HaltVar:    Nil,
 	}
 
-	for str, op := range opCodeMap {
-		sym := Symbol("$" + str)
-		baseEnv[sym] = op
-	}
+//	for str, op := range opCodeMap {
+//		sym := Symbol("$" + str)
+//		baseEnv[sym] = op
+//	}
 
 	e := List(mapToAlist(baseEnv))
 
@@ -254,7 +254,7 @@ func instAPPLY(vm *VM, s, e, c, d Cell) (Cell, Cell, Cell, Cell) {
 	fn, s := popCell(s)
 	args, s := popCell(s)
 	fnElems := fn.ExpandList()
-	//fmt.Printf("fn is %v\n", fnElems)
+	//fmt.Printf("fn is %v & %v & %v\n", fnElems[0], fnElems[1], fnElems[2])
 	argSpec := AssertCell(fnElems[1])
 	body := AssertCell(fnElems[2])
 	//fmt.Printf("argspec is %v\n", argSpec)

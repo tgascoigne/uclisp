@@ -18,6 +18,7 @@ var (
 	history_fn = filepath.Join(os.TempDir(), ".uclisp")
 	machine    = vm.NewVM()
 	line       = liner.NewLiner()
+	evalExpr = flag.String("eval", "", "Evaluates an expression, prints the result, and exits")
 )
 
 func dump(val interface{}) string {
@@ -55,6 +56,24 @@ func main() {
 
 	loadFile(flag.Arg(0))
 
+	if (*evalExpr != "") {
+		reader := bootstrap.NewReader("<eval>", strings.NewReader(*evalExpr))
+		
+		el, err := reader.ReadElem()
+		if err != nil {
+			panic(err)
+		}
+
+		if el == vm.Nil {
+			return
+		}
+		code := bootstrap.Compile(machine, el)
+		result := machine.Eval(code)
+		fmt.Println(dump(result))		
+		return
+	}
+
+	// repl
 	for {
 		el := promptLine()
 		if el == vm.Nil {
