@@ -1,7 +1,60 @@
 (setf (readtable-case *readtable*) :invert)
 
+(defmacro setcar (el val)
+  `(setf (car ,el) ,val))
+
+(defmacro setcdr (el val)
+  `(setf (cdr ,el) ,val))
+
+(defun add-to-alist (alist key value)
+  (set alist (cons (cons key value) (eval alist))))
+
+(defun nilp (val)
+  (null val))
+
+(defmacro assoc-default (k alist)
+  `(cdr (assoc ,k ,alist)))
+
+(defun fasl-print (bc)
+  (princ-to-string `(bytecode ,bc)))
+
+(defun ucl-map (fn list)
+  (map 'list fn list))
+
 (defmacro define-opcode (opcode)
   `(defvar ,opcode ',opcode))
+
+(defvar ucl-opcodes
+  (list '$NOP
+    '$LOAD
+    '$LOOKUP
+    '$LOOKUPC
+    '$CONS
+    '$CAR
+    '$CDR
+    '$SETCAR
+    '$SETCDR
+    '$TYPE
+    '$APPLY
+    '$DAPPLY
+    '$RETURN
+    '$EVAL
+    '$DROP
+    '$DUP
+    '$SELECT
+    '$JOIN
+    '$EQUAL
+    '$ADD
+    '$SUB
+    '$MUL
+    '$DIV
+    '$MOD
+    '$READ
+    '$PRINT
+    '$END))
+
+(defun opcodep (sym)
+  (not (null (find sym ucl-opcodes))))
 
 (define-opcode $NOP)
 (define-opcode $LOAD)
@@ -31,27 +84,6 @@
 (define-opcode $PRINT)
 (define-opcode $END)
 
-(defmacro setcar (el val)
-  `(setf (car ,el) ,val))
-
-(defmacro setcdr (el val)
-  `(setf (cdr ,el) ,val))
-
-(defun add-to-alist (alist key value)
-  (set alist (cons (cons key value) (eval alist))))
-
-(defun nilp (val)
-  (null val))
-
-(defmacro assoc-default (k alist)
-  `(cdr (assoc ,k ,alist)))
-
 (load "compiler.lisp")
-
-(defun fasl-print (bc)
-  (princ-to-string `(bytecode ,bc)))
-
-(defun ucl-map (fn list)
-  (map 'list fn list))
 
 ;(loop (fasl-print (ucl-compile (read))))

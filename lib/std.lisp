@@ -1,25 +1,20 @@
 ;;
 ;; Arithmetic
 ;;
-(define +
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $ADD))))
+(defun + (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $ADD)))
 
-(define -
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $SUB))))
+(defun - (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $SUB)))
 
-(define *
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $MUL))))
+(defun * (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $MUL)))
 
-(define /
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $DIV))))
+(defun / (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $DIV)))
 
-(define %
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $MOD))))
+(defun % (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $MOD)))
 
 ;;
 ;; Predicates
@@ -27,166 +22,129 @@
 
 (define t 1)
 
-(define and
-  (lambda (c1 c2)
-    (if c1
-        (if c2
-            t
-          nil)
-      nil)))
+(defun and (c1 c2)
+  (if c1
+	  (if c2
+		  t
+		  nil)
+	  nil))
 
-(define typeof
-  (lambda (obj)
-    (bytecode ($LOAD obj $LOOKUP $TYPE))))
+(defun typeof (obj)
+  (bytecode ($LOAD obj $LOOKUP $TYPE)))
 
-(define eq
-  (lambda (a b)
-    (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $EQUAL))))
+(defun eq (a b)
+  (bytecode ($LOAD a $LOOKUP $LOAD b $LOOKUP $EQUAL)))
 
-(define consp
-  (lambda (obj)
-    (eq (typeof obj) 'cons)))
+(defun consp (obj)
+  (eq (typeof obj) 'cons))
 
-(define nilp
-  (lambda (obj)
-    (eq obj '())))
+(defun nilp (obj)
+  (eq obj nil))
 
-(define symbolp
-  (lambda (obj)
-    (eq (typeof obj) 'symbol)))
+(defun null (obj)
+  (eq obj nil))
 
-(define not
-  (lambda (x)
-    (if x
-        '()
-      1)))
+(defun symbolp (obj)
+  (eq (typeof obj) 'symbol))
+
+(defun opcodep (obj)
+  (eq (typeof obj) 'opcode))
+
+(defun not (x)
+  (if x nil 1))
 
 ;;
 ;; I/O
 ;;
 
-(define read
-  (lambda ()
-    (bytecode ($READ))))
+(defun read ()
+  (bytecode ($READ)))
 
-(define print
-  (lambda (el)
-    (bytecode ($LOAD el $LOOKUP $PRINT $LOAD el $LOOKUP))))
+(defun print (el)
+  (bytecode ($LOAD el $LOOKUP $PRINT $LOAD el $LOOKUP)))
 
 ;;
 ;; List manipulation
 ;;
 
-(define cons
-  (lambda (car cdr)
-    (bytecode ($LOAD cdr $LOOKUP $LOAD car $LOOKUP $CONS))))
+(defun cons (car cdr)
+  (bytecode ($LOAD cdr $LOOKUP $LOAD car $LOOKUP $CONS)))
 
-(define car
-  (lambda (cons)
-    (bytecode ($LOAD cons $LOOKUP $CAR))))
+(defun car (cons)
+  (bytecode ($LOAD cons $LOOKUP $CAR)))
 
-(define cdr
-  (lambda (cons)
-    (bytecode ($LOAD cons $LOOKUP $CDR))))
+(defun cdr (cons)
+  (bytecode ($LOAD cons $LOOKUP $CDR)))
 
-(define setcar
-  (lambda (cell value)
-    (bytecode ($LOAD value $LOOKUP $LOAD cell $LOOKUP $SETCAR))))
+(defun setcar (cell value)
+  (bytecode ($LOAD value $LOOKUP $LOAD cell $LOOKUP $SETCAR)))
 
-(define setcdr
-  (lambda (cell value)
-    (bytecode ($LOAD value $LOOKUP $LOAD cell $LOOKUP $SETCDR))))
+(defun setcdr (cell value)
+  (bytecode ($LOAD value $LOOKUP $LOAD cell $LOOKUP $SETCDR)))
 
-(define list
-  (lambda (&rest list)
-    list))
+(defun list (&rest list)
+  list)
 
-(define pairlis
-  (lambda (keys values)
-    (if (nilp keys)
-        ()
+(defun pairlis (keys values)
+  (if (nilp keys)
+	  nil
       (cons (cons (car keys) (car values))
-            (pairlis (cdr keys) (cdr values))))))
+            (pairlis (cdr keys) (cdr values)))))
 
-(define pairargs
-  (lambda (keys values)
-    (if (nilp keys)
-        ()
-      (if (eq (car keys) '&rest)
-          (cons (cons (car (cdr keys)) values)
-                ())
-        (cons (cons (car keys) (car values))
-              (pairargs (cdr keys) (cdr values)))))))
+(defun pairargs (keys values)
+  (if (nilp keys)
+	  nil
+      (progn
+		(if (eq (car keys) '&rest)
+			(cons (cons (car (cdr keys)) values)
+				  nil))
+		(cons (cons (car keys) (car values))
+			  (pairargs (cdr keys) (cdr values))))))
 
-(define ucl-map
-  (lambda (fn sequence)
-    (if (nilp sequence)
-        '()
-      (cons (fn (car sequence)) (ucl-map fn (cdr sequence))))))
+(defun ucl-map (fn sequence)
+  (if (nilp sequence)
+	  nil
+      (cons (fn (car sequence)) (ucl-map fn (cdr sequence)))))
 
-(define append
-  (lambda (list el)
-    (if (nilp list)
-        (cons el '())
-      (cons (car list) (append (cdr list) el)))))
+(defun append (list el)
+  (if (nilp list)
+	  (cons el '())
+      (cons (car list) (append (cdr list) el))))
 
-(define prepend
-  (lambda (el list)
-    (cons el list)))
+(defun prepend (el list)
+  (cons el list))
 
-(define concat
-  (lambda (a b)
-    (if (nilp a)
-        b
-      (cons (car a) (concat (cdr a) b)))))
+(defun concat (a b)
+  (if (nilp a)
+	  b
+      (cons (car a) (concat (cdr a) b))))
+
+(defun symbol-value (sym)
+  (bytecode ($LOAD sym $LOOKUP $LOOKUP)))
 
 ;;
 ;; Association lists
 ;;
 
-(define assoc
-  (lambda (key list)
-    (if (nilp list)
-        ()
+(defun assoc (key list)
+  (if (nilp list)
+	  nil
       (if (eq (car (car list)) key)
-          (car list)
-        (assoc key (cdr list))))))
+          (car list))
+      (assoc key (cdr list))))
 
-(define assoc-default
-  (lambda (key list)
-    (cdr (assoc key list))))
+(defun assoc-default (key list)
+  (cdr (assoc key list)))
 
-(define add-to-alist
-  (lambda (alist key value)
-    (set alist (cons (cons key value) (eval alist)))))
+(defun add-to-alist (alist key value)
+  (set alist (cons (cons key value) (symbol-value alist))))
 
-;;
-;; REPL
-;;
+(defun ucl-apply (fn &rest args)
+  (progn
+    (let ((bindings (pairargs (car (cdr fn)) args)))
+	  (dapply fn bindings))))
 
-(define toggle-trace
-  (lambda () (set '*trace* (not *trace*))))
-
-(define *ltrace* ())
-(define toggle-ltrace
-  (lambda () (set '*ltrace* (not *ltrace*))))
-
-(define repl
-  (lambda ()
-    (progn
-      (print (eval (read)))
-      (repl))))
-
-;(repl)
-
-(define ucl-apply
-    (lambda (fn &rest args)
-      (progn
-        (let ((bindings (pairargs (car (cdr fn)) args)))
-          (dapply fn bindings)))))
-
-(define dapply
-    (lambda (fn bindings)
-      (bytecode ($LOAD bindings $LOOKUP
-                       $LOAD fn $LOOKUP
-                       $DAPPLY))))
+(defun dapply (fn bindings)
+  (bytecode ($LOAD bindings $LOOKUP
+				   $LOAD fn $LOOKUP
+				   $DAPPLY)))

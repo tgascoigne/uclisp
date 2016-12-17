@@ -34,7 +34,9 @@
 (defun compile-internal (buf expr)
     (if (consp expr)
         (compile-expr buf expr)
-      (if (and (symbolp expr) (not (null expr)))
+		(if (and (symbolp expr)
+				 (not (null expr))
+				 (not (opcodep expr))) ; in sbcl, opcodes are symbols. make sure they're excluded from this
           (compile-lookup buf expr)
         (compile-const buf expr))))
 
@@ -50,11 +52,18 @@
           (compile-emit-instrs buf (cdr instrs))))))
 
 (defun compile-expr (buf expr)
-    (progn
-      (if (compile-builtinp (car expr))
-          (compile-builtin buf expr)
-          (compile-raw-apply buf 'ucl-apply expr))))
-          ;;(compile-raw-apply buf (car expr) (cdr expr)))))
+  (progn
+	(if (compile-builtinp (car expr))
+		(compile-builtin buf expr)
+		;;          (compile-raw-apply buf 'ucl-apply expr))))
+		(compile-raw-apply buf (car expr) (cdr expr)))))
+
+(defun compile-apply (buf expr)
+  (progn
+	(let ((fn (car expr))
+		  (args (car (cdr expr))))
+	  (let ((bindings (pairargs (car (cdr fn)) args)))
+		))))
 
 (defun compile-raw-apply (buf fn args)
     (progn
@@ -273,9 +282,17 @@
   (let ((instrs (car args)))
 	(compile-emit-instrs buf instrs)))
 
+;; function
+;; for sbcl compat
+;; translates #'fn -> (function fn) -> fn
+(defun builtin-function (buf args)
+  (let ((fn (car args)))
+	fn))
+
 (add-to-alist '*builtins* 'quote #'builtin-quote)
 (add-to-alist '*builtins* 'backquote #'builtin-backquote)
 (add-to-alist '*builtins* 'define #'builtin-define)
+(add-to-alist '*builtins* 'defvar #'builtin-define)
 (add-to-alist '*builtins* 'defun #'builtin-defun)
 (add-to-alist '*builtins* 'set #'builtin-set)
 (add-to-alist '*builtins* 'progn #'builtin-progn)
@@ -283,5 +300,5 @@
 (add-to-alist '*builtins* 'if #'builtin-if)
 (add-to-alist '*builtins* 'let #'builtin-let)
 (add-to-alist '*builtins* 'let* #'builtin-let*)
-(add-to-alist '*builtins* 'if #'builtin-if)
 (add-to-alist '*builtins* 'bytecode #'builtin-bytecode)
+(add-to-alist '*builtins* 'function #'builtin-function)

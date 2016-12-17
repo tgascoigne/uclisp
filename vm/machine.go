@@ -98,8 +98,10 @@ func (vm *VM) Dump() {
 		AssertCell(vm.e.Car()),
 		AssertCell(vm.c.Car()),
 		AssertCell(vm.d.Car())
-	fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
-	//	fmt.Printf("s: %v\ne: %v\nc: %v\n\n", s, e, c)
+	//	fmt.Printf("s: %v\ne: %v\nc: %v\nd: %v\n\n", s, e, c, d)
+	_ = e
+	_ = d
+		fmt.Printf("s: %v\nc: %v\n\n", s, c)
 }
 
 // Execute processes until the control register is empty

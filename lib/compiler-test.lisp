@@ -8,12 +8,11 @@
 (defun uclisp-eval (expr)
   (let* ((compiled (fasl-print (ucl-compile expr)))
          (process (run-program "/Users/tom/go/bin/uclisp"
-                         (list "-eval" compiled "std.lisp")
+                         (list "-eval" compiled "std.fasl")
                          :input nil :output :stream))
          (s (process-output process))
          (code (process-exit-code process))
          (output (read-line s nil)));; (read s nil nil)
-    (format t "~a~%~~ ~a~%=> ~a~%~%" expr compiled output)
     (if (equal code 0)
         (read-from-string output)
       'error)))
@@ -29,6 +28,8 @@
 (uclisp-test ''(foo bar) '(foo bar))
 (uclisp-test '(if 1 'foo 'bar) 'foo)
 (uclisp-test '(if nil 'foo 'bar) 'bar)
+
+(uclisp-test '(if nil 'foo 'bar 'baz) 'baz)
 
 (uclisp-test '(progn
                (defun foo (a b)
